@@ -1,0 +1,182 @@
+# Rodada 1
+1. Quais funcionalidades devem obrigatoriamente compor a versão 1.0 para o leitor e para a administração? Há algo explicitamente fora de escopo?
+ R:
+   1. Inclusos Obrigatoriamente na V1:
+      1. Venda de E-books (fluxo principal).
+      2. Carrinho e Cupons de Desconto.
+      3. Gestão de Perfil do Cliente (cadastro e histórico de compras).
+      4. Gestão do Catálogo, e Painel Básico de Vendas (para a equipe administrativa).
+   2. Itens que Podem Ficar Fora (Postergados para a V2):
+      1. vendas de livros Fisicos
+         1. Rastreamento Básico de Pedidos (atualizações de status de entrega).
+         2. Gestão e alerta de Estoque
+      2. Estante Virtual com leitura status (lendo/lido): Na V1, manter apenas a Lista de Desejos (Wishlist) básica.
+      3. Sistema Avançado de Avaliações/Resenhas: Na V1, aceitar apenas notas simples (1 a 5 estrelas), deixando comentários em texto para a versão seguinte.
+      4. Relatórios Avançados/Exportáveis: Manter no painel apenas indicadores visuais essenciais na V1 (total vendido, itens mais vendidos e alerta de estoque).
+
+2. Quais papéis existirão além de leitor e administrador — por exemplo, gerente de catálogo, atendimento ou financeiro — e quais permissões cada um terá?
+R:
+	1. Cliente - acesso a catalgo e realização de compras
+	2. Administrator geral - acesso irrestrito, visualização de relatórios e gestão de usuarios
+	3. Gestão de catalogo - gerencia livros, cupons e preços
+Todo usuário devera ter email e senha. O sistema terá confirmação do email obrigatório e recuperação de senha
+
+3. O modelo comercial será somente compra avulsa de e-books, ou também haverá assinatura, pré-venda, livros gratuitos, bundles ou aluguel?
+R: Foco sera em compra de ebooks, porem terá livros gratuitos, budles e pre -venda. Aluguel e assinatura ficara para próximas versões.
+
+4. Após a compra, como o leitor poderá consumir o e-book: download de EPUB/PDF, leitura em navegador, ambos, ou outro formato? Há requisito de DRM/proteção contra compartilhamento?
+R:Formato de Entrega: Download direto de arquivo (PDF/ePub) liberado na área do cliente somente após a confirmação do pagamento. Para proteção devera ter marca d'agua semi-invisivel para validar ebook, e futurar proteções como DRM ficam para próxima versão
+
+5. Quais meios de pagamento são necessários no lançamento (Pix, cartão, boleto), qual gateway prefere usar — se já houver um — e será necessária emissão de nota fiscal?
+R:Pagamentos usaram os serviços Stripe
+
+6. O catálogo será cadastrado manualmente pelos administradores, importado de fornecedores/editoras, ou ambos? Haverá controle de licenças/estoque digital por título?
+R: Ambos, pode ser cadastrado manualmente ou importado via csv. Existira limite de licenças, porem somente caso nescessarios. Ou seja pode existir livros com limite de venda e livros ilimitados.
+
+7. Avaliações poderão ser feitas apenas por compradores verificados? Haverá moderação, denúncia ou resposta administrativa?
+R: Avaliações so podem ser feitas após compra. E poderá ser retirada por moderação e denuncia. Em caso usuário com comentários ofensivos serão bloqueados de novas avaliações comentadas.
+
+
+#Rodada 2
+
+Avaliações vão de 1 a 5 + comentário(não obrigatório para fazer avaliação).
+
+
+1. Para compras gratuitas, o usuário deverá passar pelo carrinho/checkout (valor R$ 0,00) ou poderá adicionar o livro diretamente à biblioteca? Exigirá conta confirmada?
+R: Devem passar pelo carrinho pelo valor de R$0,00 afins de manter registro, pulando somente a etapa de pagamento(exceto se ouver outro item pago no carrinho).
+
+2. Como deverá funcionar a pré-venda: cobrança no momento da compra ou na data de lançamento? O download fica bloqueado até uma data/hora definida pelo administrador? Haverá possibilidade de cancelamento/reembolso?
+R:No momento da compra, download fica bloquado até a data definida. Podera ser realizado cancelamento e reembolso 
+
+3. Sobre licenças limitadas: quando uma licença deve ser considerada consumida — na criação do pedido, na confirmação do pagamento ou somente após o download? O que acontece se o pagamento falhar ou expirar?
+R: na confirmação do pagamento, se falhar ou expirar deve acontecer o rollback e desfazer a compra.
+
+4. Quais regras de cupom são necessárias na V1: percentual e valor fixo, validade, quantidade máxima de usos, uso único por cliente, mínimo de compra, aplicação por título/categoria e acúmulo com promoções?
+R: Quantidade maxima de uso e validade. Outras regras somente na V2 em diante.
+
+5. O painel básico de vendas deve mostrar dados por qual período (hoje, semana, mês e/ou personalizado) e quais indicadores são indispensáveis além de faturamento, unidades vendidas, títulos mais vendidos e alerta de licença baixa?
+R: Por mes e personalizado. Apenas faturamento, unidades vendidas, títulos mais vendidos e alerta de licença baixa.
+
+6. Precisamos definir o cadastro de livros: quais campos obrigatórios devem existir (por exemplo, título, autor, sinopse, capa, categorias, ISBN, editora, idioma, preço, preço promocional, arquivos PDF/ePub, data de lançamento e limite de licenças)?
+R: Titulo, autor, editora, sinopse, capa, categoria, ISBN valida, idioma, preço, arquivos, data de lançamento,edição, limite de licença por unidade( podendo ser numerico ou ilimitado ), disponivel( se indispodivel fica oculto)
+
+
+# Rodada 3
+
+1. Quais dados devem ser obrigatórios no cadastro do cliente além de e-mail e senha? Por exemplo: nome completo, CPF, telefone, data de nascimento e endereço. Quais poderão ser alterados depois?
+R: CPF, telefone e data de nascimento. Pode ser alterado, email, telefone e nome.
+
+2. Quais métodos de pagamento da Stripe devem estar disponíveis na V1: cartão e Pix, apenas cartão, ou também boleto? O sistema deve aceitar pagamento em parcelas? 
+R: Foco em pix, o resto sera para proximas versões
+
+3. Qual será a regra de reembolso/cancelamento? O cliente poderá solicitar pela própria área, haverá prazo máximo e a aprovação será manual pelo administrador ou automática em algum caso?
+R: Regra para cancelamento, em prevenda pode ser cancelado no ate no maximo 1 semana antes da data de lancamento. Reembolso limitado a 2h apos download ou 2 semanas sem dowload apos compra. sera automatico se antender as regras, porem adm pode executar reembolso se nescessario. 
+
+4. Os cupons poderão oferecer desconto percentual, valor fixo ou ambos? Poderão ser aplicados a pedidos com livros gratuitos, pré-vendas e bundles?
+R: Ambos, podem ser aplicados apenas em livros pagos e bundles.
+
+5. Como um bundle deve funcionar: um produto próprio com preço e capa próprios que, após o pagamento, libera automaticamente cada e-book incluído na biblioteca do cliente? Um livro poderá fazer parte de vários bundles?
+R: Budle sera um conjunto de livros, tendo capa e preço proprio, porem liberado os livros automaticamente e separadamente na bliblioteca do cliente. Um livro podera estar em varios bundles. Porem não pode existir budles iguais(exatamente os mesmos livros) e com preço diferente. Todo budle deve ser composto por livros cadastrados no sistema.
+
+6. Para importação CSV, quem poderá importar, quais campos mínimos serão exigidos e como tratar linhas inválidas: rejeitar todo o arquivo ou importar as válidas e gerar um relatório de erros?
+R:Adm e gestor podem importar, com os mesmos atributos obrigatorios e validos que o cadastro manual. Se tiver uma linha invalida devera acontecer o rollback e não cadastrar nenhum livro. E mostras oque aconteceu de errado
+
+7. Para privacidade e operação no Brasil: você prevê aceite explícito de Termos de Uso e Política de Privacidade no cadastro? O cliente deverá poder solicitar exclusão da conta/dados, respeitando retenções legais de pedidos e pagamentos?
+R: Sim, não podera executar nenhuma compra (inclusive de gratuitos) se aceite de termo. Contas e dados podem ser solicitadas para exclusão, porem so seram de fato apagados apos cumprir o prazo minimo estabelecido por lei
+
+
+# Rodada 4
+
+1. Confirme os campos obrigatórios do perfil: nome completo também é obrigatório? O CPF poderá ser alterado ou ficará imutável após validação? Haverá verificação de maioridade/data de nascimento?
+R:Nome é sim obrigatório e pode ser alterado. CPF não pode ser alterado, e so será possível realiza compras se for maior de idade
+
+2. Quais status o pedido deve ter na V1? Proponho: aguardando pagamento, pago, cancelado, reembolsado, pré-venda aguardando lançamento, disponível para download e falha/expirado. Há algum status adicional ou regra diferente?
+R: aguardando pagamento, pago, cancelado, reembolsado, pré-venda aguardando lançamento, disponível para download e falha
+
+3. Quais notificações por e-mail são obrigatórias: confirmação de cadastro, confirmação de e-mail, recuperação de senha, pedido criado, pagamento aprovado/recusado, e-book liberado, pré-venda liberada, cancelamento/reembolso e alteração relevante de conta?
+R: Confirmação de cadastro/email, de compra, recuperação de senha, status pedido(cada mudança relevante deve ser enviado email), alteração de dados da conta, confirmação de exclusão de dados, alteração/correção de livros em biblioteca
+
+4. Sobre os arquivos: quais extensões serão aceitas para cada livro (PDF, EPUB ou ambas), haverá limite de tamanho, e o administrador poderá substituir uma versão já publicada? Caso possa, clientes que compraram antes devem receber o novo arquivo?
+R:Ambas, sem limite. Podera substituir versões já publicadas, para clientes que possuem o livro receberam um aviso da alteração e o novo arquivo
+
+5. A marca d’água semivisível deve conter quais dados — nome/e-mail/CPF do comprador, ID do pedido, data, ou combinação deles? Ela será aplicada aos PDFs, EPUBs ou ambos? Isso tem impacto relevante na arquitetura de entrega.
+R: nome, id cliente, id pedido e data. Aplicado a ambos
+
+6. Administração e segurança: você exige autenticação de dois fatores para administradores na V1? Quais ações precisam ficar em trilha de auditoria, por exemplo alterações de catálogo/preço/cupom, importações, reembolsos, moderação e mudanças de permissões?
+R: na v1 não, mas em próximas versões devera ter autenticação de 2 fatores para todos os usuários. Alteração de preço, catalogo, reembolso, moderação e compras
+
+
+# Rodada 5
+
+1. Como a busca e descoberta do catálogo deve funcionar na V1? Quais filtros são indispensáveis — título, autor, categoria, editora, idioma, faixa de preço, formato, lançamentos, mais vendidos, gratuitos, pré-venda e avaliação?
+R: Filtros como, titulo, autor, categoria, idioma, faixa de preço, mais vendidos, bem avaliados, data de lançamento.
+
+2. A wishlist terá apenas adicionar/remover e visualização, ou também aviso quando um livro entrar em promoção, estiver disponível após pré-venda ou mudar de preço?
+R:Tera tudo que citou.
+
+3. Como deverão funcionar os downloads: acesso ilimitado enquanto a conta existir, limite de quantidade, ou links temporários gerados a cada solicitação? O cliente poderá baixar PDF e EPUB quando ambos existirem?
+R:Ilimitado e pode baixar todos os formatos de livro disponível para aquele produto
+
+4. Quem pode bloquear/desbloquear contas e quais efeitos o bloqueio terá? Por exemplo, impedir login, compras, downloads, avaliações ou somente comentários. Gestor de catálogo pode moderar avaliações e ver pedidos, ou essas ações ficam exclusivas do administrador geral?
+R: Administradores poderam gerenciar contas. Impedido realizar compras, downloads, avaliações e comentários. Gestores também poderão gerenciar avaliações 
+
+5. A Stripe será integrada por webhooks para confirmação confiável de pagamentos. Você já tem uma conta Stripe configurada para o ambiente brasileiro ou isso deve constar como dependência de implantação? O sistema precisa lidar com notificações duplicadas/reprocessadas do gateway?
+R:Isso deve constar como dependência. Sim deve lidar
+
+6. Quais metas mínimas de qualidade são esperadas para a V1: navegadores/dispositivos suportados, nível de acessibilidade desejado (por exemplo, WCAG 2.1 AA), tempo de carregamento esperado e disponibilidade/backup?
+R:Devera ser responsivo, acessibilidade minina de Nível A, carregamento de no máximo 20 segundo. Deve ser disponível em todo brasil e ter backups semanais
+
+# Rodada 6
+
+1. O gestor de catálogo poderá apenas criar/editar/publicar livros, preços e cupons, importar CSV e moderar avaliações, ou também visualizar pedidos e os indicadores de vendas? Ele poderá executar reembolsos? Confirme os limites em relação ao administrador geral.
+R:O gestor de catálogo poderá apenas criar/editar/publicar livros, preços e cupons, importar CSV e moderar avaliações. Todo resto fica a cargo do adm geral.
+
+2. Para o alerta de licença baixa, qual limite deve dispará-lo: um valor global configurável, valor individual por livro, ou ambos? A venda deve parar automaticamente ao esgotar uma licença limitada?
+R: Ambos, se nenhum valor individual dor configurado deve ser usado um valor global. Ambos definidos pelo adm. Sim deve parar
+
+3. A aplicação deverá emitir nota fiscal/recibo fiscal de cada venda na V1? Se sim, há um provedor escolhido ou isso será uma integração futura? Esta decisão é importante para o fluxo pós-pagamento brasileiro.
+R: Na v1 não, mas em versões futuras sim. Motivo é que precisa ser estudado como isso será feito
+
+4. Quais são as regras de publicação do catálogo? Um livro pode ficar em rascunho, publicado e arquivado? Produtos publicados podem ser ocultados de novas compras sem remover o acesso de quem já os adquiriu?
+R: Sim pode ficar em rascunho, publicado e arquivado/inativado.Sim poderá ficar inativo para novas compras, mas nunca retirado da biblioteca de cliente que já adquiriu o produto
+
+5. Quando um cliente solicitar exclusão, a conta deve ser imediatamente desativada/anonimizada enquanto aguarda o prazo legal, ou permanecer ativa até a eliminação definitiva? Quem aprova ou acompanha essas solicitações?
+R: deve ser desativada até o prazo legal para exclusão definitiva. Se o usuário quiser retomar a conta ate esse prazo pode. Perto da exclusão e pos a exclusão o usuário devera receber email avisando, e o adm pode acompanhar 
+
+# Rodada 7
+
+1. Confirme a regra de disponibilidade após pagamento: para um e-book já lançado, o pedido muda diretamente para `disponível para download`; para pré-venda, fica em `pré-venda aguardando lançamento` e depois muda para `disponível para download` na data configurada. Está correto?
+R: Sim esta correto
+
+2. Para um pedido com vários itens, se parte deles for pré-venda e parte já estiver lançada, os itens lançados devem ser liberados imediatamente e os demais na data de cada pré-venda? O reembolso pode ser solicitado por item ou somente pelo pedido inteiro?
+R:Sim, reembolso por item.
+
+3. Se uma compra aprovada consumir a última licença de um livro, mas depois for reembolsada, a licença volta a ficar disponível? E se o título estiver inativo depois da compra, o reembolso continua possível conforme as mesmas regras?
+R:Volta a ficar disponível(exceto se estiver inativo) . Sim poderá realizar o reembolso, mas não ninguém pode comprar novamente ate ficar ativo novamente. Ou seja para pode comprar deve estar ativo e disponível.
+
+4. O administrador geral poderá criar outros administradores e gestores de catálogo, ou esses perfis serão configurados apenas por uma conta técnica inicial? É necessário impedir que um administrador remova/rebaixe a si mesmo ou o último administrador ativo?
+R:Sim um adm pode criar novas contas, porem o sistema deve sempre ter no mínimo um administrador geral. 
+
+5. Onde a aplicação será implantada e armazenará os arquivos/backup — há preferência por provedor (por exemplo, Vercel, AWS, Azure, Supabase) ou devemos deixar isso como decisão arquitetural com alternativas? Também são necessários ambientes separados de desenvolvimento, homologação e produção?
+R:Ainda não decidido
+
+6. Quais necessidades mínimas de operação devem entrar na V1: logs de erros, monitoramento de disponibilidade, alerta de falha nos backups, alerta de falha de webhook/pagamento e restauração testada de backup?
+R: Logs  de erros, monitoramento de disponibilidade e falhas em webhooks
+
+# Rodada 8
+
+
+1. O pagamento Pix em `aguardando pagamento` terá qual prazo de expiração? Após esse prazo, o pedido deve ser marcado como `falha` automaticamente. Itens com licença limitada devem permanecer disponíveis para outras compras enquanto o pagamento ainda aguarda?
+R: 24h, a licença devera ficar temporariamente indisponível ate o pagamento acontecer para evitar novas comprar além do limite.
+
+2. Um cliente pode comprar novamente um e-book ou bundle que já possui? Se não, como tratar um bundle que inclua livros já adquiridos: bloquear a compra, permitir pagando o preço integral ou calcular desconto proporcional?
+R: Não pode comprar o ebook novamente, porem pode comprar um bundle mesmo que já possue algum livro. Nesses casos calcula um desconto proporcional com base no valor do livro. Se todos os livros do bundle ja tiverem sidos comprados ai não pdoe ser adquirido 
+
+3. O que é considerado “download” para a regra de reembolso de 2 horas: a geração do link, o início da transferência ou a conclusão do download? O sistema deve registrar cada evento de download por item/formato?
+R: Quando o usuario clicar no link de download gerado. Sim, deve para controle de dowloads
+
+4. Após remoção por moderação, o comentário deverá desaparecer publicamente, mas permanecer em registro de auditoria? Denúncias podem ser feitas por qualquer usuário autenticado ou apenas por compradores do livro avaliado?
+O comentario ficara oculto, visivel apenas para gerentes e adms. Denuncia pode ser feito por qualquer usuario autenticado.
+
+5. Há preferência tecnológica ou restrição de equipe para frontend, backend, banco de dados e hospedagem? Caso não haja, registrarei como **PREMISSA** uma arquitetura web modular com serviços gerenciados e documentarei as alternativas em ADRs.
+R: Deve ser Arquitetura em camadas, mas ainda não tenho tecnologias de preferencia
