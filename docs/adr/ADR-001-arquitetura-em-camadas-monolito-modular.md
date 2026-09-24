@@ -1,35 +1,25 @@
-# ADR-001 — Arquitetura em camadas com monólito modular
+# ADR-001 — Monólito modular em camadas
 
 ## Status
 
 ACCEPTED
 
-## Contexto
+## Contexto e problema
 
-A V1 parte sem tecnologia definida e precisa concentrar catálogo, comércio, biblioteca e administração com baixa complexidade operacional.
-
-## Problema
-
-Separar responsabilidades sem criar a sobrecarga de microserviços antes de haver necessidade comprovada.
+A V1 precisa de transações consistentes de comércio e implantação local simulada, sem complexidade operacional prematura.
 
 ## Alternativas consideradas
 
-1. Monólito em camadas e módulos de domínio.
-2. Microserviços por domínio.
-3. Backend monolítico sem fronteiras explícitas.
+Microserviços; monólito sem módulos; monólito modular em camadas.
 
 ## Decisão
 
-Adotar monólito modular em camadas: apresentação, aplicação, domínio e infraestrutura. Integrações e jobs passam por portas/adaptadores.
+Adotar monólito modular com camadas de interface, aplicação, domínio e infraestrutura. Módulos não acessam persistência de outro módulo sem contrato de aplicação.
 
-## Justificativa
+## Justificativa e consequências
 
-Reduz custo operacional e permite transações consistentes para pagamentos/licenças, preservando extração futura de módulos.
+Simplifica desenvolvimento e transações de estoque/pedido, mantendo fronteiras extraíveis. Exige disciplina de dependências e testes por módulo.
 
-## Consequências
+## Relacionados
 
-Módulos não podem depender diretamente de detalhes de infraestrutura; eventos e filas são usados para operações demoradas. A linguagem/framework seguem pendentes.
-
-## RF/RN/RNF/UC relacionados
-
-RF-001–015, RNF-004–008, UC-001–008.
+RF-001–023; RNF-009,012.

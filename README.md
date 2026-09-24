@@ -1,219 +1,254 @@
 # Lumina Livros
 
-**Versão planejada:** 1.0  
-
+**Versão:** 1.0
 **Status:** PLANEJAMENTO APROVADO
 
-**Chat:** [Planejar plataforma Lumina Livros](https://chatgpt.com/s/cx_6ab04bd630508191b9eca4bb76bda9cd)
+## 1. Identificação e visão
 
-## Visão
+Lumina Livros é uma aplicação web brasileira, responsiva, para descoberta e comercialização de livros físicos e e-books. Ela resolve a fragmentação entre catálogo, compra, entrega digital, estoque físico e operação administrativa.
 
-Lumina Livros é uma aplicação web responsiva de comércio de e-books para o mercado brasileiro. Ela centraliza descoberta, aquisição e entrega segura de obras digitais ao leitor e oferece à equipe administrativa a operação do catálogo, preços, cupons, vendas, clientes e moderação.
+O sistema oferece ao cliente busca, compra, lista de desejos, biblioteca digital, pedidos e avaliações; e à equipe interna catálogo, preços, cupons, estoque, logística, clientes e indicadores essenciais. O pagamento é deliberadamente fictício na V1: ao finalizar, o pedido pago é confirmado sem gateway externo.
 
-O problema tratado é a ausência de uma experiência integrada para encontrar títulos, organizar desejos, comprar e receber e-books, somada à falta de gestão centralizada de catálogo e vendas. A V1 prioriza o fluxo confiável de venda digital com Pix, pré-vendas e conteúdo já adquirido preservado na biblioteca.
+## 2. Escopo da V1
 
-## Escopo da V1
+- Cadastro, confirmação de e-mail, autenticação, recuperação de senha e perfil de cliente.
+- Catálogo de obras com versões físicas/digitais, múltiplas categorias, busca e filtros.
+- Carrinho, checkout, cupom global, frete simulado, pedido de valor zero e pagamento fictício.
+- E-books individuais, gratuitos, bundles e pré-vendas; biblioteca, links temporários e marca d’água.
+- Pedidos físicos, estoque, rastreio manual e estados de entrega.
+- Wishlist, avaliações de compradores, denúncia e moderação administrativa.
+- Painéis e indicadores essenciais para Administração Geral, Gestão de Catálogo e Estoquista.
+- Notificações locais simuladas, auditoria de ações sensíveis e solicitação de exclusão de conta.
 
-- Contas de cliente com confirmação de e-mail, recuperação de senha, maioridade, CPF único e aceite de termos.
-- Catálogo de e-books, busca e filtros por título, autor, categoria, idioma, faixa de preço, mais vendidos, bem avaliados e lançamento.
-- Produtos gratuitos, e-books pagos, pré-vendas e bundles.
-- Carrinho, cupom, Pix via Stripe, pedidos e confirmação idempotente por webhook.
-- Biblioteca, downloads ilimitados de PDF/EPUB adquiridos e marca d'água por comprador.
-- Wishlist e alertas de promoção, mudança de preço e disponibilidade de pré-venda.
-- Avaliações de 1 a 5, comentário opcional, denúncia e moderação.
-- Painel: catálogo, importação CSV transacional, preços, cupons, avaliações, clientes, pedidos, reembolsos e indicadores mensais/personalizados.
-- Auditoria de preço, catálogo, compras, reembolsos e moderação; logs de erro, monitoramento e alertas de falha de webhook; backups semanais.
+## 3. Fora de escopo
 
-## Fora de escopo
+- Gateway de pagamento, emissão fiscal, antifraude e integração bancária.
+- Transportadoras, cálculo real de frete e rastreamento externo.
+- Leitor interno, DRM, aluguel, assinatura e alertas da wishlist.
+- 2FA, exportação/portabilidade de dados, relatórios exportáveis/avançados e infraestrutura produtiva.
+- Parecer ou certificação de conformidade legal; haverá preparação técnica para evolução e validação especializada.
 
-- Livros físicos, entrega, rastreio e estoque físico.
-- Assinaturas, aluguel, DRM completo, leitura no navegador e status de leitura.
-- Cartão, boleto, parcelamento e emissão fiscal.
-- Relatórios exportáveis/avançados e 2FA.
+## 4. Stakeholders e atores
 
-## Stakeholders e atores
-
-| Ator | Objetivo e permissões |
+| Ator | Responsabilidade e permissões principais |
 |---|---|
-| Cliente | Descobrir obras, manter wishlist, comprar, baixar, avaliar, denunciar e gerir sua conta. |
-| Gestor de catálogo | Criar, editar, publicar/inativar catálogo, preços e cupons; importar CSV e moderar avaliações. |
-| Administrador geral | Todas as permissões do gestor, indicadores, pedidos, reembolsos, clientes, contas administrativas e acompanhamento de exclusão. Deve sempre existir ao menos um ativo. |
-| Stripe | Cria e confirma pagamentos Pix via webhook. |
-| Serviço de e-mail | Entrega mensagens transacionais e alertas ao cliente. |
+| Visitante | Consultar catálogo e avaliações; criar conta ou autenticar-se. |
+| Cliente | Comprar, usar cupom, manter wishlist, baixar e-books elegíveis, avaliar compras, consultar pedidos e solicitar exclusão. |
+| Gestão de Catálogo | Gerir obras, versões, arquivos, preços, licenças, bundles, pré-vendas, cupons e visibilidade. |
+| Estoquista | Gerir estoque físico, separação/envio/rastreio e relatórios de vendas físicas. |
+| Administrador Geral | Acesso irrestrito, gestão de usuários, relatórios globais, moderação, reembolsos e acompanhamento de exclusões. |
 
-## Requisitos funcionais
+Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para ações autenticadas relevantes. Ações sensíveis exigem motivo e geram auditoria sem gravar valores pessoais em claro no log.
 
-| ID | Requisito | Prioridade | Critérios de aceitação resumidos |
-|---|---|---|---|
-| RF-001 | Cadastro e acesso | MUST | Exige nome, CPF único/imutável, telefone, nascimento, e-mail e senha; confirmação de e-mail, recuperação de senha e alteração permitida de nome, telefone e e-mail. |
-| RF-002 | Elegibilidade de compra | MUST | Somente conta confirmada, maior de 18 anos, ativa e com termos aceitos compra, inclusive item gratuito. |
-| RF-003 | Catálogo e descoberta | MUST | Exibe produtos publicados/ativos e permite filtros especificados e paginação. |
-| RF-004 | Wishlist e alertas | SHOULD | Cliente adiciona/remove itens e recebe alertas de promoção, preço e disponibilidade. |
-| RF-005 | Carrinho, cupom e pedido | MUST | Carrinho aceita itens pagos/gratuitos; cupom percentual ou fixo aplica-se apenas a itens pagos/bundles, com validade e limite de uso. |
-| RF-006 | Pagamento Pix | MUST | Cria Pix Stripe; reserva licença por 24h; webhook validado/idempotente muda pagamento e dispara comunicações. |
-| RF-007 | Pré-venda e licença | MUST | Cobrança é imediata; pré-venda libera na data definida; licença é consumida na confirmação, impede venda quando esgotada e retorna em reembolso se ativo. |
-| RF-008 | Biblioteca e download | MUST | Libera por item; permite todos os formatos disponíveis, downloads ilimitados e registra o clique de geração do link. |
-| RF-009 | Personalização de arquivo | MUST | PDF e EPUB entregues carregam nome, IDs de cliente/pedido e data como marca d'água semivisível. |
-| RF-010 | Bundles | MUST | Bundle possui preço/capa próprios, itens cadastrados, não pode duplicar conjunto exato e libera livros separadamente; desconto proporcional a itens já possuídos. |
-| RF-011 | Avaliações e moderação | SHOULD | Só comprador avalia 1–5 com comentário opcional; autenticado denuncia; gestor/admin oculta e consulta conteúdo moderado. |
-| RF-012 | Administração de catálogo | MUST | Gestor/admin cadastra, importa CSV atomicamente, edita, publica, inativa livros, preços e cupons. |
-| RF-013 | Administração operacional | MUST | Admin gere contas, bloqueios, pedidos, reembolsos por item, indicadores e exclusões. |
-| RF-014 | Notificações | MUST | Envia e-mails de conta, compra/status, recuperação, alteração de conta, atualização de livro e exclusão. |
-| RF-015 | Privacidade e exclusão | MUST | Solicitação desativa conta; permite reativação até prazo legal; notifica antes/depois da exclusão e permite acompanhamento administrativo. |
+## 5. Requisitos funcionais
 
-## Requisitos não funcionais
+| ID | Requisito e aceitação resumida | Prioridade | Atores | RN / UC |
+|---|---|---|---|---|
+| RF-001 | Cadastrar, confirmar e-mail, autenticar e recuperar senha. Tokens expiram e não revelam existência de conta. | MUST | Cliente, equipe | RN-001; UC-001 |
+| RF-002 | Manter perfil, histórico de compras e solicitação de exclusão. Solicitação desativa a conta e notifica cliente/admin. | MUST | Cliente, Admin | RN-016; UC-002 |
+| RF-003 | Consultar catálogo e pesquisar por título ou autor; filtrar categoria, idioma, preço, mais vendidos, bem avaliados e lançamento. | MUST | Visitante, Cliente | RN-002; UC-003 |
+| RF-004 | Exibir uma obra com metadados e versões físicas/digitais selecionáveis, cada uma com preço e disponibilidade próprios. | MUST | Visitante, Cliente | RN-003; UC-004 |
+| RF-005 | Gestão de Catálogo cria/edita obras, múltiplas categorias, versões, capas, metadados, preço e visibilidade. ISBN deve ser válido. | MUST | Catálogo, Admin | RN-004; UC-005 |
+| RF-006 | Gerir arquivos originais PDF/ePub e suas versões; publicação corrigida mantém histórico e atualiza biblioteca de adquirentes. | MUST | Catálogo, Admin | RN-005; UC-006 |
+| RF-007 | Gerir disponibilidade: estoque físico numérico e licença digital numérica ou ilimitada. | MUST | Catálogo, Estoquista, Admin | RN-006; UC-007 |
+| RF-008 | Adicionar/remover obras na wishlist pessoal. | SHOULD | Cliente | UC-008 |
+| RF-009 | Manter carrinho com quantidades físicas; impedir recompra direta de e-book já possuído. | MUST | Cliente | RN-007; UC-009 |
+| RF-010 | Aplicar no máximo um cupom global por pedido; validar tipo fixo/percentual, validade e cota de uso. | MUST | Cliente, Catálogo | RN-008; UC-010 |
+| RF-011 | Calcular frete simulado por faixa de CEP e quantidade física, configurável pelo Admin, sem frete grátis. | MUST | Cliente, Admin | RN-009; UC-011 |
+| RF-012 | Finalizar pedido híbrido, validar estoque/licenças atomicamente, confirmar pagamento fictício e registrar aquisição gratuita por R$ 0,00. | MUST | Cliente | RN-006, RN-010; UC-012 |
+| RF-013 | Entregar e-books pagos/gratuitos na biblioteca; pré-venda só libera na data de lançamento. | MUST | Cliente | RN-011; UC-013 |
+| RF-014 | Gerar download temporário autenticado, personalizado com nome, e-mail e ID de compra, sem expor o original. | MUST | Cliente | RN-005, RN-012; UC-014 |
+| RF-015 | Criar bundles somente com livros existentes; impedir composição idêntica duplicada; liberar itens separadamente e ajustar preço por posse prévia. | MUST | Catálogo, Cliente | RN-013; UC-015 |
+| RF-016 | Vender pré-vendas físicas e digitais e liberar/permitir expedição somente no lançamento. | MUST | Cliente, equipe | RN-014; UC-016 |
+| RF-017 | Gerir pedido físico em `pago → em separação → enviado → entregue`, com rastreio manual. | MUST | Estoquista, Admin | RN-015; UC-017 |
+| RF-018 | Cancelar/reembolsar conforme regras; automação válida para digital e decisão administrativa para físico. | MUST | Cliente, Admin | RN-016; UC-018 |
+| RF-019 | Avaliar obra adquirida com 1–5 estrelas e comentário; publicar imediatamente; permitir denúncia e remoção administrativa. | SHOULD | Cliente, Admin | RN-017; UC-019 |
+| RF-020 | Emitir e-mails simulados para confirmação, recuperação, compra, mudanças relevantes de pedido/conta, exclusão e correção de arquivo. | MUST | Sistema | RN-018; UC-020 |
+| RF-021 | Exibir painéis: global, catálogo e físico, respeitando perfil. | MUST | Equipe | RN-019; UC-021 |
+| RF-022 | Registrar auditoria de ações administrativas e sensíveis, incluindo ator, ação, alvo, data e motivo quando exigido. | MUST | Sistema, Admin | RN-020; UC-022 |
+| RF-023 | Permitir gestão de usuários pelo Admin e acesso de cada papel apenas às ações autorizadas. | MUST | Admin | RN-021; UC-023 |
 
-| ID | Requisito verificável |
+## 6. Requisitos não funcionais
+
+| ID | Critério verificável |
 |---|---|
-| RNF-001 | Interface responsiva nos navegadores modernos de desktop e mobile; suporte exato será definido antes de produção. |
-| RNF-002 | Fluxos críticos atendem WCAG 2.1 nível A, incluindo teclado, foco, rótulos e contraste aplicável. |
-| RNF-003 | Páginas e operações usuais devem concluir em até 20 s sob carga normal; metas mais rigorosas são decisão posterior. |
-| RNF-004 | Senhas são armazenadas com hash forte; dados em trânsito usam TLS; segredos ficam fora do repositório. |
-| RNF-005 | Webhooks Stripe têm assinatura validada, persistência idempotente e rastreabilidade de reprocessamento. |
-| RNF-006 | Backups são semanais; procedimento e teste de restauração são pendências de infraestrutura. |
-| RNF-007 | Logs estruturados de erro, monitoramento de disponibilidade e alertas de falha de webhook são obrigatórios. |
-| RNF-008 | Acesso a dados pessoais, downloads e ações administrativas segue menor privilégio e registra auditoria aplicável. |
+| RNF-001 | Senhas com hash adaptativo; segredos fora do código; TLS obrigatório em produção. |
+| RNF-002 | Autorização por papel e menor privilégio; testes cobrem acesso negado por papel. |
+| RNF-003 | Dados pessoais minimizados, criptografados quando aplicável e não registrados em logs de auditoria. |
+| RNF-004 | Páginas principais carregam em até 20 s em condições de referência a definir em PD-001. |
+| RNF-005 | Interface responsiva em mobile/tablet/desktop e nas duas versões mais recentes de Chrome, Edge, Firefox e Safari. |
+| RNF-006 | Meta WCAG 2.1 nível A: teclado, contraste, rótulos, mensagens de erro e texto alternativo. |
+| RNF-007 | Backups diários criptografados; restauração testada periodicamente; indisponibilidade planejada inferior a 4 h/mês. |
+| RNF-008 | Auditoria e monitoramento de erros sem conteúdo de credenciais, arquivos ou PII. |
+| RNF-009 | Operações de checkout preservam consistência de estoque, licença, cupom e pedido sob concorrência. |
+| RNF-010 | Originais e downloads não podem ser públicos; links são temporários e autenticados. |
+| RNF-011 | APIs usam validação de entrada, respostas de erro consistentes, paginação e proteção contra abuso. |
+| RNF-012 | Módulos em camadas, contratos testáveis e cobertura de testes proporcional a risco. |
 
-## Regras de negócio
+## 7. Regras de negócio
 
 | ID | Regra |
 |---|---|
-| RN-001 | CPF é único, obrigatório e não pode ser alterado; compra requer maioridade, conta confirmada, ativa e termos aceitos. |
-| RN-002 | Pix pendente expira em 24h. A reserva temporária evita exceder licença, mas só a confirmação consome licença. |
-| RN-003 | Produto ativo e disponível é pré-requisito de compra. Produto inativado permanece acessível a compradores anteriores. |
-| RN-004 | Reembolso por item: pré-venda até uma semana antes do lançamento; item baixado até duas horas após primeiro clique; item não baixado até duas semanas da compra. Admin pode excepcionar. |
-| RN-005 | E-book individual não pode ser recomprado. Bundle pode conter itens possuídos com desconto proporcional; é bloqueado se todos os itens já pertencem ao cliente. |
-| RN-006 | Um bundle só contém livros cadastrados; não há dois bundles com exatamente o mesmo conjunto de livros e preços distintos. |
-| RN-007 | Importação CSV é tudo-ou-nada: qualquer linha inválida desfaz todo o lote e apresenta erros. |
-| RN-008 | Comentário moderado fica oculto publicamente e visível a gestor/admin. Usuário ofensivo pode perder apenas a capacidade de comentar. |
-| RN-009 | Deve existir ao menos um administrador geral ativo. Conta bloqueada não compra, baixa, avalia ou comenta. |
+| RN-001 | E-mail confirmado é obrigatório para comprar, baixar, avaliar e operar perfis internos. |
+| RN-002 | Obras possuem título, autor, editora, sinopse, capa, categorias, ISBN válido, idioma, lançamento e edição; uma obra pode ter várias categorias. |
+| RN-003 | Uma obra pode ter versões física/digital com preço, ISBN, estoque/licença e disponibilidade independentes. Ocultar não remove acesso de quem já adquiriu. |
+| RN-004 | Estoque/licença é validado e consumido somente no checkout confirmado; falta no instante impede pedido. |
+| RN-005 | E-book não é recomprável diretamente; bundles podem conter item já possuído, mas não são compráveis se todos já forem possuídos. |
+| RN-006 | Bundle é formado apenas por obras existentes e não pode repetir composição idêntica com preço diferente. |
+| RN-007 | Preço de bundle = preço próprio − soma dos preços individuais vigentes dos e-books já possuídos, limitado a zero; cupom incide após esse ajuste. |
+| RN-008 | Cupom global é fixo ou percentual, tem validade e máximo de usos, não possui mínimo/máximo de compra e há somente um por pedido. |
+| RN-009 | Frete aplica-se apenas a itens físicos, por faixa de CEP e quantidade; não há frete grátis. |
+| RN-010 | Checkout de físico exige nome, CPF válido, telefone e endereço brasileiro completo. Pedido híbrido é único; digital é liberado de forma independente. |
+| RN-011 | Pedido de R$ 0,00 passa pelo carrinho e é confirmado sem pagamento; carrinho com item pago usa confirmação fictícia. |
+| RN-012 | Pré-venda é cobrada/confirmada na compra; download e expedição física só ocorrem no lançamento. |
+| RN-013 | Pré-venda pode ser cancelada até uma semana antes do lançamento. |
+| RN-014 | E-book é reembolsável automaticamente até 2 h após gerar o link ou até 2 semanas da compra sem download; Admin pode reembolsar excepcionalmente. |
+| RN-015 | Físico só pode ser cancelado antes de enviado; reembolso físico é decidido pelo Admin. |
+| RN-016 | Avaliação exige aquisição da obra; qualquer usuário pode denunciar; Admin pode removê-la com motivo/auditoria. |
+| RN-017 | Ações sensíveis devem ser auditadas sem copiar dados pessoais explícitos. |
 
-## Casos de uso
+## 8. Casos de uso
 
-| ID | Caso | Ator | Fluxo principal |
-|---|---|---|---|
-| UC-001 | Registrar e confirmar conta | Cliente | Cadastra, aceita termos e confirma e-mail. |
-| UC-002 | Buscar catálogo | Cliente | Filtra, consulta detalhe e adiciona à wishlist/carrinho. |
-| UC-003 | Comprar itens | Cliente | Cria pedido, aplica cupom, recebe Pix e aguarda webhook. |
-| UC-004 | Liberar e baixar obra | Sistema/Cliente | Confirma pagamento; libera item conforme lançamento; gera entrega marcada e registra download. |
-| UC-005 | Solicitar reembolso | Cliente/Admin | Valida regra por item e inicia reembolso Stripe, com retorno de licença aplicável. |
-| UC-006 | Administrar catálogo | Gestor/Admin | Mantém produto/bundle/cupom, publica/inativa ou importa CSV. |
-| UC-007 | Moderar avaliação | Gestor/Admin | Consulta denúncia, oculta/restaura conteúdo e audita decisão. |
-| UC-008 | Excluir conta | Cliente/Admin | Solicita, desativa, acompanha, reativa no prazo ou elimina/anonimiza conforme política legal. |
+| UC | Objetivo, fluxo principal e exceções | RF |
+|---|---|---|
+| UC-001 | Criar/confirmar conta ou recuperar acesso; token inválido/expirado não confirma. | RF-001 |
+| UC-003 | Pesquisar e filtrar catálogo; filtros sem resultado preservam critérios e informam vazio. | RF-003–004 |
+| UC-005 | Cadastrar obra e versões; metadado/ISBN/arquivo inválido impede publicação. | RF-005–007 |
+| UC-009 | Montar carrinho; e-book já possuído e quantidade indisponível são recusados. | RF-009 |
+| UC-012 | Finalizar pedido; valida cupom, endereço, frete e estoque/licença em transação; falha não cria pedido. | RF-010–012 |
+| UC-014 | Solicitar download; valida aquisição e lançamento, gera cópia personalizada e link temporário. | RF-013–014 |
+| UC-015 | Comprar bundle; calcula posse prévia e bloqueia bundle integralmente possuído. | RF-015 |
+| UC-017 | Atualizar expedição física; transições inválidas e pré-venda anterior ao lançamento são recusadas. | RF-017 |
+| UC-018 | Solicitar/realizar cancelamento ou reembolso; regras de janela definem automático, análise ou recusa. | RF-018 |
+| UC-019 | Avaliar/denunciar/moderar; somente comprador avalia e moderação é auditada. | RF-019, RF-022 |
+| UC-021 | Consultar painel conforme papel; métricas não autorizadas são negadas. | RF-021, RF-023 |
 
-## Modelo de domínio
+## 9. Modelo conceitual do domínio
+
+```mermaid
+classDiagram
+  User <|-- Customer
+  User --> Role
+  Work "1" --> "*" Edition
+  Work "*" --> "*" Category
+  Edition --> DigitalAsset
+  Bundle "*" --> "*" Work
+  Customer --> Order
+  Order "1" --> "*" OrderItem
+  OrderItem --> Edition
+  Customer --> LibraryItem
+  LibraryItem --> Edition
+  Order --> Coupon
+  Customer --> Review
+  Work --> Review
+  Edition --> Inventory
+```
+
+Agregados: **Obra** (metadados e edições), **Pedido** (itens, totais, cupom e transições), **Bundle** (composição única), e **Biblioteca** (direitos de acesso). Valores monetários usam decimal/moeda BRL; endereço é valor imutável armazenado no pedido.
+
+## 10. Modelo inicial de dados
+
+Entidades principais: `users`, `roles`, `user_roles`, `email_tokens`, `password_reset_tokens`, `account_deletion_requests`, `works`, `authors`, `publishers`, `categories`, `work_categories`, `editions`, `digital_assets`, `digital_asset_versions`, `inventory_movements`, `bundles`, `bundle_items`, `coupons`, `coupon_redemptions`, `carts`, `cart_items`, `shipping_rules`, `orders`, `order_items`, `shipping_addresses`, `library_items`, `download_events`, `reviews`, `review_reports`, `notifications`, `audit_logs`.
+
+Índices relevantes: e-mail normalizado único; ISBN por edição; busca por título/autor; estado/data de pedido; disponibilidade; cupom/cota; chave canônica de composição de bundle; unicidade de biblioteca por cliente/edição. Todas as entidades mutáveis recebem identificador, criação, atualização e autoria quando aplicável.
 
 ```mermaid
 erDiagram
-  USER ||--o{ ORDER : places
-  USER ||--o{ WISHLIST_ITEM : saves
-  USER ||--o{ REVIEW : writes
-  ORDER ||--|{ ORDER_ITEM : contains
-  ORDER_ITEM }o--|| PRODUCT : purchases
-  PRODUCT ||--o{ PRODUCT_FILE : has
-  PRODUCT ||--o{ REVIEW : receives
-  BUNDLE ||--|{ BUNDLE_ITEM : contains
-  PRODUCT ||--o{ BUNDLE_ITEM : belongs_to
-  ORDER_ITEM ||--o{ DOWNLOAD_EVENT : records
-  COUPON ||--o{ ORDER : discounts
+  USERS ||--o{ ORDERS : places
+  ORDERS ||--|{ ORDER_ITEMS : contains
+  WORKS ||--|{ EDITIONS : has
+  EDITIONS ||--o{ ORDER_ITEMS : purchased_as
+  USERS ||--o{ LIBRARY_ITEMS : owns
+  EDITIONS ||--o{ LIBRARY_ITEMS : grants
+  BUNDLES ||--|{ BUNDLE_ITEMS : contains
+  WORKS ||--o{ BUNDLE_ITEMS : composes
+  WORKS }o--o{ CATEGORIES : classified_as
+  USERS ||--o{ REVIEWS : writes
+  WORKS ||--o{ REVIEWS : receives
 ```
 
-Entidades principais: `User`, `Role`, `Product` (livro), `ProductFile`, `Bundle`, `BundleItem`, `Order`, `OrderItem`, `Payment`, `LicenseReservation`, `Coupon`, `WishlistItem`, `Review`, `Report`, `Refund`, `DownloadEvent`, `DeletionRequest` e `AuditLog`. Valores relevantes: dinheiro em BRL, CPF, estado de pedido/produto e janela de reembolso.
+## 11. Arquitetura proposta
 
-## Modelo inicial de dados
-
-| Agregado/tabela | Campos e restrições relevantes |
-|---|---|
-| users | id, nome, email único, cpf único, telefone, nascimento, status, e-mail confirmado, termos aceitos, auditoria. |
-| products | id, título, autor, editora, sinopse, capa, categoria, ISBN válido, idioma, preço, lançamento, edição, status, limite de licença e alerta individual opcional. |
-| product_files | produto, formato PDF/EPUB, objeto de armazenamento, versão, ativo. |
-| bundles/bundle_items | preço/capa/status; itens únicos; assinatura ordenada do conjunto para impedir duplicidade equivalente. |
-| orders/order_items | cliente, valores, estado, produto/bundle, preço capturado, disponibilidade e relações de pagamento/reembolso. |
-| payments/webhook_events | referência Stripe única, estado, payload mínimo/redigido, processamento idempotente. |
-| license_reservations | produto, pedido/item, expiração, estado; índice por produto/estado. |
-| reviews/reports | nota, comentário, estado de moderação, denúncia e sanção de comentário. |
-| audit_logs | ator, ação, alvo, antes/depois minimizados, data e correlação. |
-
-## Arquitetura proposta
-
-Arquitetura web em camadas, modular por domínio: apresentação web/API, aplicação (casos de uso e transações), domínio (regras/invariantes) e infraestrutura (persistência, Stripe, e-mail, armazenamento, fila). O monólito modular é a escolha inicial para reduzir complexidade operacional, preservando portas para integrações externas e processamento assíncrono de e-mail, marca d'água, alertas e liberação de pré-venda.
+Arquitetura em camadas, monólito modular: interface web, API de aplicação, domínio e infraestrutura. Módulos: identidade, catálogo, comércio, biblioteca, logística, avaliações, notificações, relatórios e auditoria. Inicialmente, tarefas de e-mail e personalização de arquivo podem ser processadas localmente com estado observável; o contrato deve permitir fila/objeto privado posterior.
 
 ```mermaid
 flowchart LR
-  C[Cliente/Admin] --> W[Web responsiva]
-  W --> A[API: apresentação]
-  A --> U[Aplicação e domínio]
-  U --> D[(Banco relacional)]
-  U --> S[Armazenamento privado]
-  U <--> P[Stripe Pix/Webhooks]
-  U --> Q[Fila de trabalhos]
-  Q --> M[Marca d'água, e-mail, alertas]
-  U --> O[Logs e monitoramento]
+  Web[Web responsiva] --> API[API / Aplicação]
+  API --> Domain[Domínio modular]
+  Domain --> DB[(PostgreSQL)]
+  Domain --> Files[Armazenamento local privado]
+  Domain --> Jobs[Jobs locais]
+  Jobs --> Mail[Caixa de saída simulada]
+  Jobs --> Watermark[Personalização PDF/ePub]
+  Domain --> Audit[Auditoria e observabilidade]
 ```
 
-Detalhes em [arquitetura](/C:/Users/felip/Desktop/Lumina/docs/architecture/overview.md) e [diagramas](/C:/Users/felip/Desktop/Lumina/docs/diagrams/README.md).
+Erros de validação retornam problema padronizado; falhas de negócio não expõem detalhes internos. Checkout usa transação e bloqueio/concorrência apropriado para evitar sobre-venda.
 
-## APIs planejadas
+## 12. APIs planejadas
 
-| Método/rota | Finalidade | Autorização | Relacionados |
-|---|---|---|---|
-| POST /auth/register, /auth/verify-email, /auth/recover | Conta e credenciais | Público/usuário | RF-001 |
-| GET /catalog/products; GET /catalog/products/{id} | Busca e detalhe | Público | RF-003 |
-| POST /cart/items; POST /checkout | Carrinho, cupom e pedido | Cliente elegível | RF-005–007 |
-| POST /webhooks/stripe | Processa evento assinado | Stripe | RF-006, RNF-005 |
-| GET /library; POST /library/items/{id}/download | Biblioteca e entrega | Proprietário ativo | RF-008–009 |
-| POST /reviews; POST /reviews/{id}/reports | Avaliar e denunciar | Cliente autenticado | RF-011 |
-| /admin/products, /admin/bundles, /admin/coupons, /admin/imports | Catálogo | Gestor/Admin | RF-012 |
-| /admin/orders, /admin/refunds, /admin/users, /admin/metrics | Operação | Admin | RF-013 |
-
-## Tecnologias sugeridas
-
-As tecnologias exatas estão deliberadamente pendentes. A recomendação inicial é aplicação TypeScript full-stack, banco relacional gerenciado, armazenamento privado de objetos com URLs temporárias, fila gerenciada e provedor transacional de e-mail. As alternativas e a decisão final serão documentadas nos ADRs antes da implementação. Não há escolha silenciosa de provedor de hospedagem.
-
-## Segurança e privacidade
-
-Autenticação baseada em e-mail/senha confirmada, autorização por papel e ownership, proteção CSRF conforme mecanismo de sessão, rate limiting para autenticação/download/webhook, validação de entrada, verificação de assinatura Stripe, links temporários, logs sem segredos e auditoria. Dados de pagamento não serão armazenados localmente. Solicitações de exclusão devem observar LGPD e obrigação de retenção; prazo e método legal são PD-003.
-
-## Estratégia de testes
-
-Testes unitários cobrirão regras de preço, cupom, licença, bundle e reembolso. Integração cobrirá transações, CSV e persistência. API cobrirá autorização e validação. E2E cobrirá cadastro, Pix simulado, biblioteca e administração. Testes de segurança cobrirão RBAC, webhook, ownership e entrada. Acessibilidade automatizada/manual cobre fluxos críticos. Cada TASK define os testes associados.
-
-## Riscos
-
-| Risco | Probabilidade/impacto | Mitigação |
+| Método e rota | Finalidade / autorizado | RF |
 |---|---|---|
-| Regras fiscais/LGPD indefinidas | Média/Alta | Validar com jurídico/contábil antes de produção. |
-| Marca d'água EPUB complexa | Média/Alta | Prova técnica e fila idempotente antes de entrega. |
-| Corrida por licença/Pix | Média/Alta | Transação, reserva expirável e webhook idempotente. |
-| Dependência Stripe e e-mail | Média/Média | Ambientes de teste, retries e alertas. |
-| Infraestrutura indefinida | Alta/Média | ADR e decisão antes da fase de implantação. |
+| `POST /auth/register`, `/verify-email`, `/login`, `/password-reset/*` | Identidade pública autenticada | RF-001 |
+| `GET /works`, `GET /works/{slug}` | Catálogo e filtros públicos | RF-003–004 |
+| `POST/PUT /admin/works`, `/editions`, `/assets`, `/bundles`, `/coupons` | Gestão de catálogo/Admin | RF-005–007,015 |
+| `GET/POST/DELETE /wishlist` | Wishlist do cliente | RF-008 |
+| `GET/POST/PATCH /cart` | Carrinho do cliente | RF-009–011 |
+| `POST /checkout`, `GET /orders/{id}` | Pedido e confirmação fictícia | RF-012 |
+| `GET /library`, `POST /library/{id}/download` | Biblioteca e link temporário | RF-013–014 |
+| `PATCH /inventory`, `PATCH /orders/{id}/shipping` | Estoque/expedição autorizados | RF-007,017 |
+| `POST /orders/{id}/cancel`, `/refund` | Cancelamento e reembolso | RF-018 |
+| `POST /works/{id}/reviews`, `POST /reviews/{id}/reports`, `DELETE /admin/reviews/{id}` | Avaliação/moderação | RF-019 |
+| `GET /admin/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` | Indicadores por papel | RF-021 |
 
-## Roadmap
+Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
 
-| Fase | Objetivo | Entregável/critério |
+## 13. Tecnologias sugeridas
+
+A decisão final está em ADRs. Recomendação inicial: Next.js/React para interface, NestJS/TypeScript para API em camadas, PostgreSQL para transações, ORM com migrações controladas, armazenamento privado abstrato e fila substituível. Alternativas consideradas: Java/Spring, .NET, Django; cada uma é viável, mas TypeScript ponta a ponta reduz atrito para um MVP com contratos compartilháveis. Nenhuma dependência será instalada nesta etapa.
+
+## 14. Estratégia de segurança e privacidade
+
+Aplicar OWASP ASVS proporcionalmente: hash de senha, cookies/sessão seguros, expiração e uso único de tokens, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta; prazo/eliminação definitiva requer política jurídica futura.
+
+## 15. Estratégia de testes
+
+Testes: unidade para domínio e regras; integração para persistência, transações e autorização; API para contratos; E2E para compra digital/física e administração; segurança para papéis/tokens; acessibilidade automatizada e manual; carga básica para catálogo/checkout. Cada TASK define os testes específicos.
+
+## 16. Riscos
+
+| Risco | Prob./impacto | Mitigação |
 |---|---|---|
-| PHASE-01 | Fundação | arquitetura, autenticação, domínio e qualidade base validados. |
-| PHASE-02 | Catálogo | catálogo, CSV, busca, wishlist e administração de catálogo. |
-| PHASE-03 | Comércio | carrinho, Pix, licença, pedidos, pré-venda, bundle e reembolso. |
-| PHASE-04 | Entrega e confiança | biblioteca, marca d'água, avaliações, privacidade e operação. |
+| Regras de consumo/LGPD incompletas | Média/Alta | PD-002, revisão jurídica antes de produção. |
+| Marca d’água em ePub/PDF complexa | Média/Alta | Adaptador, arquivos de teste e validação antes de publicação. |
+| Sobre-venda concorrente | Média/Alta | Transação, índices e testes de concorrência. |
+| Escala desconhecida | Média/Média | PD-001, métricas e arquitetura modular. |
+| Simulações divergirem de integrações reais | Alta/Média | Interfaces explícitas e testes de contrato. |
 
-## Matriz de rastreabilidade
+## 17. Roadmap
 
-| RF | RN | RNF | UC | Entidade | API | Teste | TASK |
-|---|---|---|---|---|---|---|---|
-| RF-001/002 | RN-001 | RNF-004/008 | UC-001 | User | /auth | unit+API+E2E | TASK-003/004 |
-| RF-003/012 | RN-003/007 | RNF-001 | UC-002/006 | Product | /catalog,/admin | unit+integration | TASK-006–009 |
-| RF-005–007 | RN-002–006 | RNF-005 | UC-003/005 | Order, Payment | /checkout,/webhooks | integration+E2E | TASK-011–016 |
-| RF-008/009 | RN-003/004 | RNF-004 | UC-004 | ProductFile,Download | /library | integration+security | TASK-017/018 |
-| RF-011 | RN-008 | RNF-008 | UC-007 | Review,Report | /reviews | API+E2E | TASK-019 |
-| RF-013–015 | RN-009 | RNF-006/007 | UC-008 | User,AuditLog | /admin | API+integration | TASK-020–022 |
+| Fase | Objetivo / conclusão |
+|---|---|
+| PHASE-01 | Base, convenções, identidade e segurança mínima; build/testes base passam. |
+| PHASE-02 | Catálogo, inventário, busca e administração editorial prontos. |
+| PHASE-03 | Carrinho, checkout, cupom, frete e pedido transacional prontos. |
+| PHASE-04 | Biblioteca, downloads, bundles, pré-vendas e reembolso prontos. |
+| PHASE-05 | Logística física, avaliações, painéis, privacidade e endurecimento concluídos. |
 
-## Pendências
+## 18. Matriz de rastreabilidade
 
-| ID | Descrição | Impacto |
-|---|---|---|
-| PD-001 | Provedor/ambientes de infraestrutura. | Implantação, backup e observabilidade. |
-| PD-002 | Provedor de e-mail transacional. | RF-014. |
-| PD-003 | Política jurídica de retenção, anonimização e exclusão LGPD. | RF-015. |
-| PD-004 | Rotina e restauração testada de backup. | RNF-006. |
-| PD-005 | Emissão fiscal futura. | Fora de escopo V1. |
+| RF | RN | RNF | UC | Entidade/API | TASK |
+|---|---|---|---|---|---|
+| RF-001–002 | RN-001 | 001–003 | UC-001–002 | users/auth | TASK-003–005 |
+| RF-003–007 | RN-002–006 | 009–012 | UC-003–007 | works/editions | TASK-007–010 |
+| RF-009–012 | RN-007–011 | 009 | UC-009–012 | cart/orders | TASK-012–015 |
+| RF-013–016 | RN-012–014 | 010 | UC-013–016 | library/bundles | TASK-017–020 |
+| RF-017–023 | RN-015–017 | 002–008 | UC-017–023 | logistics/reviews/audit | TASK-021–026 |
+
+## 19. Pendências
+
+| ID | Descrição / impacto / condição |
+|---|---|
+| PD-001 | Escala esperada. Afeta capacidade e metas de desempenho; resolver antes de produção. |
+| PD-002 | Política jurídica de retenção/exclusão. Afeta privacidade e operação; requer revisão especializada. |
+| PD-003 | Provedor de hospedagem, e-mail e armazenamento. Afeta implantação; fora da V1 local. |

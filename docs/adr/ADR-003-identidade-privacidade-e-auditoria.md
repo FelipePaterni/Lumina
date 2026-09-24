@@ -1,35 +1,25 @@
-# ADR-003 — Identidade, RBAC, privacidade e auditoria
+# ADR-003 — Identidade, privacidade e auditoria
 
 ## Status
 
 ACCEPTED
 
-## Contexto
+## Contexto e problema
 
-Há dados pessoais brasileiros, três papéis, compras restritas a adultos confirmados e exclusão condicionada à retenção legal.
-
-## Problema
-
-Proteger conta/dados e rastrear decisões administrativas sem decidir de forma inválida a política jurídica de retenção.
+Há contas por e-mail/senha, quatro papéis, dados pessoais e ações administrativas sensíveis.
 
 ## Alternativas consideradas
 
-1. RBAC, ownership, auditoria e exclusão configurável.
-2. Acesso administrativo irrestrito sem auditoria.
-3. Exclusão física imediata.
+RBAC simples sem trilha; RBAC com auditoria; provedor de identidade externo.
 
 ## Decisão
 
-Aplicar RBAC e ownership em toda operação sensível; CPF único/imutável, e-mail confirmado, maioridade e termos para comprar. Auditar ações definidas e desativar conta na solicitação; eliminação/anonimização final fica vinculada a política jurídica aprovada.
+Implementar identidade local com confirmação de e-mail, recuperação de senha, RBAC, solicitação de exclusão/desativação e auditoria estruturada de ações sensíveis.
 
-## Justificativa
+## Justificativa e consequências
 
-Atende ao mínimo de segurança e permite conformidade sem assumir prazo legal não validado.
+Atende V1 sem dependência externa e prepara evolução. Auditoria guarda ator, ação, alvo, momento e motivo, sem PII explícita. Política legal definitiva de retenção permanece PD-002.
 
-## Consequências
+## Relacionados
 
-PD-003 bloqueia lançamento se não estiver resolvida; logs e auditoria precisam minimizar dados sensíveis. Ao menos um administrador geral ativo deve ser preservado.
-
-## RF/RN/RNF/UC relacionados
-
-RF-001, RF-002, RF-013, RF-015, RN-001, RN-009, RNF-004, RNF-008, UC-001, UC-008.
+RF-001,002,022,023; RN-001,017; RNF-001–003,008.

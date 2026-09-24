@@ -2,29 +2,36 @@
 
 **Este documento define as regras obrigatórias para qualquer agente de programação que opere neste repositório.**
 
-## Fontes de verdade e ordem de leitura
+## Fontes de verdade e leitura obrigatória
 
-Antes de qualquer TASK, leia nesta ordem: `AGENTS.md`, `README.md`, `TASKS.md`, ADRs relacionados, código e testes existentes. `README.md` define requisitos, domínio, arquitetura e escopo; `TASKS.md` define backlog, dependências, estados e Scope Guard; `docs/adr/` define decisões arquiteturais. Em conflito relevante, pare e solicite decisão; não decida silenciosamente.
+Antes de qualquer TASK, leia nesta ordem: `AGENTS.md`, `README.md`, `TASKS.md`, ADRs relacionados, código existente e testes existentes.
 
-## Seleção e início
+| Fonte | Autoridade |
+|---|---|
+| `README.md` | requisitos, escopo, regras, domínio, arquitetura e APIs |
+| `TASKS.md` | backlog, dependências, estado e Scope Guard |
+| `AGENTS.md` | processo e restrições operacionais |
+| `docs/adr/` | decisões arquiteturais aceitas |
 
-1. Localize a primeira TASK `READY` na ordem de execução.
-2. Confirme que toda dependência está `DONE`, seus artefatos existem e testes aplicáveis passam.
-3. Leia RF/RN/RNF/UC/ADR relacionados, critérios de aceitação, testes e Scope Guard.
-4. Confirme Definition of Ready. Caso falhe, mude/registre `BLOCKED` com o motivo e pare.
-5. Crie branch `feature/TASK-xxx-descricao`, `fix/...` ou `chore/...`; nunca desenvolva em `main`.
-6. Atualize somente a TASK de `READY` para `IN_PROGRESS` em `TASKS.md`.
+Em conflito relevante entre fontes: **PARAR E SOLICITAR DECISÃO**. Não resolver por suposição.
+
+## Ciclo obrigatório
+
+1. Localize a primeira TASK `READY` pela ordem de execução.
+2. Confirme que cada `DEPENDS_ON` está `DONE`, artefatos existem e testes da dependência passam.
+3. Leia RF/RN/RNF/UC/ADR ligados, critérios, testes e Scope Guard.
+4. Confirme Definition of Ready; só então altere `READY → IN_PROGRESS` em `TASKS.md`.
+5. Trabalhe somente na TASK atual e em sua branch `feature/TASK-xxx-descricao`, `fix/...` ou `chore/...`.
+6. Execute gates, classifique mudanças, altere para `IN_REVIEW`, valide DoD e só então `DONE`.
+7. Apresente o relatório final e pare. A próxima TASK exige nova autorização, salvo execução contínua explicitamente autorizada.
+
+Nunca desenvolver diretamente em `main`.
 
 ## Scope Guard
 
-Toda mudança deve ser classificada como `PRIMARY` ou `INCIDENTAL`.
+Toda alteração primária deve estar em `ALLOWED_CHANGES`. Uma alteração fora dele só é incidental se for mínima, localizada, diretamente causada pela TASK, tecnicamente necessária e não alterar requisito, regra, arquitetura ou contrato público. Registre-a no relatório.
 
-- `PRIMARY` deve estar em `ALLOWED_CHANGES`.
-- `INCIDENTAL` só é permitido quando mínimo, localizado, diretamente causado pela TASK, tecnicamente necessário e sem mudança independente de regra, contrato ou arquitetura.
-- `FORBIDDEN_CHANGES` tem precedência absoluta. Não o viole, mesmo que esteja também em Allowed Changes.
-- Muitas mudanças incidentais, mudança de contrato, refatoração ampla ou alteração arquitetural não são incidentais.
-
-Quando extrapolar o escopo, pare e apresente:
+É vedado tocar `FORBIDDEN_CHANGES`. Se o trabalho necessário exceder alteração incidental, parar e emitir:
 
 ```text
 ## SCOPE ESCALATION
@@ -34,7 +41,7 @@ Motivo:
 Arquivos/módulos afetados:
 Allowed Changes atual:
 Forbidden Changes relacionado:
-Por que não é Incidental Change:
+Por que não é incidental:
 Impacto se não realizada:
 Alternativas:
 Recomendação:
@@ -43,29 +50,17 @@ Decisão necessária:
 
 ## Definition of Ready
 
-Uma TASK só pode ser `READY` quando requisitos e critérios são claros; dependências estão `DONE`; ADRs e contratos necessários estão resolvidos; testes e Scope Guard estão definidos; não há pendência bloqueante; e o trabalho cabe razoavelmente no Scope Guard.
+Uma TASK é `READY` somente se requisitos/aceitação/testes/Scope Guard estão definidos, ADRs necessários aceitos, pendências bloqueantes resolvidas e dependências `DONE`. Caso contrário, é `BLOCKED`.
 
-## Implementação
+## Quality gates e Definition of Done
 
-Implemente somente a TASK selecionada. Não implemente trabalho futuro, invente regras, altere requisito, troque arquitetura sem ADR, adicione dependência não justificada, remova testes para aprovar gates ou altere contrato público sem autorização. Preserve alterações de terceiros no diretório de trabalho.
+Gates aplicáveis: build, lint, testes unitários, integração, API, segurança, aceitação e regressão. Não afirme execução não realizada.
 
-Novas necessidades: primeiro avalie se são incidentais; se não, localize TASK existente ou proponha uma nova com rastreabilidade/dependência. Aguarde decisão se a continuação depender dela.
+`DONE` exige implementação completa, gates aprovados, critérios satisfeitos, segurança e erros tratados, documentação necessária atualizada, commits rastreáveis, `TASKS.md` atualizado, e validação de que todas as mudanças são `PRIMARY` autorizadas ou `INCIDENTAL` justificadas; nenhuma pode ser proibida ou scope creep.
 
-## Quality Gates e Definition of Done
+## Segurança e parada
 
-Antes de `IN_REVIEW → DONE`, execute e registre os gates aplicáveis: build, lint, testes unitários, integração, API, segurança, critérios de aceitação e regressão. Não afirme aprovação sem executar o comando aplicável.
-
-Uma TASK é `DONE` apenas quando implementação e documentação exigida estão completas, gates passam, critérios são atendidos, erros são tratados, mudanças respeitam Scope Guard e `TASKS.md` foi atualizado. Classifique todos os arquivos alterados; nenhum pode ser proibido ou mudança colateral injustificada.
-
-## Commits e estados
-
-Use Conventional Commits: `<tipo>(<escopo>): <descrição> [TASK-xxx]`. Commits são pequenos, coesos e rastreáveis à TASK. Fluxo normal: `BLOCKED → READY → IN_PROGRESS → IN_REVIEW → DONE`; falha de implementação/validação vai para `FAILED`.
-
-Não atualize `README.md` para estados, commits ou resultados de teste: isso pertence a `TASKS.md`. Altere README apenas para mudança real aprovada de especificação/arquitetura.
-
-## Parada e bloqueios
-
-Pare diante de ambiguidade, contradição, dependência inválida, decisão arquitetural ausente, risco de segurança/perda de dados, quebra de contrato, teste externo falhando ou necessidade de violar Scope Guard. Informe:
+Nunca exponha segredos, PII, arquivos originais ou tokens em código, logs, fixtures ou relatórios. Não reduza validações para passar testes. Pare diante de requisito ambíguo, dependência inválida, decisão arquitetural ausente, risco de segurança/perda de dados, quebra de contrato ou testes externos falhando:
 
 ```text
 ## BLOCKER
@@ -78,28 +73,8 @@ Recomendação:
 Decisão necessária:
 ```
 
-## Relatório obrigatório
+## Commits e relatório
 
-Ao concluir, pare — não inicie a próxima TASK sem autorização explícita — e entregue:
+Use Conventional Commits: `<tipo>(<escopo>): <descrição> [TASK-xxx]`. Commits são pequenos, coesos e exclusivos da TASK.
 
-```text
-## TASK Execution Report
-TASK: TASK-xxx
-Status: DONE
-Branch:
-Commits:
-### Primary Changes
-### Incidental Changes
-### Tests Executed
-### Quality Gates
-| Gate | Resultado |
-### Scope Validation
-Allowed Changes: PASS
-Incidental Changes: PASS
-Forbidden Changes: PASS
-Scope Creep: NONE
-### Definition of Done
-PASS | FAIL
-### Next Eligible TASK
-TASK-xxx | NONE
-```
+Ao concluir, informe TASK, estado, branch, commits, mudanças primárias/incidentes, testes, tabela de gates, validação de Scope Guard, DoD e próxima TASK elegível. `README.md` não registra estado de execução.

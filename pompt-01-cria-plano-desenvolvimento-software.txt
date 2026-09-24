@@ -40,6 +40,8 @@ A falta de uma plataforma centralizada, integrada e responsiva de e-commerce que
 
 Desenvolver uma aplicação web de e-commerce completa focada somente no publico Brasileiro, responsiva e segura (Lumina Livros) para a comercialização de livros e-books, proporcionando aos leitores uma experiência prática de busca, organização (lista de desejos e estante virtual), avaliação e compra de obras, ao mesmo tempo em que oferece aos administradores um painel de controle completo para a gestão de acervo, vendas, estoque e clientes.
 
+Todo modulo relacionado a pagamento será criado ficticio para não depender de API externas.
+
 Considere essas informações apenas como ponto de partida.
 
 Não presuma que a descrição inicial contém todos os requisitos necessários.

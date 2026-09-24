@@ -2,13 +2,13 @@
 
 ```mermaid
 flowchart LR
-  C[Cliente] --> U1[Registrar e confirmar conta]
-  C --> U2[Buscar e desejar títulos]
-  C --> U3[Comprar via Pix]
-  C --> U4[Baixar obra adquirida]
-  C --> U5[Avaliar, denunciar, reembolsar]
-  G[Gestor de catálogo] --> A1[Manter catálogo, cupons e CSV]
-  G --> A2[Moderar avaliações]
-  A[Administrador geral] --> A3[Gerir usuários, pedidos e reembolsos]
-  A --> A4[Consultar indicadores e exclusões]
+  C[Cliente] --> A[Autenticar e confirmar e-mail]
+  C --> B[Buscar catálogo]
+  C --> D[Comprar / usar cupom]
+  C --> E[Baixar e-book]
+  C --> F[Avaliar e denunciar]
+  G[Catálogo] --> H[Gerir obra, versão, arquivo, bundle e cupom]
+  W[Estoquista] --> I[Gerir estoque e expedição]
+  X[Admin] --> J[Gerir usuários, reembolso e moderação]
+  X --> K[Consultar painel global]
 ```
