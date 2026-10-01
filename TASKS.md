@@ -13,7 +13,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | BLOCKED |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | BLOCKED |
-| 10 | TASK-010 | PHASE-02 | HIGH | 008,009 | BLOCKED |
+| 10 | TASK-010 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | BLOCKED |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
@@ -26,10 +26,11 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
-| 23 | TASK-023 | PHASE-05 | HIGH | 020 | BLOCKED |
+| 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
-| 25 | TASK-025 | PHASE-05 | HIGH | 021–024 | BLOCKED |
-| 26 | TASK-026 | PHASE-05 | CRITICAL | 021–025 | BLOCKED |
+| 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
+| 26 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
+| 27 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
 
 ## Políticas comuns
 
@@ -39,12 +40,12 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Status:** READY · **Phase:** PHASE-01 · **Priority:** CRITICAL
 **Objetivo:** Criar estrutura da stack decidida, ferramentas de build/lint/teste e convenções mínimas.
 **Dependências:** `DEPENDS_ON: NONE`
-**Relacionados:** ADR-001, ADR-002, RNF-012.
-**Artefatos esperados:** projetos web/API, configuração de qualidade e instruções de execução.
-**ALLOWED_CHANGES:** arquivos-raiz de build; `apps/**`; `packages/**`; `tests/**`; `TASKS.md`.
+**Relacionados:** ADR-001, ADR-002, ADR-006, RNF-012,013.
+**Artefatos esperados:** projetos web/API, configuração de qualidade, Dockerfiles, composição Docker local e instruções de execução.
+**ALLOWED_CHANGES:** arquivos-raiz de build e Docker; `apps/**`; `packages/**`; `tests/**`; documentação de execução; `TASKS.md`.
 **FORBIDDEN_CHANGES:** requisitos/ADRs; integrações externas; regras de negócio.
-**Aceitação/testes:** build, lint e teste vazio passam em ambiente limpo; nenhuma chave real é criada.
-**DoD específico:** comandos documentados e gates verdes.
+**Aceitação/testes:** build, lint e teste vazio passam em ambiente limpo; a composição Docker inicia os serviços locais documentados; nenhuma chave real é criada.
+**DoD específico:** comandos nativos e Docker documentados; imagens são reproduzíveis e gates verdes.
 
 ### TASK-002 — Base de persistência e migrações
 **Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** HIGH
@@ -61,18 +62,18 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** CRITICAL
 **Objetivo:** Implementar usuários, senha, registro, confirmação e recuperação seguros.
 **Dependências:** `DEPENDS_ON: TASK-001, TASK-002`
-**Relacionados:** RF-001, RN-001, RNF-001–003, ADR-003.
+**Relacionados:** RF-001, RN-001,021, RNF-001–003, ADR-003, ADR-007.
 **Artefatos esperados:** identidade, tokens de uso único/expiração e caixa de saída local.
 **ALLOWED_CHANGES:** `apps/api/src/modules/identity/**`; `apps/web/src/features/auth/**`; `database/**`; `tests/**identity/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** autorização de catálogo/comércio; PII em fixtures/logs.
-**Aceitação/testes:** e-mail não confirmado não compra; token inválido/expirado falha sem enumeração; reset funciona.
+**Aceitação/testes:** e-mail não confirmado não compra; token inválido/expirado falha sem enumeração; reset funciona; seed controlado cria o primeiro Admin; JWT inválido ou expirado é recusado.
 **DoD específico:** hash, rate limit e testes de abuso aplicáveis passam.
 
 ### TASK-004 — RBAC, auditoria e exclusão solicitada
 **Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Criar papéis, guardas de autorização, auditoria e solicitação de desativação.
 **Dependências:** `DEPENDS_ON: TASK-003`
-**Relacionados:** RF-002,022,023; RN-017; ADR-003.
+**Relacionados:** RF-002,022,023; RN-017,018,021; ADR-003, ADR-007.
 **Artefatos esperados:** Admin, Catálogo, Estoquista, Cliente; trilha e solicitação de exclusão.
 **ALLOWED_CHANGES:** `modules/identity/**`; `modules/audit/**`; `features/account/**`; `database/**`; `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** retenção definitiva/legal; 2FA; catálogo e checkout.
@@ -112,15 +113,15 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** múltiplas categorias, ISBN válido, versões/preços próprios e ocultação autorizada.
 **DoD específico:** filtros básicos e RBAC cobertos.
 
-### TASK-008 — Busca, filtros e descoberta
+### TASK-008 — Busca e filtros básicos de catálogo
 **Status:** BLOCKED · **Phase:** PHASE-02 · **Priority:** HIGH
-**Objetivo:** Entregar pesquisa, filtros, ordenações e paginação do catálogo.
+**Objetivo:** Entregar pesquisa, filtros disponíveis no catálogo e paginação, sem rankings que dependem de pedidos ou avaliações.
 **Dependências:** `DEPENDS_ON: TASK-007`
 **Relacionados:** RF-003,004; RN-002; RNF-004,005.
-**Artefatos esperados:** consultas por título/autor e filtros aprovados.
+**Artefatos esperados:** consultas por título/autor, categoria, idioma, faixa de preço e lançamento, com paginação.
 **ALLOWED_CHANGES:** `modules/catalog/search/**`; `features/catalog/**`; `tests/**catalog/**`; `TASKS.md`.
-**FORBIDDEN_CHANGES:** checkout; regra de avaliações ainda não implementada.
-**Aceitação/testes:** filtros combinam; ocultos não aparecem; vazio é acessível e paginado.
+**FORBIDDEN_CHANGES:** checkout; inventário; regra de avaliações; ranking por vendas ou avaliações.
+**Aceitação/testes:** filtros básicos combinam; ocultos não aparecem; vazio é acessível e paginado.
 **DoD específico:** consultas relevantes têm índices/revisão de plano.
 
 ### TASK-009 — Inventário e ativos privados
@@ -134,15 +135,15 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** original não é servido publicamente; licença ilimitada/numerada e estoque são validados.
 **DoD específico:** mudança gera auditoria apropriada.
 
-### TASK-010 — Wishlist e painel de catálogo
+### TASK-010 — Wishlist básica
 **Status:** BLOCKED · **Phase:** PHASE-02 · **Priority:** HIGH
-**Objetivo:** Implementar wishlist básica e indicadores de catálogo.
-**Dependências:** `DEPENDS_ON: TASK-008, TASK-009`
-**Relacionados:** RF-008,021.
-**Artefatos esperados:** lista pessoal; métricas digitais, licenças, cupons e baixa disponibilidade.
-**ALLOWED_CHANGES:** `modules/wishlist/**`; `modules/reporting/catalog/**`; `features/**`; `tests/**`; `TASKS.md`.
+**Objetivo:** Implementar wishlist básica individual.
+**Dependências:** `DEPENDS_ON: TASK-007`
+**Relacionados:** RF-008.
+**Artefatos esperados:** lista pessoal de obras, com inclusão, remoção e consulta autorizadas.
+**ALLOWED_CHANGES:** `modules/wishlist/**`; `features/wishlist/**`; `tests/**wishlist/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** notificações de wishlist; checkout.
-**Aceitação/testes:** cliente só vê própria lista; perfil catálogo vê só indicadores autorizados.
+**Aceitação/testes:** cliente só vê e altera a própria lista; duplicações e acessos de terceiros são recusados.
 **DoD específico:** sem alertas automáticos fora do escopo.
 
 ### TASK-011 — Checkpoint PHASE-02
@@ -182,7 +183,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Integrar caixa de saída simulada aos eventos de conta e pedido.
 **Dependências:** `DEPENDS_ON: TASK-012, TASK-013`
-**Relacionados:** RF-020; RN-018; ADR-005.
+**Relacionados:** RF-020; RN-019; ADR-005.
 **Artefatos esperados:** modelos/eventos locais, histórico de entrega simulada e retries observáveis.
 **ALLOWED_CHANGES:** `modules/notifications/**`; `modules/orders/**`; `modules/identity/**`; `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** provedor externo; conteúdo PII nos logs.
@@ -241,7 +242,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Artefatos esperados:** solicitação, decisão, motivo e reversões transacionais adequadas.
 **ALLOWED_CHANGES:** `modules/refunds/**`; `modules/orders/**`; `modules/library/**`; `modules/audit/**`; `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** gateway real; regras legais não aprovadas.
-**Aceitação/testes:** janelas 2h/2 semanas/1 semana; físico pré-envio; Admin auditado.
+**Aceitação/testes:** janelas 2h/2 semanas/1 semana; reembolso digital revoga acesso e restaura licença limitada; físico pré-envio e estoque restaurado somente após devolução confirmada; Admin auditado.
 **DoD específico:** exceção não permite violar janela sem Admin.
 
 ### TASK-020 — Checkpoint PHASE-04
@@ -280,7 +281,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 ### TASK-023 — Painéis e relatórios essenciais
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Exibir indicadores confirmados com isolamento por papel.
-**Dependências:** `DEPENDS_ON: TASK-020`
+**Dependências:** `DEPENDS_ON: TASK-020, TASK-021`
 **Relacionados:** RF-021,023.
 **Artefatos esperados:** painéis global, catálogo e estoque.
 **ALLOWED_CHANGES:** `modules/reporting/**`; `features/dashboard/**`; `tests/**`; `TASKS.md`.
@@ -292,17 +293,28 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Completar solicitação de exclusão, avisos, auditoria e monitoramento técnico.
 **Dependências:** `DEPENDS_ON: TASK-020`
-**Relacionados:** RF-002,020,022; RNF-003,007,008; PD-002.
+**Relacionados:** RF-002,020,022; RN-017–019; RNF-003,007,008; PD-002.
 **Artefatos esperados:** fluxo de desativação/reativação durante período configurável, alertas e dashboards técnicos.
 **ALLOWED_CHANGES:** `modules/privacy/**`; `modules/audit/**`; `modules/observability/**`; `modules/notifications/**`; `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** declarar conformidade legal total; eliminação definitiva sem política aprovada.
 **Aceitação/testes:** solicitação desativa, Admin acompanha, cliente recebe aviso; logs não contêm PII.
 **DoD específico:** PD-002 permanece visível como limite.
 
+### TASK-027 — Rankings de descoberta pós-venda
+**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
+**Objetivo:** Entregar os filtros de catálogo que dependem de dados consolidados de pedidos e avaliações.
+**Dependências:** `DEPENDS_ON: TASK-022`
+**Relacionados:** RF-003,019; RN-016; RNF-011.
+**Artefatos esperados:** ordenação/filtro por mais vendidos e bem avaliados, integrados à busca de catálogo existente.
+**ALLOWED_CHANGES:** `modules/catalog/search/**`; `features/catalog/**`; `tests/**catalog/**`; `TASKS.md`.
+**FORBIDDEN_CHANGES:** alterar regras de pedido, avaliação, cálculo de média ou visibilidade; criar métricas administrativas novas.
+**Aceitação/testes:** mais vendidos usa apenas pedidos confirmados; bem avaliados usa apenas avaliações visíveis; filtros combinam, respeitam ocultação e paginação.
+**DoD específico:** consultas de ranking possuem índices/revisão de plano e testes de dados vazios.
+
 ### TASK-025 — Acessibilidade, responsividade e desempenho
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Validar meta WCAG A, navegadores, layouts e tempo de carregamento.
-**Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024`
+**Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-027`
 **Relacionados:** RNF-004–006.
 **Artefatos esperados:** testes automatizados/manuais e correções localizadas.
 **ALLOWED_CHANGES:** `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `TASKS.md`.
@@ -313,7 +325,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 ### TASK-026 — Checkpoint final V1
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** CRITICAL
 **Objetivo:** Validar V1 integralmente contra requisitos, segurança, documentação e Scope Guard.
-**Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-025`
+**Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-025, TASK-027`
 **Relacionados:** todos RF/RN/RNF/UC/ADR.
 **Artefatos esperados:** relatório final de release, matriz atualizada e riscos/pendências revisados.
 **ALLOWED_CHANGES:** testes, documentação, configuração de qualidade e `TASKS.md`.

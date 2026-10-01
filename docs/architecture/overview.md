@@ -49,4 +49,4 @@ A V1 usa adaptadores locais simulados. Produção substitui implementação, nã
 
 ## Recuperação
 
-Backups diários criptografados incluem banco e metadados necessários. A restauração periódica deve verificar integridade, autorização e capacidade de reconstruir referências de arquivo; o conteúdo original exige política de backup definida antes de produção (PD-003).
+Backups semanais criptografados incluem banco e metadados necessários. A restauração periódica deve verificar integridade, autorização e capacidade de reconstruir referências de arquivo; o conteúdo original exige política de backup definida antes de produção (PD-003).
