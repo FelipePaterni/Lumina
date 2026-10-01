@@ -45,27 +45,27 @@ Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para a
 | ID | Requisito e aceitação resumida | Prioridade | Atores | RN / UC |
 |---|---|---|---|---|
 | RF-001 | Cadastrar, confirmar e-mail, autenticar e recuperar senha. Tokens expiram e não revelam existência de conta. | MUST | Cliente, equipe | RN-001; UC-001 |
-| RF-002 | Manter perfil, histórico de compras e solicitação de exclusão. Solicitação desativa a conta e notifica cliente/admin. | MUST | Cliente, Admin | RN-016; UC-002 |
+| RF-002 | Manter perfil, histórico de compras e solicitação de exclusão. Solicitação desativa a conta e notifica cliente/admin. | MUST | Cliente, Admin | RN-018; UC-002 |
 | RF-003 | Consultar catálogo e pesquisar por título ou autor; filtrar categoria, idioma, preço, mais vendidos, bem avaliados e lançamento. | MUST | Visitante, Cliente | RN-002; UC-003 |
 | RF-004 | Exibir uma obra com metadados e versões físicas/digitais selecionáveis, cada uma com preço e disponibilidade próprios. | MUST | Visitante, Cliente | RN-003; UC-004 |
-| RF-005 | Gestão de Catálogo cria/edita obras, múltiplas categorias, versões, capas, metadados, preço e visibilidade. ISBN deve ser válido. | MUST | Catálogo, Admin | RN-004; UC-005 |
-| RF-006 | Gerir arquivos originais PDF/ePub e suas versões; publicação corrigida mantém histórico e atualiza biblioteca de adquirentes. | MUST | Catálogo, Admin | RN-005; UC-006 |
-| RF-007 | Gerir disponibilidade: estoque físico numérico e licença digital numérica ou ilimitada. | MUST | Catálogo, Estoquista, Admin | RN-006; UC-007 |
+| RF-005 | Gestão de Catálogo cria/edita obras, múltiplas categorias, versões, capas, metadados, preço e visibilidade. ISBN deve ser válido. | MUST | Catálogo, Admin | RN-002,003; UC-005 |
+| RF-006 | Gerir arquivos originais PDF/ePub e suas versões; publicação corrigida mantém histórico e atualiza biblioteca de adquirentes. | MUST | Catálogo, Admin | RN-003; UC-006 |
+| RF-007 | Gerir disponibilidade: estoque físico numérico e licença digital numérica ou ilimitada. | MUST | Catálogo, Estoquista, Admin | RN-003,004; UC-007 |
 | RF-008 | Adicionar/remover obras na wishlist pessoal. | SHOULD | Cliente | UC-008 |
 | RF-009 | Manter carrinho com quantidades físicas; impedir recompra direta de e-book já possuído. | MUST | Cliente | RN-007; UC-009 |
 | RF-010 | Aplicar no máximo um cupom global por pedido; validar tipo fixo/percentual, validade e cota de uso. | MUST | Cliente, Catálogo | RN-008; UC-010 |
 | RF-011 | Calcular frete simulado por faixa de CEP e quantidade física, configurável pelo Admin, sem frete grátis. | MUST | Cliente, Admin | RN-009; UC-011 |
-| RF-012 | Finalizar pedido híbrido, validar estoque/licenças atomicamente, confirmar pagamento fictício e registrar aquisição gratuita por R$ 0,00. | MUST | Cliente | RN-006, RN-010; UC-012 |
-| RF-013 | Entregar e-books pagos/gratuitos na biblioteca; pré-venda só libera na data de lançamento. | MUST | Cliente | RN-011; UC-013 |
-| RF-014 | Gerar download temporário autenticado, personalizado com nome, e-mail e ID de compra, sem expor o original. | MUST | Cliente | RN-005, RN-012; UC-014 |
-| RF-015 | Criar bundles somente com livros existentes; impedir composição idêntica duplicada; liberar itens separadamente e ajustar preço por posse prévia. | MUST | Catálogo, Cliente | RN-013; UC-015 |
-| RF-016 | Vender pré-vendas físicas e digitais e liberar/permitir expedição somente no lançamento. | MUST | Cliente, equipe | RN-014; UC-016 |
+| RF-012 | Finalizar pedido híbrido, validar estoque/licenças atomicamente, confirmar pagamento fictício e registrar aquisição gratuita por R$ 0,00. | MUST | Cliente | RN-004,010,011; UC-012 |
+| RF-013 | Entregar e-books pagos/gratuitos na biblioteca; pré-venda só libera na data de lançamento. | MUST | Cliente | RN-012; UC-013 |
+| RF-014 | Gerar download temporário autenticado, personalizado com nome, e-mail e ID de compra, sem expor o original. | MUST | Cliente | RN-012; UC-014 |
+| RF-015 | Criar bundles somente com livros existentes; impedir composição idêntica duplicada; liberar itens separadamente e ajustar preço por posse prévia. | MUST | Catálogo, Cliente | RN-005–007; UC-015 |
+| RF-016 | Vender pré-vendas físicas e digitais e liberar/permitir expedição somente no lançamento. | MUST | Cliente, equipe | RN-012; UC-016 |
 | RF-017 | Gerir pedido físico em `pago → em separação → enviado → entregue`, com rastreio manual. | MUST | Estoquista, Admin | RN-015; UC-017 |
-| RF-018 | Cancelar/reembolsar conforme regras; automação válida para digital e decisão administrativa para físico. | MUST | Cliente, Admin | RN-016; UC-018 |
-| RF-019 | Avaliar obra adquirida com 1–5 estrelas e comentário; publicar imediatamente; permitir denúncia e remoção administrativa. | SHOULD | Cliente, Admin | RN-017; UC-019 |
-| RF-020 | Emitir e-mails simulados para confirmação, recuperação, compra, mudanças relevantes de pedido/conta, exclusão e correção de arquivo. | MUST | Sistema | RN-018; UC-020 |
-| RF-021 | Exibir painéis: global, catálogo e físico, respeitando perfil. | MUST | Equipe | RN-019; UC-021 |
-| RF-022 | Registrar auditoria de ações administrativas e sensíveis, incluindo ator, ação, alvo, data e motivo quando exigido. | MUST | Sistema, Admin | RN-020; UC-022 |
+| RF-018 | Cancelar/reembolsar conforme regras; automação válida para digital e decisão administrativa para físico. | MUST | Cliente, Admin | RN-013–015; UC-018 |
+| RF-019 | Avaliar obra adquirida com 1–5 estrelas e comentário; publicar imediatamente; permitir denúncia e remoção administrativa. | SHOULD | Cliente, Admin | RN-016; UC-019 |
+| RF-020 | Emitir e-mails simulados para confirmação, recuperação, compra, mudanças relevantes de pedido/conta, exclusão e correção de arquivo. | MUST | Sistema | RN-019; UC-020 |
+| RF-021 | Exibir painéis: global, catálogo e físico, respeitando perfil. | MUST | Equipe | RN-020; UC-021 |
+| RF-022 | Registrar auditoria de ações administrativas e sensíveis, incluindo ator, ação, alvo, data e motivo quando exigido. | MUST | Sistema, Admin | RN-017; UC-022 |
 | RF-023 | Permitir gestão de usuários pelo Admin e acesso de cada papel apenas às ações autorizadas. | MUST | Admin | RN-021; UC-023 |
 
 ## 6. Requisitos não funcionais
@@ -78,12 +78,13 @@ Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para a
 | RNF-004 | Páginas principais carregam em até 20 s em condições de referência a definir em PD-001. |
 | RNF-005 | Interface responsiva em mobile/tablet/desktop e nas duas versões mais recentes de Chrome, Edge, Firefox e Safari. |
 | RNF-006 | Meta WCAG 2.1 nível A: teclado, contraste, rótulos, mensagens de erro e texto alternativo. |
-| RNF-007 | Backups diários criptografados; restauração testada periodicamente; indisponibilidade planejada inferior a 4 h/mês. |
+| RNF-007 | Backups semanais criptografados; restauração testada periodicamente; indisponibilidade planejada inferior a 4 h/mês. |
 | RNF-008 | Auditoria e monitoramento de erros sem conteúdo de credenciais, arquivos ou PII. |
 | RNF-009 | Operações de checkout preservam consistência de estoque, licença, cupom e pedido sob concorrência. |
 | RNF-010 | Originais e downloads não podem ser públicos; links são temporários e autenticados. |
 | RNF-011 | APIs usam validação de entrada, respostas de erro consistentes, paginação e proteção contra abuso. |
 | RNF-012 | Módulos em camadas, contratos testáveis e cobertura de testes proporcional a risco. |
+| RNF-013 | Web, API e dependências locais são executáveis em contêineres Docker; a configuração reproduzível não incorpora segredos ou dados reais. |
 
 ## 7. Regras de negócio
 
@@ -102,26 +103,42 @@ Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para a
 | RN-011 | Pedido de R$ 0,00 passa pelo carrinho e é confirmado sem pagamento; carrinho com item pago usa confirmação fictícia. |
 | RN-012 | Pré-venda é cobrada/confirmada na compra; download e expedição física só ocorrem no lançamento. |
 | RN-013 | Pré-venda pode ser cancelada até uma semana antes do lançamento. |
-| RN-014 | E-book é reembolsável automaticamente até 2 h após gerar o link ou até 2 semanas da compra sem download; Admin pode reembolsar excepcionalmente. |
-| RN-015 | Físico só pode ser cancelado antes de enviado; reembolso físico é decidido pelo Admin. |
+| RN-014 | E-book é reembolsável automaticamente até 2 h após gerar o link ou até 2 semanas da compra sem download; Admin pode reembolsar excepcionalmente. Reembolso revoga o acesso da biblioteca e restaura a licença, quando limitada. |
+| RN-015 | Físico só pode ser cancelado antes de enviado; reembolso físico é decidido pelo Admin. O estoque só é restaurado após devolução confirmada, quando aplicável. |
 | RN-016 | Avaliação exige aquisição da obra; qualquer usuário pode denunciar; Admin pode removê-la com motivo/auditoria. |
 | RN-017 | Ações sensíveis devem ser auditadas sem copiar dados pessoais explícitos. |
+| RN-018 | Solicitação de exclusão desativa a conta por 30 dias, prazo configurável. O cliente pode reativá-la durante esse período e impedir a exclusão definitiva; cliente e Admin recebem notificações do processo. |
+| RN-019 | Notificações simuladas cobrem confirmação de e-mail, recuperação de senha, compra, mudanças relevantes de pedido ou conta, exclusão e correção de arquivo na biblioteca. |
+| RN-020 | Painéis exibem somente os indicadores essenciais autorizados ao respectivo papel. |
+| RN-021 | O primeiro Administrador Geral é criado por seed controlado; RBAC limita cada papel às ações autorizadas. |
 
 ## 8. Casos de uso
 
 | UC | Objetivo, fluxo principal e exceções | RF |
 |---|---|---|
 | UC-001 | Criar/confirmar conta ou recuperar acesso; token inválido/expirado não confirma. | RF-001 |
+| UC-002 | Manter perfil e solicitar exclusão; conta fica desativada pelo prazo configurado e pode ser reativada antes da exclusão definitiva. | RF-002 |
 | UC-003 | Pesquisar e filtrar catálogo; filtros sem resultado preservam critérios e informam vazio. | RF-003–004 |
+| UC-004 | Consultar detalhes de obra e selecionar edição física ou digital com preço e disponibilidade independentes. | RF-004 |
 | UC-005 | Cadastrar obra e versões; metadado/ISBN/arquivo inválido impede publicação. | RF-005–007 |
+| UC-006 | Gerir arquivo digital e versões; correção preserva histórico, atualiza adquirentes e envia aviso. | RF-006 |
+| UC-007 | Ajustar estoque físico ou licença digital; disponibilidade é independente por edição. | RF-007 |
+| UC-008 | Adicionar ou remover obra da wishlist própria. | RF-008 |
 | UC-009 | Montar carrinho; e-book já possuído e quantidade indisponível são recusados. | RF-009 |
+| UC-010 | Aplicar um cupom global; validade, tipo e cota inválidos recusam o pedido. | RF-010 |
+| UC-011 | Calcular frete simulado por faixa de CEP e quantidade física. | RF-011 |
 | UC-012 | Finalizar pedido; valida cupom, endereço, frete e estoque/licença em transação; falha não cria pedido. | RF-010–012 |
+| UC-013 | Consultar biblioteca; itens pagos ou gratuitos elegíveis ficam disponíveis, exceto pré-venda antes do lançamento. | RF-013 |
 | UC-014 | Solicitar download; valida aquisição e lançamento, gera cópia personalizada e link temporário. | RF-013–014 |
 | UC-015 | Comprar bundle; calcula posse prévia e bloqueia bundle integralmente possuído. | RF-015 |
+| UC-016 | Comprar pré-venda física ou digital; cobrança é confirmada na compra e liberação ocorre apenas no lançamento. | RF-016 |
 | UC-017 | Atualizar expedição física; transições inválidas e pré-venda anterior ao lançamento são recusadas. | RF-017 |
 | UC-018 | Solicitar/realizar cancelamento ou reembolso; regras de janela definem automático, análise ou recusa. | RF-018 |
 | UC-019 | Avaliar/denunciar/moderar; somente comprador avalia e moderação é auditada. | RF-019, RF-022 |
+| UC-020 | Registrar e entregar notificação simulada para os eventos obrigatórios, sem que falha de entrega invalide a operação de origem. | RF-020 |
 | UC-021 | Consultar painel conforme papel; métricas não autorizadas são negadas. | RF-021, RF-023 |
+| UC-022 | Registrar auditoria de ação sensível com ator, ação, alvo, momento e motivo, sem PII explícita. | RF-022 |
+| UC-023 | Gerir usuários e verificar autorização por papel; acesso não autorizado é negado. | RF-023 |
 
 ## 9. Modelo conceitual do domínio
 
@@ -209,7 +226,7 @@ A decisão final está em ADRs. Recomendação inicial: Next.js/React para inter
 
 ## 14. Estratégia de segurança e privacidade
 
-Aplicar OWASP ASVS proporcionalmente: hash de senha, cookies/sessão seguros, expiração e uso único de tokens, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta; prazo/eliminação definitiva requer política jurídica futura.
+Aplicar OWASP ASVS proporcionalmente: hash de senha, JWTs assinados, com expiração e validação de emissor/audiência, expiração e uso único de tokens de ação, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta por 30 dias, prazo configurável, e permite reativação nesse intervalo; a política jurídica definitiva permanece pendente.
 
 ## 15. Estratégia de testes
 
@@ -239,16 +256,19 @@ Testes: unidade para domínio e regras; integração para persistência, transa�
 
 | RF | RN | RNF | UC | Entidade/API | TASK |
 |---|---|---|---|---|---|
-| RF-001–002 | RN-001 | 001–003 | UC-001–002 | users/auth | TASK-003–005 |
-| RF-003–007 | RN-002–006 | 009–012 | UC-003–007 | works/editions | TASK-007–010 |
-| RF-009–012 | RN-007–011 | 009 | UC-009–012 | cart/orders | TASK-012–015 |
-| RF-013–016 | RN-012–014 | 010 | UC-013–016 | library/bundles | TASK-017–020 |
-| RF-017–023 | RN-015–017 | 002–008 | UC-017–023 | logistics/reviews/audit | TASK-021–026 |
+| RF-001 | RN-001,021 | 001–003,011 | UC-001 | users/auth | TASK-003 |
+| RF-002 | RN-018 | 003,008 | UC-002 | users/account-deletion | TASK-004,024 |
+| RF-003–007 | RN-002–004 | 004–006,010–012 | UC-003–007 | works/editions/assets/inventory | TASK-007–010 |
+| RF-008 | — | 002 | UC-008 | wishlist | TASK-010 |
+| RF-009–012 | RN-004,005,008–011 | 009,011 | UC-009–012 | cart/coupons/shipping/orders | TASK-012–015 |
+| RF-013–016 | RN-005–007,012–014 | 010 | UC-013–016 | library/bundles/preorders | TASK-017–020 |
+| RF-017–023 | RN-015–017,019–021 | 002,003,008,011 | UC-017–023 | logistics/reviews/reporting/audit | TASK-021–026 |
+| Ambiente conteinerizado | — | 013 | — | Dockerfiles/Compose | TASK-001 |
 
 ## 19. Pendências
 
 | ID | Descrição / impacto / condição |
 |---|---|
 | PD-001 | Escala esperada. Afeta capacidade e metas de desempenho; resolver antes de produção. |
-| PD-002 | Política jurídica de retenção/exclusão. Afeta privacidade e operação; requer revisão especializada. |
+| PD-002 | Política jurídica de retenção/exclusão definitiva. A V1 adota desativação reativável por 30 dias configuráveis; prazo legal e retenções obrigatórias requerem revisão especializada antes de produção. |
 | PD-003 | Provedor de hospedagem, e-mail e armazenamento. Afeta implantação; fora da V1 local. |
