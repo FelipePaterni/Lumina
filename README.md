@@ -224,6 +224,22 @@ Entradas são validadas, toda rota autenticada verifica papel e rotas administra
 
 A decisão final está em ADRs. Recomendação inicial: Next.js/React para interface, NestJS/TypeScript para API em camadas, PostgreSQL para transações, ORM com migrações controladas, armazenamento privado abstrato e fila substituível. Alternativas consideradas: Java/Spring, .NET, Django; cada uma é viável, mas TypeScript ponta a ponta reduz atrito para um MVP com contratos compartilháveis. Nenhuma dependência será instalada nesta etapa.
 
+## 13.1 Execução local da fundação
+
+Pré-requisitos: Node.js 24, npm 12 e Docker com Docker Compose. A configuração local não contém segredos reais; copie `.env.example` para `.env` somente quando precisar alterar os valores locais padrão.
+
+```bash
+npm install
+npm run lint
+npm test
+npm run build
+docker compose up --build
+```
+
+A interface fica disponível em `http://localhost:3000`, a API em `http://localhost:3001` e o PostgreSQL local na porta `5433` por padrão (configurável por `POSTGRES_PORT`). A fundação ainda não configura acesso da aplicação ao banco, migrações ou recursos de domínio; isso pertence às TASKs posteriores.
+
+Para interromper os serviços, execute `docker compose down`. Não use remoção de volumes como procedimento padrão.
+
 ## 14. Estratégia de segurança e privacidade
 
 Aplicar OWASP ASVS proporcionalmente: hash de senha, JWTs assinados, com expiração e validação de emissor/audiência, expiração e uso único de tokens de ação, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta por 30 dias, prazo configurável, e permite reativação nesse intervalo; a política jurídica definitiva permanece pendente.

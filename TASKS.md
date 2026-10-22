@@ -37,7 +37,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANGES_ALLOWED`, salvo indicação contrária. Cada TASK exige testes definidos, atualização do próprio estado em `TASKS.md` e DoD global de `AGENTS.md`. Mudanças incidentais devem constar do relatório; se não existirem: `Incidental Changes: NONE`.
 
 ### TASK-001 — Inicializar estrutura e qualidade
-**Status:** READY · **Phase:** PHASE-01 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-01 · **Priority:** CRITICAL
 **Objetivo:** Criar estrutura da stack decidida, ferramentas de build/lint/teste e convenções mínimas.
 **Dependências:** `DEPENDS_ON: NONE`
 **Relacionados:** ADR-001, ADR-002, ADR-006, RNF-012,013.
