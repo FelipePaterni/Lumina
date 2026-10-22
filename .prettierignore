@@ -1,0 +1,11 @@
+AGENTS.md
+README.md
+TASKS.md
+docs/
+prompts/
+perguntas-respondidas-prompt-01.md
+node_modules/
+dist/
+.next/
+coverage/
+package-lock.json
