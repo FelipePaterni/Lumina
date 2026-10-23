@@ -14,7 +14,11 @@
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test tests/smoke.test.mjs"
+    "test": "node --test tests/smoke.test.mjs",
+    "test:integration": "node --test --test-concurrency=1 tests/integration/**/*.test.mjs",
+    "db:generate": "npm run db:generate --workspace=@lumina/api",
+    "db:migrate": "npm run db:migrate --workspace=@lumina/api",
+    "db:rollback": "npm run db:rollback --workspace=@lumina/api"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -23,7 +27,11 @@
     "@types/react-dom": "^19.2.2",
     "eslint": "^9.39.1",
     "prettier": "^3.7.4",
+    "prisma": "^6.19.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   }
 }
