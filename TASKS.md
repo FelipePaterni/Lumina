@@ -6,8 +6,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 |---:|---|---|---|---|---|
 | 1 | TASK-001 | PHASE-01 | CRITICAL | NONE | DONE |
 | 2 | TASK-002 | PHASE-01 | HIGH | 001 | DONE |
-| 3 | TASK-003 | PHASE-01 | CRITICAL | 001,002 | READY |
-| 4 | TASK-004 | PHASE-01 | HIGH | 003 | BLOCKED |
+| 3 | TASK-003 | PHASE-01 | CRITICAL | 001,002 | DONE |
+| 4 | TASK-004 | PHASE-01 | HIGH | 003 | READY |
 | 5 | TASK-005 | PHASE-01 | HIGH | 004 | BLOCKED |
 | 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | BLOCKED |
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | BLOCKED |
@@ -59,7 +59,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** banco não é acessado diretamente pela camada web.
 
 ### TASK-003 — Identidade e confirmação de e-mail
-**Status:** READY · **Phase:** PHASE-01 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-01 · **Priority:** CRITICAL
 **Objetivo:** Implementar usuários, senha, registro, confirmação e recuperação seguros.
 **Dependências:** `DEPENDS_ON: TASK-001, TASK-002`
 **Relacionados:** RF-001, RN-001,021, RNF-001–003, ADR-003, ADR-007.
@@ -70,7 +70,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** hash, rate limit e testes de abuso aplicáveis passam.
 
 ### TASK-004 — RBAC, auditoria e exclusão solicitada
-**Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** HIGH
+**Status:** READY · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Criar papéis, guardas de autorização, auditoria e solicitação de desativação.
 **Dependências:** `DEPENDS_ON: TASK-003`
 **Relacionados:** RF-002,022,023; RN-017,018,021; ADR-003, ADR-007.
