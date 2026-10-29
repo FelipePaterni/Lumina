@@ -45,7 +45,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-021 — RBAC: Acesso Negado a Endpoint Administrativo para Cliente (RF-023 / RNF-002)
 
-- **Status:** PASSOU — HTTP 403 nos dois endpoints exercitados
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que o `RolesGuard` nega acesso com HTTP 403 Forbidden quando um cliente tenta acessar endpoint restrito a `ADMIN`.
 - **Pré-condições:**
   - API em execução.
@@ -91,7 +91,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-022 — RBAC: Acesso Autorizado para Admin a Endpoints Administrativos (RF-023)
 
-- **Status:** PASSOU — HTTP 200 nos dois endpoints administrativos
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que um usuário com papel `ADMIN` acessa com sucesso os endpoints protegidos por `@Roles(Role.ADMIN)`.
 - **Pré-condições:**
   - API em execução com `ADMIN_SEED_EMAIL` e `ADMIN_SEED_PASSWORD` definidos.
@@ -127,7 +127,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-023 — RBAC: Alteração de Papel com Motivo Obrigatório (RF-023 / RN-017 / DoD)
 
-- **Status:** PASSOU — HTTP 400, HTTP 400 e HTTP 200
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que `PATCH /admin/users/:id/role` exige motivo (`reason`) obrigatório e registra auditoria (`USER_ROLE_UPDATED`); sem motivo, retorna erro.
 - **Pré-condições:**
   - Admin autenticado (`$adminToken` obtido em MT-022).
@@ -187,7 +187,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-024 — Auditoria Estruturada: Trilha sem PII Explícita (RN-017 / RNF-003 / RNF-008)
 
-- **Status:** PASSOU — auditoria sem PII explícita
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que a tabela `audit_logs` não armazena dados pessoais explícitos (senha, e-mail, CPF, token) em `metadata` ou `reason`, apenas referências por IDs.
 - **Pré-condições:**
   - Pelo menos uma ação sensível gerou registro em `audit_logs` (MT-023 executado).
@@ -222,7 +222,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-025 — Solicitação de Exclusão de Conta (POST /account/deactivate-request / RN-018)
 
-- **Status:** PASSOU — HTTP 201, desativação e notificações simuladas
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que o cliente pode solicitar a exclusão de sua conta, que a conta é imediatamente desativada (`isActive = false`), que o prazo de 30 dias é definido corretamente em `scheduledDeletionAt` e que dois e-mails simulados são gerados (cliente e admin).
 - **Pré-condições:**
   - API em execução.
@@ -279,7 +279,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-026 — Reativação de Conta Dentro do Prazo (POST /account/reactivate / RN-018)
 
-- **Status:** PASSOU — HTTP 201 e conta reativada
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que o usuário pode reativar a conta dentro da janela de 30 dias, que `isActive` volta a `true` e que os timestamps de desativação são limpos.
 - **Pré-condições:**
   - Conta desativada (MT-025 executado com sucesso).
@@ -320,7 +320,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-027 — Proteção contra Auto-Desativação do Único Admin (RN-018 / Regra de Segurança)
 
-- **Status:** PASSOU — HTTP 403
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que o sistema impede que o único Administrador ativo desative sua própria conta via `POST /account/deactivate-request`.
 - **Pré-condições:**
   - API em execução.
@@ -355,7 +355,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-028 — Proteção contra Auto-Rebaixamento de Papel do Admin (RF-023 / Regra de Segurança)
 
-- **Status:** PASSOU — HTTP 403
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que um Administrador não pode alterar o próprio papel para um papel não-`ADMIN` via `PATCH /admin/users/:id/role`.
 - **Pré-condições:**
   - Admin autenticado (`$adminToken` e ID do admin disponíveis).
@@ -395,7 +395,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-029 — Acesso Sem Token a Endpoints Protegidos (RNF-002)
 
-- **Status:** PASSOU — HTTP 401 nos três endpoints
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que todos os endpoints protegidos por `JwtAuthGuard` retornam HTTP 401 Unauthorized para requisições sem token.
 - **Pré-condições:** API em execução.
 - **Procedimento:**
@@ -425,7 +425,7 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 ### MT-030 — Segurança: Ausência de Credenciais em Migrações e Código de Auditoria
 
-- **Status:** PASSOU — nenhuma credencial encontrada
+- **Status:** NÃO EXECUTADO — execução humana pendente; evidência automatizada disponível
 - **Objetivo:** Confirmar que os novos artefatos da TASK-004 não contêm segredos, tokens reais ou PII hardcoded nos arquivos de migração, schema ou código de serviço.
 - **Pré-condições:** Acesso ao repositório local.
 - **Procedimento:**
@@ -461,26 +461,24 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 
 | ID     | Descrição                                                            | Status        |
 |--------|----------------------------------------------------------------------|---------------|
-| MT-021 | RBAC: acesso negado (403) ao cliente em endpoint de Admin            | PASSOU |
-| MT-022 | RBAC: acesso autorizado (200) ao Admin em endpoints administrativos  | PASSOU |
-| MT-023 | Alteração de papel com motivo obrigatório e auditoria gerada         | PASSOU |
-| MT-024 | Auditoria estruturada sem PII explícita em metadata e reason         | PASSOU |
-| MT-025 | Solicitação de exclusão de conta — desativação em 30 dias            | PASSOU |
-| MT-026 | Reativação de conta dentro do prazo                                  | PASSOU |
-| MT-027 | Bloqueio de auto-desativação do único Admin (403)                    | PASSOU |
-| MT-028 | Bloqueio de auto-rebaixamento de papel do Admin (403)               | PASSOU |
-| MT-029 | Acesso sem token retorna 401 em todos os endpoints protegidos        | PASSOU |
-| MT-030 | Segurança: ausência de credenciais nos artefatos da TASK-004         | PASSOU |
+| MT-021 | RBAC: acesso negado (403) ao cliente em endpoint de Admin            | NÃO EXECUTADO |
+| MT-022 | RBAC: acesso autorizado (200) ao Admin em endpoints administrativos  | NÃO EXECUTADO |
+| MT-023 | Alteração de papel com motivo obrigatório e auditoria gerada         | NÃO EXECUTADO |
+| MT-024 | Auditoria estruturada sem PII explícita em metadata e reason         | NÃO EXECUTADO |
+| MT-025 | Solicitação de exclusão de conta — desativação em 30 dias            | NÃO EXECUTADO |
+| MT-026 | Reativação de conta dentro do prazo                                  | NÃO EXECUTADO |
+| MT-027 | Bloqueio de auto-desativação do único Admin (403)                    | NÃO EXECUTADO |
+| MT-028 | Bloqueio de auto-rebaixamento de papel do Admin (403)               | NÃO EXECUTADO |
+| MT-029 | Acesso sem token retorna 401 em todos os endpoints protegidos        | NÃO EXECUTADO |
+| MT-030 | Segurança: ausência de credenciais nos artefatos da TASK-004         | NÃO EXECUTADO |
 
 ---
 
 ## Observações Finais
 
 - **Execução:** 29/10/2026, API local em `http://localhost:3001`, PostgreSQL local em `localhost:5433`; sem credenciais reais.
-- **MT-021–023:** cliente recebeu 403/403; Admin recebeu 200/200; alteração de papel recebeu 400 sem motivo, 400 com motivo curto e 200 com motivo válido.
-- **MT-024:** 0 registros suspeitos em `metadata`/`reason` para o alvo de teste e 0 colunas sensíveis no esquema de `audit_logs`.
-- **MT-025–026:** desativação e reativação receberam HTTP 201; estado final `is_active=true` e `scheduled_deletion_at=NULL`. Os assuntos de notificação esperados foram encontrados na outbox, sem registrar destinatários.
-- **MT-027–029:** auto-desativação e auto-rebaixamento receberam 403; requisições sem token receberam 401/401/401.
-- **MT-030:** 0 matches de credenciais na migration, módulo de auditoria e guards/decorators; `database/schema.prisma` usa `env("DATABASE_URL")`.
+- **EVIDÊNCIA AUTOMATIZADA, NÃO MANUAL:** foram observados os resultados esperados de MT-021–030 em ambiente local; esses resultados não alteram o status dos testes, que permanece `NÃO EXECUTADO` até execução humana.
+- **PENDÊNCIA HUMANA:** preencher `Resultado / Evidência` e os campos de registro de cada cenário após execução manual.
+- **MT-030 — preparação:** a varredura automatizada encontrou 0 matches de credenciais na migration, módulo de auditoria e guards/decorators; `database/schema.prisma` usa `env("DATABASE_URL")`.
 - **Gates aprovados:** build da API, lint, `npm test` (15/15) e integração específica `rbac-and-audit.test.mjs` (passou contra PostgreSQL real).
 - **GATE-005:** após a correção do rollback e do teste de ciclo de migration, `npm run test:integration` terminou 4/4 testes passando; `npm run db:migrate` confirmou que não há migrations pendentes.
