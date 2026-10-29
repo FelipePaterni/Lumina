@@ -70,7 +70,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** hash, rate limit e testes de abuso aplicáveis passam.
 
 ### TASK-004 — RBAC, auditoria e exclusão solicitada
-**Status:** READY · **Phase:** PHASE-01 · **Priority:** HIGH
+**Status:** IN_REVIEW · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Criar papéis, guardas de autorização, auditoria e solicitação de desativação.
 **Dependências:** `DEPENDS_ON: TASK-003`
 **Relacionados:** RF-002,022,023; RN-017,018,021; ADR-003, ADR-007.

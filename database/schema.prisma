@@ -24,17 +24,20 @@ enum Role {
 }
 
 model User {
-  id               String   @id @default(uuid())
-  email            String   @unique
-  passwordHash     String   @map("password_hash")
-  role             Role     @default(CUSTOMER)
-  isEmailConfirmed Boolean  @default(false) @map("is_email_confirmed")
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String    @map("password_hash")
+  role                Role      @default(CUSTOMER)
+  isEmailConfirmed    Boolean   @default(false) @map("is_email_confirmed")
+  isActive            Boolean   @default(true) @map("is_active")
+  deactivatedAt       DateTime? @map("deactivated_at") @db.Timestamptz(6)
+  scheduledDeletionAt DateTime? @map("scheduled_deletion_at") @db.Timestamptz(6)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
+  auditLogs               AuditLog[]
 
   @@map("users")
 }
@@ -74,4 +77,23 @@ model OutboxEmail {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("outbox_emails")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?  @map("actor_id")
+  actorRole  Role?    @map("actor_role")
+  action     String   @db.VarChar(100)
+  targetType String   @map("target_type") @db.VarChar(50)
+  targetId   String?  @map("target_id")
+  reason     String?  @db.Text
+  metadata   String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@map("audit_logs")
 }
