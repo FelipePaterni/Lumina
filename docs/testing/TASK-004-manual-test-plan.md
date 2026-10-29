@@ -483,4 +483,4 @@ Roteiro de testes manuais para validação humana do RBAC (guardas de autorizaç
 - **MT-027–029:** auto-desativação e auto-rebaixamento receberam 403; requisições sem token receberam 401/401/401.
 - **MT-030:** 0 matches de credenciais na migration, módulo de auditoria e guards/decorators; `database/schema.prisma` usa `env("DATABASE_URL")`.
 - **Gates aprovados:** build da API, lint, `npm test` (15/15) e integração específica `rbac-and-audit.test.mjs` (passou contra PostgreSQL real).
-- **GATE COM FALHA CONHECIDA:** `npm run test:integration` terminou 3 pass, 2 skip e 1 fail em `tests/integration/persistence/migration.test.mjs`; o rollback reverte a migration mais recente (TASK-004), mas o teste espera remover `health_persistence` da TASK-002. O banco local foi restaurado e ficou com as 3 migrations aplicadas; nenhuma alteração de código foi feita para mascarar a falha.
+- **GATE-005:** após a correção do rollback e do teste de ciclo de migration, `npm run test:integration` terminou 4/4 testes passando; `npm run db:migrate` confirmou que não há migrations pendentes.

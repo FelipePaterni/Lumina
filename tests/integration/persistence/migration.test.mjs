@@ -25,32 +25,45 @@ test("Database migration up and rollback lifecycle", async () => {
   });
 
   try {
-    // 1. Verify health_persistence table exists
+    // 1. Verify the latest TASK-004 migration is applied
     const tableCheck = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name = 'health_persistence'
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'audit_logs'
     `;
     assert.equal(
       tableCheck.length,
       1,
-      "health_persistence table should exist after migration",
+      "audit_logs table should exist after migration",
     );
 
     // 2. Perform rollback
     const rolledBackMigration = await rollbackLatest(databaseUrl);
     assert.ok(rolledBackMigration, "A migration should have been rolled back");
 
-    // Verify table was dropped by rollback
+    // Verify TASK-004 artifacts were dropped by rollback
     const afterRollbackCheck = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name = 'health_persistence'
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'audit_logs'
     `;
     assert.equal(
       afterRollbackCheck.length,
       0,
-      "health_persistence table should be dropped after rollback",
+      "audit_logs table should be dropped after rollback",
+    );
+
+    const columnsAfterRollback = await prisma.$queryRaw`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'users'
+        AND column_name IN ('deactivated_at', 'scheduled_deletion_at')
+    `;
+    assert.equal(
+      columnsAfterRollback.length,
+      0,
+      "account deletion columns should be dropped after rollback",
     );
 
     // 3. Re-apply migration using db:migrate
@@ -63,16 +76,29 @@ test("Database migration up and rollback lifecycle", async () => {
       stdio: "pipe",
     });
 
-    // 4. Verify table exists again
+    // 4. Verify TASK-004 artifacts exist again
     const restoredCheck = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name = 'health_persistence'
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'audit_logs'
     `;
     assert.equal(
       restoredCheck.length,
       1,
-      "health_persistence table should exist again after re-migration",
+      "audit_logs table should exist again after re-migration",
+    );
+
+    const restoredColumns = await prisma.$queryRaw`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'users'
+        AND column_name IN ('deactivated_at', 'scheduled_deletion_at')
+    `;
+    assert.equal(
+      restoredColumns.length,
+      2,
+      "account deletion columns should exist again after re-migration",
     );
   } finally {
     await prisma.$disconnect();
