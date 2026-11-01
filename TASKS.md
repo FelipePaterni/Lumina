@@ -7,8 +7,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 1 | TASK-001 | PHASE-01 | CRITICAL | NONE | DONE |
 | 2 | TASK-002 | PHASE-01 | HIGH | 001 | DONE |
 | 3 | TASK-003 | PHASE-01 | CRITICAL | 001,002 | DONE |
-| 4 | TASK-004 | PHASE-01 | HIGH | 003 | READY |
-| 5 | TASK-005 | PHASE-01 | HIGH | 004 | BLOCKED |
+| 4 | TASK-004 | PHASE-01 | HIGH | 003 | DONE |
+| 5 | TASK-005 | PHASE-01 | HIGH | 004 | READY |
 | 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | BLOCKED |
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | BLOCKED |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | BLOCKED |
@@ -70,7 +70,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** hash, rate limit e testes de abuso aplicáveis passam.
 
 ### TASK-004 — RBAC, auditoria e exclusão solicitada
-**Status:** IN_REVIEW · **Phase:** PHASE-01 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Criar papéis, guardas de autorização, auditoria e solicitação de desativação.
 **Dependências:** `DEPENDS_ON: TASK-003`
 **Relacionados:** RF-002,022,023; RN-017,018,021; ADR-003, ADR-007.
