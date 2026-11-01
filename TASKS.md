@@ -81,7 +81,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** motivo obrigatório é imposto em ações definidas.
 
 ### TASK-005 — Checkpoint PHASE-01
-**Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** HIGH
+**Status:** READY · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Validar base, identidade, segurança e rastreabilidade da fase.
 **Dependências:** `DEPENDS_ON: TASK-004`
 **Relacionados:** RNF-001–003,012.
