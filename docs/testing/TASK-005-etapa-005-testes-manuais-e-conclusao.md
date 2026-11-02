@@ -218,7 +218,7 @@ Evidências recebidas do responsável em 02/11/2026, sanitizadas neste documento
 | MT-031 | `docker compose build --no-cache api` concluído; PostgreSQL `healthy`; API e Web `Up`; Web `200`; raiz da API `404` sem rota de negócio. | APROVADO |
 | MT-032 | Após aplicação das migrações, cadastro `201`; confirmação `201`; login `201` com usuário `CUSTOMER` confirmado; `/auth/me` `200`. | APROVADO |
 | MT-033 | Recuperação para conta existente e inexistente retornou a mesma resposta genérica `201`; token inválido de confirmação retornou `400`. | APROVADO |
-| MT-034 | Rotas administrativas e desativação sem credencial retornaram `401`; token inválido retornou `401`; não foi apresentada evidência de cliente autenticado recebendo `403`. | APROVADO |
+| MT-034 | Rotas administrativas e desativação sem credencial retornaram `401`; cliente autenticado com papel `CUSTOMER` recebeu `403` em rota administrativa; nenhuma informação administrativa foi retornada. | APROVADO |
 | MT-035 | Admin autenticado executou alteração de status com motivo; PATCH retornou `200`; auditoria retornou `USER_STATUS_UPDATED`, `USER` e `has_reason = t`. | APROVADO |
 | MT-036 | Desativação retornou `201`; estado intermediário `is_active = f`, com desativação e agendamento; reativação retornou `201`; estado final ativo e datas limpas. | APROVADO |
 | MT-037 | Web possui somente dependências esperadas; nenhuma ocorrência de cliente/acesso direto ao banco foi encontrada; schema usa `env("DATABASE_URL")`; `.env` não está versionado. | APROVADO |
@@ -248,7 +248,7 @@ Não marcar `APROVADO` por inferência ou apenas porque os testes automatizados 
 - A matriz de evidências e o plano de validação estão presentes e não foram alterados nesta etapa.
 - Este roteiro é documentação de qualidade dentro do `ALLOWED_CHANGES`.
 - Nenhum código, migration, schema, fixture, segredo ou funcionalidade PHASE-02+ foi alterado.
-- O responsável declarou execução manual integral e aprovação dos cenários; a revisão das evidências sanitizadas identificou que o MT-034 ainda não comprova o caso obrigatório de cliente autenticado recebendo `403`.
+- O responsável declarou execução manual integral e aprovação dos cenários; a evidência sanitizada do MT-034 comprova o caso obrigatório de cliente autenticado recebendo `403`.
 
 ## Conclusão do GATE-005
 
