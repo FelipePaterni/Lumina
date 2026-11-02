@@ -8,7 +8,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 2 | TASK-002 | PHASE-01 | HIGH | 001 | DONE |
 | 3 | TASK-003 | PHASE-01 | CRITICAL | 001,002 | DONE |
 | 4 | TASK-004 | PHASE-01 | HIGH | 003 | DONE |
-| 5 | TASK-005 | PHASE-01 | HIGH | 004 | READY |
+| 5 | TASK-005 | PHASE-01 | HIGH | 004 | DONE |
 | 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | BLOCKED |
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | BLOCKED |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | BLOCKED |
@@ -81,7 +81,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** motivo obrigatório é imposto em ações definidas.
 
 ### TASK-005 — Checkpoint PHASE-01
-**Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-01 · **Priority:** HIGH
 **Objetivo:** Validar base, identidade, segurança e rastreabilidade da fase.
 **Dependências:** `DEPENDS_ON: TASK-004`
 **Relacionados:** RNF-001–003,012.
