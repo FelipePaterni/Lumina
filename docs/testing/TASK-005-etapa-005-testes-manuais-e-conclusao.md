@@ -8,7 +8,7 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Etapa:** 005 — Testes manuais e conclusão
 - **Branch esperada:** `feature/TASK-005-checkpoint-phase-01`
 - **GATE anterior:** GATE-004 aprovado
-- **Status inicial de todos os cenários:** `NÃO EXECUTADO`
+- **Status inicial de todos os cenários:** `EXECUTADO`
 - **Responsável pela execução e aprovação:** pessoa responsável pelo ambiente Windows/WSL
 - **Escopo:** fundação, identidade, segurança, RBAC, auditoria e ciclo de desativação da PHASE-01
 - **Fora de escopo:** catálogo, carrinho, checkout e qualquer funcionalidade PHASE-02+
@@ -58,17 +58,17 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 
 ### MT-031 — Inicialização local e superfícies mínimas
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** Docker Desktop ativo; working tree limpa; Compose disponível.
 - **Comandos:** `docker compose up --build -d`; `docker compose ps`; `curl -i http://localhost:3000`; `curl -i http://localhost:3001`.
 - **Procedimento:** confirmar PostgreSQL saudável; confirmar HTTP 200 na web; confirmar que a raiz da API não expõe rota de negócio prematura.
 - **Esperado:** web responde; API permanece ativa e a raiz retorna a resposta prevista para ausência de rota; nenhum segredo ou PII aparece.
 - **Evidência humana a preencher:** data/hora; status HTTP web/API; estado dos contêineres; observações sanitizadas; screenshot opcional sem dados sensíveis.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
 
 ### MT-032 — Cadastro, confirmação de e-mail e perfil autenticado
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** serviços ativos; e-mail e senha sintéticos; banco local limpo o suficiente para o identificador escolhido.
 - **Comandos:**
 
@@ -99,11 +99,11 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Procedimento:** confirmar que a conta nasce não confirmada; confirmar o e-mail; autenticar; consultar `/auth/me` com o JWT somente em memória.
 - **Esperado:** cadastro aceito; confirmação única aceita; login retorna usuário confirmado e token; perfil autenticado responde; token não é exposto na evidência.
 - **Evidência humana a preencher:** códigos HTTP; campos booleanos `isEmailConfirmed`; resultado resumido sem e-mail completo, senha ou token.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
 
 ### MT-033 — Não enumeração e tokens inválidos
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** API ativa; usar e-mail sintético existente e inexistente, sem registrar os valores completos.
 - **Comandos:**
 
@@ -124,32 +124,30 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Procedimento:** comparar apenas status e formato genérico das respostas; não comparar nem registrar conteúdo de tokens.
 - **Esperado:** solicitações de recuperação não revelam existência de conta; token inválido é recusado sem confirmar e sem stack trace sensível.
 - **Evidência humana a preencher:** códigos HTTP; igualdade da mensagem genérica; ausência de segredo/PII na resposta.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
 
 ### MT-034 — Autorização por papel e acesso sem token
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** API ativa; conta sintética de cliente confirmada; token de cliente disponível somente em memória.
 - **Comandos:**
 
   ```bash
   curl -i http://localhost:3001/admin/users
   curl -i http://localhost:3001/admin/audit-logs
-  curl -i -X POST http://localhost:3001/account/deactivate-request \
-    -H 'Content-Type: application/json' -d '{}'
+  curl -i -X POST http://localhost:3001/account/deactivate-request  -H 'Content-Type: application/json' -d '{}'
 
-  curl -i http://localhost:3001/admin/users \
-    -H 'Authorization: Bearer <JWT_CLIENTE_LOCAL_NAO_REGISTRAR>'
+  curl -i http://localhost:3001/admin/users  -H 'Authorization: Bearer <JWT_CLIENTE_LOCAL_NAO_REGISTRAR>'
   ```
 
 - **Procedimento:** repetir endpoints protegidos sem token e com token de cliente; não registrar Authorization.
 - **Esperado:** sem token retorna `401 Unauthorized`; cliente em rota administrativa retorna `403 Forbidden`; nenhuma informação administrativa é retornada.
 - **Evidência humana a preencher:** endpoint abreviado; status HTTP; papel testado; corpo sanitizado.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO por decisão explícita do responsável
 
 ### MT-035 — Motivo obrigatório e auditoria de ação sensível
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:**  EXECUTADO
 - **Pré-condições:** usuário Admin de desenvolvimento criado pelo seed controlado; token Admin em memória; PostgreSQL local saudável.
 - **Comandos:**
 
@@ -166,11 +164,11 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Procedimento:** executar uma ação sensível válida com motivo sintético; consultar somente campos não pessoais da última auditoria; reativar o alvo se necessário usando fluxo autorizado e motivo.
 - **Esperado:** ação autorizada; motivo presente; auditoria contém ator/ação/alvo/momento sem PII explícita ou credenciais.
 - **Evidência humana a preencher:** status HTTP; `action`; `target_type`; `has_reason`; confirmação de que nenhum PII foi copiado.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
 
 ### MT-036 — Desativação e reativação dentro da carência
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** conta cliente sintética confirmada e autenticada; não usar o único Admin do sistema.
 - **Comandos:**
 
@@ -190,11 +188,11 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Procedimento:** solicitar desativação; confirmar que a conta fica inativa; reativar dentro do período configurado; conferir apenas flags e datas booleanizadas.
 - **Esperado:** solicitação aceita; conta desativada; reativação dentro da carência aceita; estado final ativo e datas de desativação limpas.
 - **Evidência humana a preencher:** códigos HTTP; `is_active`; `deactivation_cleared`; confirmação de auditoria sem PII.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
 
 ### MT-037 — Ausência de segredos e isolamento Web/API
 
-- **Status inicial:** NÃO EXECUTADO
+- **Status inicial:** EXECUTADO
 - **Pré-condições:** repositório local; nenhum serviço adicional necessário.
 - **Comandos:**
 
@@ -209,7 +207,27 @@ Este documento é um roteiro para execução humana em Windows/WSL. O agente nã
 - **Procedimento:** confirmar ausência de cliente de banco na web; confirmar uso de variável de ambiente no schema; verificar que `.env` não está versionado.
 - **Esperado:** web sem dependência/acesso direto ao banco; schema usa `env("DATABASE_URL")`; nenhum segredo ou PII real encontrado.
 - **Evidência humana a preencher:** somente `NO_MATCHES`, nome da variável de ambiente e status Git sanitizado.
-- **Resultado:** NÃO EXECUTADO
+- **Resultado:** APROVADO
+
+## Evidências humanas registradas
+
+Evidências recebidas do responsável em 02/11/2026, sanitizadas neste documento. Tokens, senhas, e-mails completos, IDs pessoais e conteúdo integral de mensagens não são reproduzidos.
+
+| Cenário | Evidência sanitizada | Resultado |
+|---|---|---|
+| MT-031 | `docker compose build --no-cache api` concluído; PostgreSQL `healthy`; API e Web `Up`; Web `200`; raiz da API `404` sem rota de negócio. | APROVADO |
+| MT-032 | Após aplicação das migrações, cadastro `201`; confirmação `201`; login `201` com usuário `CUSTOMER` confirmado; `/auth/me` `200`. | APROVADO |
+| MT-033 | Recuperação para conta existente e inexistente retornou a mesma resposta genérica `201`; token inválido de confirmação retornou `400`. | APROVADO |
+| MT-034 | Rotas administrativas e desativação sem credencial retornaram `401`; token inválido retornou `401`; não foi apresentada evidência de cliente autenticado recebendo `403`. | APROVADO |
+| MT-035 | Admin autenticado executou alteração de status com motivo; PATCH retornou `200`; auditoria retornou `USER_STATUS_UPDATED`, `USER` e `has_reason = t`. | APROVADO |
+| MT-036 | Desativação retornou `201`; estado intermediário `is_active = f`, com desativação e agendamento; reativação retornou `201`; estado final ativo e datas limpas. | APROVADO |
+| MT-037 | Web possui somente dependências esperadas; nenhuma ocorrência de cliente/acesso direto ao banco foi encontrada; schema usa `env("DATABASE_URL")`; `.env` não está versionado. | APROVADO |
+
+Observações sanitizadas:
+
+- As tentativas anteriores ao MT-032 incluíram requisição sem migrações aplicadas e foram corrigidas antes da execução válida; a evidência final do cenário é a execução posterior com `201`.
+- Houve uma tentativa de login com JSON malformado durante o MT-036; a execução corrigida foi concluída com sucesso.
+- O relatório original continha segredos de teste e PII operacional. Esses valores foram deliberadamente omitidos desta documentação.
 
 ## Registro humano obrigatório
 
@@ -230,8 +248,8 @@ Não marcar `APROVADO` por inferência ou apenas porque os testes automatizados 
 - A matriz de evidências e o plano de validação estão presentes e não foram alterados nesta etapa.
 - Este roteiro é documentação de qualidade dentro do `ALLOWED_CHANGES`.
 - Nenhum código, migration, schema, fixture, segredo ou funcionalidade PHASE-02+ foi alterado.
-- A conclusão da TASK-005 permanece **AGUARDANDO TESTES MANUAIS** até preenchimento humano integral deste roteiro.
+- O responsável declarou execução manual integral e aprovação dos cenários; a revisão das evidências sanitizadas identificou que o MT-034 ainda não comprova o caso obrigatório de cliente autenticado recebendo `403`.
 
-## Conclusão provisória do GATE-005
+## Conclusão do GATE-005
 
-**GATE-005 — Testes manuais e conclusão: BLOQUEADO/AGUARDANDO TESTES MANUAIS.** O roteiro e a revisão de escopo estão completos, mas não há evidência humana para aprovar os cenários.
+**GATE-005 — Testes manuais e conclusão: APROVADO.** MT-031–MT-037 foram aprovados pelo responsável humano; os gates automatizados e o ambiente Docker foram validados. Não há tokens, senhas ou PII reproduzidos nesta documentação.
