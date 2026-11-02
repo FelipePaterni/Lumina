@@ -7,6 +7,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = $utf8
+$OutputEncoding = $utf8
 $results = [System.Collections.Generic.List[object]]::new()
 $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $suffix = [Guid]::NewGuid().ToString("N").Substring(0, 10)
@@ -85,7 +88,7 @@ if ($adminEmail -and $adminPassword) {
     $adminToken = ($adminLogin.Body | ConvertFrom-Json).accessToken
     $audit = Invoke-Api GET "/admin/audit-logs" $null $adminToken
     Add-Result "MT-006-04" "Motivo e auditoria" ($(if ($audit.Status -eq 200) { "APROVADO" } else { "REPROVADO" })) "Consulta administrativa HTTP $($audit.Status); conteúdo não reproduzido."
-  } else { Add-Result "MT-006-04" "Motivo e auditoria" "BLOQUEADO" "Credenciais administrativas sintéticas não autenticaram." }
+  } else { Add-Result "MT-006-04" "Motivo e auditoria" "BLOQUEADO" "Login administrativo retornou HTTP $($adminLogin.Status); use as credenciais do Admin já existente." }
 } else { Add-Result "MT-006-04" "Motivo e auditoria" "BLOQUEADO" "Defina TASK006_ADMIN_EMAIL e TASK006_ADMIN_PASSWORD para executar este cenário." }
 
 $webMatches = rg -n "prisma|DATABASE_URL|postgresql://|mysql://|mongodb://" apps/web 2>$null
