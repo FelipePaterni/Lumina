@@ -1,5 +1,6 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /workspace
+ENV NEXT_OUTPUT_STANDALONE=true
 
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/package.json
