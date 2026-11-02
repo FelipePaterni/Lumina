@@ -644,7 +644,7 @@ AVISO: O JSON resultante está truncado porque a serialização excedeu a profun
       "ReasonPhrase": "Forbidden",
       "Headers": "[X-Powered-By, System.String[]] [ETag, System.String[]] [Date, System.String[]] [Connection, System.String[]] [Keep-Alive, System.String[]]",
       "TrailingHeaders": "",
-      "RequestMessage": "Method: POST, RequestUri: 'http://localhost:3001/account/deactivate-request', Version: 1.1, Content: System.Net.Http.ByteArrayContent, Headers:\r\n{\r\n  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwYjYxNTQ0Mi1mMDA0LTQ0NzktYTUyZi01N2UwMDM2MGZhYWMiLCJlbWFpbCI6ImFkbWluLXRlc3RAbHVtaW5hLmxvY2FsIiwicm9sZSI6IkFETUlOIiwiaXNFbWFpbENvbmZpcm1lZCI6dHJ1ZSwiaWF0IjoxNzkzMjk1MzIxLCJleHAiOjE3OTMyOTg5MjEsImF1ZCI6Imx1bWluYS13ZWIiLCJpc3MiOiJsdW1pbmEtYXBpIn0.6yxWCnU8IcIz6MTTlXrzKRIjwivEVZLD6jLqPZinj0w\r\n  User-Agent: Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26300; pt-BR) PowerShell/7.6.9\r\n  Accept-Encoding: gzip, deflate, br\r\n  Content-Type: application/json\r\n  Content-Length: 34\r\n}",
+      "RequestMessage": "Method: POST, RequestUri: 'http://localhost:3001/account/deactivate-request', Version: 1.1, Content: System.Net.Http.ByteArrayContent, Headers:\r\n{\r\n  Authorization: Bearer [TOKEN_REMOVIDO]\r\n  User-Agent: Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26300; pt-BR) PowerShell/7.6.9\r\n  Accept-Encoding: gzip, deflate, br\r\n  Content-Type: application/json\r\n  Content-Length: 34\r\n}",
       "IsSuccessStatusCode": false
     },
     "HttpRequestError": 0,
@@ -723,7 +723,7 @@ AVISO: O JSON resultante está truncado porque a serialização excedeu a profun
     "Category": 7,
     "Activity": "Invoke-RestMethod",
     "Reason": "HttpResponseException",
-    "TargetName": "Method: POST, RequestUri: 'http://localhost:3001/account/deactivate-request', Version: 1.1, Content: System.Net.Http.ByteArrayContent, Headers:\r\n{\r\n  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwYjYxNTQ0Mi1mMDA0LTQ0NzktYTUyZi01N2UwMDM2MGZhYWMiLCJlbWFpbCI6ImFkbWluLXRlc3RAbHVtaW5hLmxvY2FsIiwicm9sZSI6IkFETUlOIiwiaXNFbWFpbENvbmZpcm1lZCI6dHJ1ZSwiaWF0IjoxNzkzMjk1MzIxLCJleHAiOjE3OTMyOTg5MjEsImF1ZCI6Imx1bWluYS13ZWIiLCJpc3MiOiJsdW1pbmEtYXBpIn0.6yxWCnU8IcIz6MTTlXrzKRIjwivEVZLD6jLqPZinj0w\r\n  User-Agent: Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26300; pt-BR) PowerShell/7.6.9\r\n  Accept-Encoding: gzip, deflate, br\r\n  Content-Type: application/json\r\n  Content-Length: 34\r\n}",
+    "TargetName": "Method: POST, RequestUri: 'http://localhost:3001/account/deactivate-request', Version: 1.1, Content: System.Net.Http.ByteArrayContent, Headers:\r\n{\r\n  Authorization: Bearer [TOKEN_REMOVIDO]\r\n  User-Agent: Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26300; pt-BR) PowerShell/7.6.9\r\n  Accept-Encoding: gzip, deflate, br\r\n  Content-Type: application/json\r\n  Content-Length: 34\r\n}",
     "TargetType": "HttpRequestMessage"
   },
   "FullyQualifiedErrorId": "WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeRestMethodCommand",
