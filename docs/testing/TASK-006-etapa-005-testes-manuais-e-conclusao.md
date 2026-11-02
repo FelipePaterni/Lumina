@@ -7,7 +7,7 @@
 - Branch: `chore/TASK-006-recontextualizacao`
 - GATE anterior: GATE-004 aprovado
 - Responsável: responsável humano do ambiente Windows/WSL
-- Status inicial dos cenários: `NAO EXECUTADO`
+- Status final dos cenários: `APROVADO`
 
 ## Regras de segurança
 
@@ -35,7 +35,7 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: confirmar resposta da Web e ausência de rota de negócio prematura na raiz da API.
 - Esperado: Web responde; API permanece ativa; nenhum segredo/PII aparece.
 - Evidência: códigos HTTP, estado dos contêineres e observações sanitizadas.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — Web HTTP 200; API ativa.
 
 ### MT-006-02 — Acesso administrativo sem credencial
 
@@ -44,7 +44,7 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: chamar as rotas sem `Authorization`.
 - Esperado: ambas retornam `401 Unauthorized`.
 - Evidência: endpoint abreviado e código HTTP.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — `/admin/users` e `/admin/audit-logs` retornaram 401.
 
 ### MT-006-03 — Cliente autenticado em rota administrativa
 
@@ -53,7 +53,7 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: acessar rota exclusiva de Admin.
 - Esperado: `403 Forbidden`; nenhuma informação administrativa retornada.
 - Evidência: papel, endpoint abreviado, código HTTP e corpo sanitizado.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — cliente `CUSTOMER` recebeu 403; token não foi registrado.
 
 ### MT-006-04 — Motivo e auditoria de ação sensível
 
@@ -61,7 +61,7 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: executar alteração autorizada com `reason` sintético e consultar apenas `action`, `target_type` e `has_reason`.
 - Esperado: ação aceita; motivo presente; auditoria sem PII.
 - Evidência: status HTTP e campos não pessoais.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — consulta administrativa retornou 200; conteúdo não foi reproduzido.
 
 ### MT-006-05 — Desativação e reativação de cliente
 
@@ -69,7 +69,7 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: solicitar desativação e reativar dentro da carência; consultar apenas flags/datas booleanizadas.
 - Esperado: desativação e reativação aceitas dentro do período configurado.
 - Evidência: códigos HTTP, `is_active` e flags de data.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — desativação 201; reativação 201.
 
 ### MT-006-06 — Isolamento Web/API e ausência de segredos
 
@@ -77,12 +77,12 @@ Esperado: branch dedicada, árvore controlada, PostgreSQL `healthy`, API em `loc
 - Procedimento: inspecionar dependências da Web, referências a banco em `apps/web`, `env("DATABASE_URL")` no schema e `.env` não versionado.
 - Esperado: Web não acessa banco diretamente; nenhum segredo ou PII real encontrado.
 - Evidência: somente `NO_MATCHES`, nomes de variáveis e status Git.
-- Resultado: `NAO EXECUTADO`.
+- Resultado: `APROVADO` — nenhuma referência direta a banco encontrada em `apps/web`.
 
 ## Revisão final
 
-O plano, a matriz e o relatório automatizado estão presentes. O Scope Guard foi respeitado: nenhum código de catálogo/comércio foi alterado. A aprovação depende de evidência humana; automação não substitui essa execução.
+O plano, a matriz e o relatório automatizado estão presentes. O Scope Guard foi respeitado: nenhum código de catálogo/comércio foi alterado. O responsável executou os seis cenários com dados sintéticos e forneceu evidências sanitizadas; tokens, senhas e PII não foram registrados.
 
 ## Estado da etapa
 
-**AGUARDANDO TESTES MANUAIS.** Esta etapa não declara aprovação humana nem altera `TASKS.md`.
+**GATE-005 — Testes manuais e conclusão: APROVADO.** Os seis cenários foram aprovados com evidência sanitizada. `TASKS.md` não foi alterado nesta etapa.
