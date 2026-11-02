@@ -78,3 +78,16 @@ Decisão necessária:
 Use Conventional Commits: `<tipo>(<escopo>): <descrição> [TASK-xxx]`. Commits são pequenos, coesos e exclusivos da TASK.
 
 Ao concluir, informe TASK, estado, branch, commits, mudanças primárias/incidentes, testes, tabela de gates, validação de Scope Guard, DoD e próxima TASK elegível. `README.md` não registra estado de execução.
+
+## Padrão para testes manuais executáveis
+
+Quando uma validação manual exigir comandos, o agente deve criar, por padrão, um script executável dentro de `tests/manual/<task>/` antes da execução. O script deve:
+
+- preparar ou verificar o ambiente local sem ações destrutivas;
+- usar dados sintéticos e manter senhas, tokens, PII e arquivos originais somente em memória;
+- executar os cenários com status verificável, sem declarar aprovação por inferência;
+- gerar automaticamente um relatório sanitizado em `docs/testing/` com data, cenário, status, evidência resumida e falhas;
+- aceitar parâmetros para endpoints, serviços e credenciais sintéticas, sem gravar segredos;
+- ser compatível com o ambiente documentado da TASK e ter sua sintaxe validada antes da execução.
+
+O relatório deve registrar cenários `APROVADO`, `REPROVADO` ou `BLOQUEADO`. Testes manuais continuam exigindo revisão humana quando a TASK assim determinar; a automação do roteiro não substitui essa revisão.
