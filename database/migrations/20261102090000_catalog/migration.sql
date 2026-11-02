@@ -1,0 +1,16 @@
+CREATE TYPE "EditionFormat" AS ENUM ('PHYSICAL', 'DIGITAL');
+CREATE TABLE "authors" ("id" TEXT NOT NULL, "name" TEXT NOT NULL, "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "authors_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "authors_name_key" ON "authors"("name");
+CREATE TABLE "publishers" ("id" TEXT NOT NULL, "name" TEXT NOT NULL, "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "publishers_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "publishers_name_key" ON "publishers"("name");
+CREATE TABLE "categories" ("id" TEXT NOT NULL, "name" TEXT NOT NULL, CONSTRAINT "categories_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
+CREATE TABLE "works" ("id" TEXT NOT NULL, "title" TEXT NOT NULL, "slug" TEXT NOT NULL, "synopsis" TEXT NOT NULL, "cover_url" TEXT, "isbn" TEXT, "language" TEXT NOT NULL DEFAULT 'pt-BR', "release_date" DATE NOT NULL, "edition" TEXT, "is_visible" BOOLEAN NOT NULL DEFAULT true, "author_id" TEXT NOT NULL, "publisher_id" TEXT NOT NULL, "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMPTZ(6) NOT NULL, CONSTRAINT "works_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "works_slug_key" ON "works"("slug"); CREATE INDEX "works_title_idx" ON "works"("title"); CREATE INDEX "works_author_id_idx" ON "works"("author_id");
+ALTER TABLE "works" ADD CONSTRAINT "works_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "authors"("id") ON DELETE RESTRICT ON UPDATE CASCADE; ALTER TABLE "works" ADD CONSTRAINT "works_publisher_id_fkey" FOREIGN KEY ("publisher_id") REFERENCES "publishers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+CREATE TABLE "work_categories" ("work_id" TEXT NOT NULL, "category_id" TEXT NOT NULL, CONSTRAINT "work_categories_pkey" PRIMARY KEY ("work_id","category_id"));
+ALTER TABLE "work_categories" ADD CONSTRAINT "work_categories_work_id_fkey" FOREIGN KEY ("work_id") REFERENCES "works"("id") ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE "work_categories" ADD CONSTRAINT "work_categories_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE TABLE "editions" ("id" TEXT NOT NULL, "work_id" TEXT NOT NULL, "format" "EditionFormat" NOT NULL, "isbn" TEXT, "price_cents" INTEGER NOT NULL, "is_visible" BOOLEAN NOT NULL DEFAULT true, "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updated_at" TIMESTAMPTZ(6) NOT NULL, CONSTRAINT "editions_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "editions_work_id_format_key" ON "editions"("work_id","format"); CREATE INDEX "editions_price_cents_idx" ON "editions"("price_cents");
+ALTER TABLE "editions" ADD CONSTRAINT "editions_work_id_fkey" FOREIGN KEY ("work_id") REFERENCES "works"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE TABLE "_migration_marker_catalog" ("id" TEXT NOT NULL, CONSTRAINT "_migration_marker_catalog_pkey" PRIMARY KEY ("id")); DROP TABLE "_migration_marker_catalog";

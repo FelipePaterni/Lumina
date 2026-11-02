@@ -97,3 +97,79 @@ model AuditLog {
   @@index([targetType, targetId])
   @@map("audit_logs")
 }
+
+model Author {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  works     Work[]
+  @@map("authors")
+}
+
+model Publisher {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  works     Work[]
+  @@map("publishers")
+}
+
+model Category {
+  id        String       @id @default(uuid())
+  name      String       @unique
+  works     WorkCategory[]
+  @@map("categories")
+}
+
+model Work {
+  id          String        @id @default(uuid())
+  title       String
+  slug        String        @unique
+  synopsis    String        @db.Text
+  coverUrl    String?       @map("cover_url")
+  isbn        String?
+  language    String        @default("pt-BR")
+  releaseDate DateTime      @map("release_date") @db.Date
+  edition     String?
+  isVisible   Boolean       @default(true) @map("is_visible")
+  authorId    String        @map("author_id")
+  publisherId String        @map("publisher_id")
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  author      Author        @relation(fields: [authorId], references: [id])
+  publisher   Publisher     @relation(fields: [publisherId], references: [id])
+  categories  WorkCategory[]
+  editions    Edition[]
+  @@index([title])
+  @@index([authorId])
+  @@map("works")
+}
+
+model WorkCategory {
+  workId     String   @map("work_id")
+  categoryId String   @map("category_id")
+  work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  @@id([workId, categoryId])
+  @@map("work_categories")
+}
+
+enum EditionFormat {
+  PHYSICAL
+  DIGITAL
+}
+
+model Edition {
+  id          String        @id @default(uuid())
+  workId      String        @map("work_id")
+  format      EditionFormat
+  isbn        String?
+  priceCents  Int           @map("price_cents")
+  isVisible   Boolean       @default(true) @map("is_visible")
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  work        Work          @relation(fields: [workId], references: [id], onDelete: Cascade)
+  @@unique([workId, format])
+  @@index([priceCents])
+  @@map("editions")
+}
