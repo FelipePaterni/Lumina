@@ -1,14 +1,10 @@
-# Resultado dos testes manuais - TASK-007
+﻿# Resultado dos testes manuais - TASK-007
 
-Executado em UTC: 2026-11-02T23:24:15.5023692Z
+Executado em UTC: 2026-11-02T23:36:39.6252441Z
 
-Evidência fornecida pelo responsável; nenhum token, senha ou PII foi registrado.
+Modo: verificação de pré-condições; nenhum cenário foi aprovado automaticamente.
 
 | ID | Cenário | Status | Evidência sanitizada |
 |---|---|---|---|
-| MT-007-01 | Catálogo público disponível | BLOQUEADO | API não disponível ou respondeu HTTP 404. |
-| MT-007-02 | Página de catálogo responsiva | NAO EXECUTADO | Web respondeu HTTP 200; validação visual ainda não registrada. |
-
-## Conclusão
-
-A Etapa 006 permanece BLOQUEADA. O endpoint público da API precisa estar disponível e responder conforme o contrato antes da repetição dos cenários. A resposta HTTP 200 da Web não substitui a validação visual humana.
+| MT-007-01 | Catálogo público disponível | NAO EXECUTADO | Pré-condição detectada: API respondeu 200; revisão humana ainda necessária. |
+| MT-007-02 | Página de catálogo responsiva | NAO EXECUTADO | Pré-condição detectada: Web respondeu 200; validar visualmente em desktop/mobile. |
