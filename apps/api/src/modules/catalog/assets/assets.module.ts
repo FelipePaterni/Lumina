@@ -6,5 +6,9 @@ import { IdentityModule } from "../../identity/identity.module.js";
 import { AuditModule } from "../../audit/audit.module.js";
 import { PrivateLocalStorage } from "../../../storage/private-local.storage.js";
 
-@Module({ imports: [PrismaModule, IdentityModule, AuditModule], controllers: [AssetsController], providers: [AssetsService, PrivateLocalStorage] })
+@Module({
+  imports: [PrismaModule, IdentityModule, AuditModule],
+  controllers: [AssetsController],
+  providers: [AssetsService, PrivateLocalStorage],
+})
 export class AssetsModule {}

@@ -7,6 +7,13 @@ import { InventoryModule } from "./modules/inventory/inventory.module.js";
 import { AssetsModule } from "./modules/catalog/assets/assets.module.js";
 
 @Module({
-  imports: [PrismaModule, IdentityModule, AuditModule, CatalogModule, InventoryModule, AssetsModule],
+  imports: [
+    PrismaModule,
+    IdentityModule,
+    AuditModule,
+    CatalogModule,
+    InventoryModule,
+    AssetsModule,
+  ],
 })
 export class AppModule {}
