@@ -12,8 +12,8 @@ Modo: verificação de pré-condições; nenhum cenário foi aprovado automatica
 | MT-007-04 | ISBN inválido | APROVADO | ISBN inválido rejeitado com HTTP 400. |
 | MT-007-05 | RBAC | APROVADO | CUSTOMER autenticado tentou criar obra e recebeu HTTP 403. |
 | MT-007-06 | Visibilidade e auditoria | APROVADO | Ocultação/reexibição retornou sucesso e auditoria registrou ambas as ações com motivo. |
-| MT-007-07 | Busca e teclado | NAO EXECUTADO | Pesquisar por título/autor e navegar até o campo de busca usando `Tab`; confirmar resultado e operação sem mouse. |
+| MT-007-07 | Busca e teclado | APROVADO | Responsável confirmou busca por título/autor e navegação até o campo usando `Tab`; validação visual/manual, sem captura anexada. |
 
 ## O que falta testar
 
-- MT-007-07: validar busca e acessibilidade básica por teclado.
+- Nenhuma pendência de cenário manual informada pelo responsável.
