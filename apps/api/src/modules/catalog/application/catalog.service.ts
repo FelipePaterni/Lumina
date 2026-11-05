@@ -35,7 +35,15 @@ export class CatalogService {
       if (id) { await tx.workCategory.deleteMany({ where: { workId: work.id } }); await tx.edition.deleteMany({ where: { workId: work.id } }); }
       if (categories.length) await tx.workCategory.createMany({ data: categories.map((category) => ({ workId: work.id, categoryId: category.id })) });
       await tx.edition.createMany({ data: input.editions.map((e) => ({ workId: work.id, format: e.format, isbn: e.isbn, priceCents: e.priceCents, isVisible: e.isVisible !== false })) });
-      return this.get(work.slug, true);
+      return tx.work.findUniqueOrThrow({
+        where: { id: work.id },
+        include: {
+          author: true,
+          publisher: true,
+          categories: { include: { category: true } },
+          editions: true,
+        },
+      });
     });
   }
   async hide(id: string, isVisible: boolean) { return this.prisma.work.update({ where: { id }, data: { isVisible } }); }
