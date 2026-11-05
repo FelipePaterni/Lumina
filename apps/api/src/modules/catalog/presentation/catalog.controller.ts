@@ -6,11 +6,12 @@ import { Roles } from "../../identity/presentation/decorators/roles.decorator.js
 import { Role } from "../../identity/domain/role.enum.js";
 import { AuditService } from "../../audit/application/services/audit.service.js";
 import { WorkInput } from "../application/catalog.service.js";
+import { CatalogSearchService } from "../search/catalog-search.service.js";
 
 @Controller("works")
 export class CatalogController {
-  constructor(private readonly catalog: CatalogService, private readonly audit: AuditService) {}
-  @Get() list(@Query("search") search?: string, @Query("category") category?: string) { return this.catalog.list({ search, category }); }
+  constructor(private readonly catalog: CatalogService, private readonly searchService: CatalogSearchService, private readonly audit: AuditService) {}
+  @Get() list(@Query() query: Record<string, string>) { return this.searchService.search({ search: query.search, category: query.category, language: query.language, minPriceCents: query.minPriceCents ? Number(query.minPriceCents) : undefined, maxPriceCents: query.maxPriceCents ? Number(query.maxPriceCents) : undefined, releaseFrom: query.releaseFrom, releaseTo: query.releaseTo, page: query.page ? Number(query.page) : undefined, limit: query.limit ? Number(query.limit) : undefined }); }
   @Get(":slug") get(@Param("slug") slug: string) { return this.catalog.get(slug); }
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)

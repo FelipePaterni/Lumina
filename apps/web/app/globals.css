@@ -27,4 +27,7 @@ article { background: #fffdf9; padding: 1.25rem; border: 1px solid #e5ddd2; }
 .author { color: #6d746e; font: .9rem Arial, sans-serif; }
 .editions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
 .editions span { background: #eee6da; padding: .4rem .55rem; font: .78rem Arial, sans-serif; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0; }
+.pagination button { border: 1px solid #315848; border-radius: 4px; background: #315848; color: #fff; padding: .65rem 1rem; cursor: pointer; }
+.pagination button:disabled { opacity: .45; cursor: not-allowed; }
 @media (max-width: 600px) { main { padding: 2rem 1rem; } }
