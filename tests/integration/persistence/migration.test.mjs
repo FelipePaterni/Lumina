@@ -45,12 +45,13 @@ test("Database migration up and rollback lifecycle", async () => {
     const afterRollbackCheck = await prisma.$queryRaw`
       SELECT table_name
       FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'works'
+      WHERE table_schema = 'public'
+        AND table_name IN ('inventories', 'digital_assets', 'digital_asset_versions')
     `;
     assert.equal(
       afterRollbackCheck.length,
       0,
-      "works table should be dropped after rollback",
+      "TASK-009 tables should be dropped after rollback",
     );
 
     // 3. Re-apply migration using db:migrate

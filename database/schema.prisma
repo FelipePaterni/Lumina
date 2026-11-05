@@ -103,6 +103,7 @@ model Author {
   name      String   @unique
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   works     Work[]
+
   @@map("authors")
 }
 
@@ -111,35 +112,38 @@ model Publisher {
   name      String   @unique
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   works     Work[]
+
   @@map("publishers")
 }
 
 model Category {
-  id        String       @id @default(uuid())
-  name      String       @unique
-  works     WorkCategory[]
+  id    String         @id @default(uuid())
+  name  String         @unique
+  works WorkCategory[]
+
   @@map("categories")
 }
 
 model Work {
-  id          String        @id @default(uuid())
+  id          String         @id @default(uuid())
   title       String
-  slug        String        @unique
-  synopsis    String        @db.Text
-  coverUrl    String?       @map("cover_url")
+  slug        String         @unique
+  synopsis    String         @db.Text
+  coverUrl    String?        @map("cover_url")
   isbn        String?
-  language    String        @default("pt-BR")
-  releaseDate DateTime      @map("release_date") @db.Date
+  language    String         @default("pt-BR")
+  releaseDate DateTime       @map("release_date") @db.Date
   edition     String?
-  isVisible   Boolean       @default(true) @map("is_visible")
-  authorId    String        @map("author_id")
-  publisherId String        @map("publisher_id")
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  author      Author        @relation(fields: [authorId], references: [id])
-  publisher   Publisher     @relation(fields: [publisherId], references: [id])
+  isVisible   Boolean        @default(true) @map("is_visible")
+  authorId    String         @map("author_id")
+  publisherId String         @map("publisher_id")
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  author      Author         @relation(fields: [authorId], references: [id])
+  publisher   Publisher      @relation(fields: [publisherId], references: [id])
   categories  WorkCategory[]
   editions    Edition[]
+
   @@index([title])
   @@index([authorId])
   @@map("works")
@@ -150,6 +154,7 @@ model WorkCategory {
   categoryId String   @map("category_id")
   work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   @@id([workId, categoryId])
   @@map("work_categories")
 }
@@ -160,16 +165,81 @@ enum EditionFormat {
 }
 
 model Edition {
-  id          String        @id @default(uuid())
-  workId      String        @map("work_id")
-  format      EditionFormat
-  isbn        String?
-  priceCents  Int           @map("price_cents")
-  isVisible   Boolean       @default(true) @map("is_visible")
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
-  work        Work          @relation(fields: [workId], references: [id], onDelete: Cascade)
+  id           String        @id @default(uuid())
+  workId       String        @map("work_id")
+  format       EditionFormat
+  isbn         String?
+  priceCents   Int           @map("price_cents")
+  isVisible    Boolean       @default(true) @map("is_visible")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  work         Work          @relation(fields: [workId], references: [id], onDelete: Cascade)
+  inventory    Inventory?
+  digitalAsset DigitalAsset?
+
   @@unique([workId, format])
   @@index([priceCents])
   @@map("editions")
+}
+
+model Inventory {
+  id                  String              @id @default(uuid())
+  editionId           String              @unique @map("edition_id")
+  physicalStock       Int                 @default(0) @map("physical_stock")
+  digitalLicenseLimit Int?                @map("digital_license_limit")
+  digitalAllocated    Int                 @default(0) @map("digital_allocated")
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  edition             Edition             @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  movements           InventoryMovement[]
+
+  @@map("inventories")
+}
+
+enum InventoryMovementType {
+  PHYSICAL_ADJUSTMENT
+  DIGITAL_ALLOCATION
+  DIGITAL_RELEASE
+}
+
+model InventoryMovement {
+  id          String                @id @default(uuid())
+  inventoryId String                @map("inventory_id")
+  type        InventoryMovementType
+  quantity    Int
+  reason      String                @db.Text
+  actorId     String?               @map("actor_id")
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  inventory   Inventory             @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryId, createdAt])
+  @@map("inventory_movements")
+}
+
+model DigitalAsset {
+  id        String                @id @default(uuid())
+  editionId String                @unique @map("edition_id")
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  edition   Edition               @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  versions  DigitalAssetVersion[]
+
+  @@map("digital_assets")
+}
+
+model DigitalAssetVersion {
+  id          String       @id @default(uuid())
+  assetId     String       @map("asset_id")
+  version     Int
+  storageKey  String       @map("storage_key") @db.VarChar(500)
+  checksum    String       @db.VarChar(128)
+  mimeType    String       @map("mime_type") @db.VarChar(120)
+  isOriginal  Boolean      @default(false) @map("is_original")
+  createdById String?      @map("created_by_id")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  asset       DigitalAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, version])
+  @@index([assetId, isOriginal])
+  @@map("digital_asset_versions")
 }
