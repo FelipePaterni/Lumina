@@ -41,29 +41,16 @@ test("Database migration up and rollback lifecycle", async () => {
     const rolledBackMigration = await rollbackLatest(databaseUrl);
     assert.ok(rolledBackMigration, "A migration should have been rolled back");
 
-    // Verify TASK-004 artifacts were dropped by rollback
+    // Verify the latest migration artifacts were dropped by rollback.
     const afterRollbackCheck = await prisma.$queryRaw`
       SELECT table_name
       FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'audit_logs'
+      WHERE table_schema = 'public' AND table_name = 'works'
     `;
     assert.equal(
       afterRollbackCheck.length,
       0,
-      "audit_logs table should be dropped after rollback",
-    );
-
-    const columnsAfterRollback = await prisma.$queryRaw`
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-        AND table_name = 'users'
-        AND column_name IN ('deactivated_at', 'scheduled_deletion_at')
-    `;
-    assert.equal(
-      columnsAfterRollback.length,
-      0,
-      "account deletion columns should be dropped after rollback",
+      "works table should be dropped after rollback",
     );
 
     // 3. Re-apply migration using db:migrate

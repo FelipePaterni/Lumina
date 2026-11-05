@@ -10,7 +10,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 4 | TASK-004 | PHASE-01 | HIGH | 003 | DONE |
 | 5 | TASK-005 | PHASE-01 | HIGH | 004 | DONE |
 | 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | DONE |
-| 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | IN_PROGRESS |
+| 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | DONE |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | BLOCKED |
@@ -103,7 +103,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** TASK-007 pode se tornar READY.
 
 ### TASK-007 — Domínio e administração do catálogo
-**Status:** IN_REVIEW · **Phase:** PHASE-02 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-02 · **Priority:** CRITICAL
 **Objetivo:** Implementar obra, autor, editora, categorias, edição, ISBN, preço e visibilidade.
 **Dependências:** `DEPENDS_ON: TASK-006`
 **Relacionados:** RF-003–005; RN-002,003.

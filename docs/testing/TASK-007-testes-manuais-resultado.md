@@ -17,3 +17,12 @@ Modo: execução manual confirmada pelo responsável; os resultados abaixo são 
 ## O que falta testar
 
 - Nenhuma pendência de cenário manual informada pelo responsável.
+
+## Gates automatizados finais
+
+| Gate | Resultado | Evidência |
+|---|---|---|
+| Lint | APROVADO | `npm run lint` sem erros. |
+| Build API | APROVADO | `npm run build --workspace=@lumina/api` concluído. |
+| Build Web | APROVADO | Build Docker/Next concluído; CSS servido com HTTP 200. |
+| Integração | APROVADO | 4 testes passaram; rollback e reaplicação da migração concluídos. |
