@@ -2,7 +2,7 @@
 
 Executado em UTC: 2026-11-05 — atualização baseada em confirmação do responsável
 
-Modo: verificação de pré-condições; nenhum cenário foi aprovado automaticamente.
+Modo: execução manual confirmada pelo responsável; os resultados abaixo são evidências sanitizadas.
 
 | ID | Cenário | Status | Evidência sanitizada |
 |---|---|---|---|
