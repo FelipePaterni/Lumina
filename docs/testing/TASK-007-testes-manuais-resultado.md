@@ -1,0 +1,28 @@
+﻿    # Resultado dos testes manuais - TASK-007
+
+Executado em UTC: 2026-11-05 — atualização baseada em confirmação do responsável
+
+Modo: execução manual confirmada pelo responsável; os resultados abaixo são evidências sanitizadas.
+
+| ID | Cenário | Status | Evidência sanitizada |
+|---|---|---|---|
+| MT-007-01 | Catálogo público disponível | APROVADO | Responsável confirmou API respondeu HTTP 200. |
+| MT-007-02 | Página de catálogo responsiva | APROVADO | Responsável confirmou Web respondeu HTTP 200. |
+| MT-007-03 | CRUD autorizado | APROVADO | Obra criada com ADMIN; duas categorias e edições física/digital com preços próprios retornadas. |
+| MT-007-04 | ISBN inválido | APROVADO | ISBN inválido rejeitado com HTTP 400. |
+| MT-007-05 | RBAC | APROVADO | CUSTOMER autenticado tentou criar obra e recebeu HTTP 403. |
+| MT-007-06 | Visibilidade e auditoria | APROVADO | Ocultação/reexibição retornou sucesso e auditoria registrou ambas as ações com motivo. |
+| MT-007-07 | Busca e teclado | APROVADO | Responsável confirmou busca por título/autor e navegação até o campo usando `Tab`; validação visual/manual, sem captura anexada. |
+
+## O que falta testar
+
+- Nenhuma pendência de cenário manual informada pelo responsável.
+
+## Gates automatizados finais
+
+| Gate | Resultado | Evidência |
+|---|---|---|
+| Lint | APROVADO | `npm run lint` sem erros. |
+| Build API | APROVADO | `npm run build --workspace=@lumina/api` concluído. |
+| Build Web | APROVADO | Build Docker/Next concluído; CSS servido com HTTP 200. |
+| Integração | APROVADO | 4 testes passaram; rollback e reaplicação da migração concluídos. |

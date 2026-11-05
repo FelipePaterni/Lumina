@@ -16,5 +16,7 @@ ENV NODE_ENV=production
 
 COPY --from=build /workspace/apps/web/.next/standalone ./
 COPY --from=build /workspace/apps/web/.next/static ./.next/static
+# O standalone pode resolver assets relativos ao workspace da aplicação.
+COPY --from=build /workspace/apps/web/.next/static ./apps/web/.next/static
 EXPOSE 3000
 CMD ["node", "apps/web/server.js"]

@@ -9,9 +9,9 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 3 | TASK-003 | PHASE-01 | CRITICAL | 001,002 | DONE |
 | 4 | TASK-004 | PHASE-01 | HIGH | 003 | DONE |
 | 5 | TASK-005 | PHASE-01 | HIGH | 004 | DONE |
-| 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | BLOCKED |
-| 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | BLOCKED |
-| 8 | TASK-008 | PHASE-02 | HIGH | 007 | BLOCKED |
+| 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | DONE |
+| 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | DONE |
+| 8 | TASK-008 | PHASE-02 | HIGH | 007 | READY |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | BLOCKED |
@@ -92,7 +92,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** nenhum bloqueador de fundação conhecido.
 
 ### TASK-006 — Checkpoint de transição PHASE-01
-**Status:** BLOCKED · **Phase:** PHASE-01 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-01 · **Priority:** CRITICAL
 **Objetivo:** Autorizar formalmente início do catálogo após revalidar dependências.
 **Dependências:** `DEPENDS_ON: TASK-001, TASK-002, TASK-003, TASK-004, TASK-005`
 **Relacionados:** todos PHASE-01.
@@ -103,7 +103,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** TASK-007 pode se tornar READY.
 
 ### TASK-007 — Domínio e administração do catálogo
-**Status:** BLOCKED · **Phase:** PHASE-02 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-02 · **Priority:** CRITICAL
 **Objetivo:** Implementar obra, autor, editora, categorias, edição, ISBN, preço e visibilidade.
 **Dependências:** `DEPENDS_ON: TASK-006`
 **Relacionados:** RF-003–005; RN-002,003.
