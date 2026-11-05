@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../../infrastructure/persistence/prisma.service.js";
-import { EditionFormat } from "@prisma/client";
+import { EditionFormat, Prisma } from "@prisma/client";
 
 export interface EditionInput { format: EditionFormat; isbn?: string; priceCents: number; isVisible?: boolean }
 export interface WorkInput { title: string; author: string; publisher: string; synopsis: string; releaseDate: string; editions: EditionInput[]; categories?: string[]; slug?: string; coverUrl?: string; isbn?: string; language?: string; edition?: string; isVisible?: boolean; reason?: string }
@@ -26,7 +26,8 @@ export class CatalogService {
     if (input.isbn && !validIsbn(input.isbn)) throw new BadRequestException("ISBN inválido");
     for (const edition of input.editions) if (!validIsbn(edition.isbn) || !Number.isInteger(edition.priceCents) || edition.priceCents < 0) throw new BadRequestException("Edição inválida");
     const slug = input.slug ?? input.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    return this.prisma.$transaction(async (tx) => {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
       const author = await tx.author.upsert({ where: { name: input.author }, update: {}, create: { name: input.author } });
       const publisher = await tx.publisher.upsert({ where: { name: input.publisher }, update: {}, create: { name: input.publisher } });
       const categories = await Promise.all((input.categories ?? []).map((name: string) => tx.category.upsert({ where: { name }, update: {}, create: { name } })));
@@ -44,7 +45,13 @@ export class CatalogService {
           editions: true,
         },
       });
-    });
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new ConflictException("Já existe uma obra com este slug");
+      }
+      throw error;
+    }
   }
   async hide(id: string, isVisible: boolean) { return this.prisma.work.update({ where: { id }, data: { isVisible } }); }
 }
