@@ -1,6 +1,6 @@
 # Roteiro manual TASK-009
 
-Pré-condições: GATE-005 aprovado, PostgreSQL/migrações aplicados, API em `http://localhost:3001`, containers ativos e uma edição física e uma edição digital sintéticas disponíveis. Use somente dados fictícios. O script registra apenas status HTTP e não grava tokens, senhas, conteúdo de arquivos ou PII.
+Pré-condições: GATE-005 aprovado, PostgreSQL/migrações aplicados, API em `http://localhost:3001`, containers ativos e uma edição física e uma edição digital sintéticas disponíveis. Use somente dados fictícios. O script registra evidência sanitizada; não grava tokens, senhas, conteúdo de arquivos ou PII. Antes de executar, confirme que a sessão PowerShell suporta `Invoke-WebRequest -SkipHttpErrorCheck`.
 
 Para obter os IDs sem expor dados sensíveis, consulte a API de catálogo e selecione manualmente os IDs das edições sintéticas. Mantenha o token somente em memória no terminal.
 
@@ -28,3 +28,39 @@ Invoke-RestMethod "$api/inventory/$physicalEditionId" -Headers $headers
 ```
 
 O token, `$physicalEditionId` e `$digitalEditionId` devem existir somente na sessão do PowerShell e não devem ser gravados no relatório.
+
+## Executar o roteiro automatizado
+
+Na raiz do repositório, use uma edição física e uma digital sintéticas. O script pede credencial `ADMIN`; se `-CustomerCredential` não for informado, cria um cliente sintético, confirma o e-mail pela caixa de saída local do PostgreSQL e mantém senha/token somente em memória.
+
+```powershell
+$adminCredential = Get-Credential
+.\tests\manual\task-009\run-task-009-manual-tests.ps1 `
+  -PhysicalEditionId $physicalEditionId `
+  -DigitalEditionId $digitalEditionId `
+  -AdminCredential $adminCredential `
+  -PublicRouteInventoryReviewed
+```
+
+Antes de usar `-PublicRouteInventoryReviewed`, revise a superfície dos controllers e de configuração HTTP para confirmar que nenhuma rota pública serve arquivos privados. Na raiz, use `rg -n '@Controller|@Get|ServeStatic|express\.static' apps/api/src` e confira os handlers relevantes; registre a conclusão sanitizada no relatório. O teste HTTP de caminho presumido é evidência complementar, não prova isolada de ausência de outra rota.
+
+Para usar uma conta `CUSTOMER` sintética existente, passe também `-CustomerCredential (Get-Credential)`. O script executa os dez cenários, mostra status HTTP e acrescenta uma seção datada a `docs/testing/TASK-009-testes-manuais-resultado.md`, preservando evidências existentes. Cada execução altera o estoque físico para 5, configura o limite digital, registra auditoria e grava duas versões de conteúdo sintético; use somente o banco local de teste. O relatório nunca inclui credenciais, tokens, IDs, conteúdo de arquivo ou PII.
+
+## Banco isolado para integração do GATE-005
+
+Os testes de integração exigem `TASK009_TEST_DATABASE_URL` apontando exatamente para `lumina_task009_test`; a suíte não usa fallback para o banco `lumina`. No PowerShell, leia a URL base configurada em `.env`, troque o nome do banco e mantenha a URL somente em memória:
+
+```powershell
+$databaseUrlLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$databaseUrl = ($databaseUrlLine -split '=', 2)[1].Trim().Trim('"').Trim("'")
+$testDatabaseUri = [System.UriBuilder]$databaseUrl
+$testDatabaseUri.Path = '/lumina_task009_test'
+$env:TASK009_TEST_DATABASE_URL = $testDatabaseUri.Uri.AbsoluteUri
+$env:DATABASE_URL = $env:TASK009_TEST_DATABASE_URL
+
+docker compose exec -T postgres sh -c 'createdb -U "$POSTGRES_USER" lumina_task009_test'
+npm run db:migrate
+npm run test:integration
+```
+
+Execute `createdb` uma vez; se o banco já existir, mantenha-o e aplique as migrações. Não use `npm run db:rollback` nem execute a suíte com o banco de desenvolvimento. O ciclo de migração é verificado por deploy idempotente, sem rollback destrutivo.
