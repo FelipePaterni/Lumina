@@ -1,27 +1,20 @@
 import assert from "node:assert/strict";
-import process from "node:process";
 import test from "node:test";
 import { PrismaClient } from "@prisma/client";
 import { Role } from "../../../apps/api/dist/modules/identity/domain/role.enum.js";
 import { AccountService } from "../../../apps/api/dist/modules/identity/application/services/account.service.js";
 import { EmailDispatcherService } from "../../../apps/api/dist/modules/identity/application/services/email-dispatcher.service.js";
 import { AuditService } from "../../../apps/api/dist/modules/audit/application/services/audit.service.js";
+import { getIntegrationDatabaseUrl } from "../test-database.mjs";
 
-test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async (t) => {
-  const databaseUrl =
-    process.env.DATABASE_URL ||
-    "postgresql://lumina:local-development-only@localhost:5433/lumina";
+test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async () => {
+  const databaseUrl = getIntegrationDatabaseUrl();
 
   const prisma = new PrismaClient({
     datasources: { db: { url: databaseUrl } },
   });
 
-  try {
-    await prisma.$connect();
-  } catch {
-    t.skip("PostgreSQL unavailable - skipping RBAC & audit integration test");
-    return;
-  }
+  await prisma.$connect();
 
   try {
     const emailDispatcher = new EmailDispatcherService(prisma);

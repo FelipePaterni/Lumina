@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import process from "node:process";
 import test from "node:test";
 import { PrismaClient } from "@prisma/client";
 import { PasswordHasherService } from "../../../apps/api/dist/modules/identity/application/services/password-hasher.service.js";
@@ -8,23 +7,16 @@ import { JwtTokenService } from "../../../apps/api/dist/modules/identity/applica
 import { EmailDispatcherService } from "../../../apps/api/dist/modules/identity/application/services/email-dispatcher.service.js";
 import { AuthService } from "../../../apps/api/dist/modules/identity/application/services/auth.service.js";
 import { runAdminSeed } from "../../../database/seeds/admin-seed.mjs";
+import { getIntegrationDatabaseUrl } from "../test-database.mjs";
 
-test("AuthService & Seed - Fluxo de identidade e regras de negócio", async (t) => {
-  const databaseUrl =
-    process.env.DATABASE_URL ||
-    "postgresql://lumina:local-development-only@localhost:5433/lumina";
+test("AuthService & Seed - Fluxo de identidade e regras de negócio", async () => {
+  const databaseUrl = getIntegrationDatabaseUrl();
 
   const prisma = new PrismaClient({
     datasources: { db: { url: databaseUrl } },
   });
 
-  // Verify connectivity first
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-  } catch {
-    t.skip("Banco de dados PostgreSQL inacessível para teste de integração");
-    return;
-  }
+  await prisma.$queryRaw`SELECT 1`;
 
   const hasher = new PasswordHasherService();
   const tokenService = new TokenService();

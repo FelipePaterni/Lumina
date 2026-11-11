@@ -1,12 +1,10 @@
 import assert from "node:assert/strict";
-import process from "node:process";
 import test from "node:test";
 import { PrismaClient } from "@prisma/client";
+import { getIntegrationDatabaseUrl } from "../test-database.mjs";
 
 test("PostgreSQL connection and health persistence via Prisma", async () => {
-  const databaseUrl =
-    process.env.DATABASE_URL ||
-    "postgresql://lumina:local-development-only@localhost:5433/lumina";
+  const databaseUrl = getIntegrationDatabaseUrl();
 
   const prisma = new PrismaClient({
     datasources: {
