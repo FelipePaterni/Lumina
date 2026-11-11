@@ -29,6 +29,10 @@ export class InventoryService {
     const result = await this.prisma.$transaction(async (tx) => {
       const edition = await tx.edition.findUnique({ where: { id: editionId } });
       if (!edition) throw new NotFoundException("Edição não encontrada");
+      if (edition.format !== "PHYSICAL")
+        throw new BadRequestException(
+          "Estoque físico só pode ser ajustado em edição física",
+        );
       const inventory = await tx.inventory.upsert({
         where: { editionId },
         update: { physicalStock: stock },
@@ -72,6 +76,10 @@ export class InventoryService {
     const result = await this.prisma.$transaction(async (tx) => {
       const edition = await tx.edition.findUnique({ where: { id: editionId } });
       if (!edition) throw new NotFoundException("Edição não encontrada");
+      if (edition.format !== "DIGITAL")
+        throw new BadRequestException(
+          "Licença digital só pode ser configurada em edição digital",
+        );
       const inventory = await tx.inventory.upsert({
         where: { editionId },
         update: { digitalLicenseLimit: limit },

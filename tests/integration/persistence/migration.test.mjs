@@ -5,89 +5,61 @@ import process from "node:process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
-import { rollbackLatest } from "../../../database/scripts/rollback.mjs";
+import { getIntegrationDatabaseUrl } from "../test-database.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "../../..");
 
-test("Database migration up and rollback lifecycle", async () => {
-  const databaseUrl =
-    process.env.DATABASE_URL ||
-    "postgresql://lumina:local-development-only@localhost:5433/lumina";
+function deployMigrations(databaseUrl) {
+  execSync("npm run db:migrate", {
+    cwd: rootDir,
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+    },
+    stdio: "pipe",
+  });
+}
+
+test("TASK-009 migrations deploy idempotently on an isolated database", async () => {
+  const databaseUrl = getIntegrationDatabaseUrl();
+
+  // Migration verification must be isolated and forward-only. Never roll back
+  // the latest migration: that could delete inventory data and does not model
+  // a safe production recovery path.
+  deployMigrations(databaseUrl);
+  deployMigrations(databaseUrl);
 
   const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: databaseUrl,
-      },
-    },
+    datasources: { db: { url: databaseUrl } },
   });
 
   try {
-    // 1. Verify the latest TASK-004 migration is applied
-    const tableCheck = await prisma.$queryRaw`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'audit_logs'
+    const schemaObjects = await prisma.$queryRaw`
+      SELECT
+        to_regclass('public.inventories')::text AS inventories,
+        to_regclass('public.inventory_movements')::text AS inventory_movements,
+        to_regclass('public.digital_assets')::text AS digital_assets,
+        to_regclass('public.digital_asset_versions')::text AS digital_asset_versions,
+        EXISTS (
+          SELECT 1 FROM pg_type WHERE typname = 'InventoryMovementType'
+        ) AS inventory_movement_type
     `;
-    assert.equal(
-      tableCheck.length,
-      1,
-      "audit_logs table should exist after migration",
-    );
 
-    // 2. Perform rollback
-    const rolledBackMigration = await rollbackLatest(databaseUrl);
-    assert.ok(rolledBackMigration, "A migration should have been rolled back");
+    assert.ok(schemaObjects[0].inventories);
+    assert.ok(schemaObjects[0].inventory_movements);
+    assert.ok(schemaObjects[0].digital_assets);
+    assert.ok(schemaObjects[0].digital_asset_versions);
+    assert.equal(schemaObjects[0].inventory_movement_type, true);
 
-    // Verify the latest migration artifacts were dropped by rollback.
-    const afterRollbackCheck = await prisma.$queryRaw`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_name IN ('inventories', 'digital_assets', 'digital_asset_versions')
+    const appliedMigration = await prisma.$queryRaw`
+      SELECT finished_at
+      FROM "_prisma_migrations"
+      WHERE migration_name = '20261110120000_inventory_schema_reconciliation'
+        AND rolled_back_at IS NULL
     `;
-    assert.equal(
-      afterRollbackCheck.length,
-      0,
-      "TASK-009 tables should be dropped after rollback",
-    );
-
-    // 3. Re-apply migration using db:migrate
-    execSync("npm run db:migrate", {
-      cwd: rootDir,
-      env: {
-        ...process.env,
-        DATABASE_URL: databaseUrl,
-      },
-      stdio: "pipe",
-    });
-
-    // 4. Verify TASK-004 artifacts exist again
-    const restoredCheck = await prisma.$queryRaw`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'audit_logs'
-    `;
-    assert.equal(
-      restoredCheck.length,
-      1,
-      "audit_logs table should exist again after re-migration",
-    );
-
-    const restoredColumns = await prisma.$queryRaw`
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-        AND table_name = 'users'
-        AND column_name IN ('deactivated_at', 'scheduled_deletion_at')
-    `;
-    assert.equal(
-      restoredColumns.length,
-      2,
-      "account deletion columns should exist again after re-migration",
-    );
+    assert.equal(appliedMigration.length, 1);
   } finally {
     await prisma.$disconnect();
   }
