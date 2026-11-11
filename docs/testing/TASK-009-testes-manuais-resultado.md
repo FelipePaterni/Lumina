@@ -27,8 +27,8 @@ Observação: nenhuma senha, token ou dado pessoal foi registrado. A divergênci
 | GATE-004 | APROVADO COM DESVIO RETROSPECTIVO | Implementação revisada contra aceitação e escopo; aprovação efetiva em 2026-11-11. Ver `TASK-009-plano-retrospectivo.md`. |
 | GATE-005 | APROVADO | Unitários 26/26, lint, build, integração 4/4 sem skips em `lumina_task009_test` e Prettier nos arquivos alterados da TASK-009 passaram. Evidências completas em `TASK-009-gates.md`. |
 | GATE-006 | APROVADO | Dez cenários executados. MT-009-01 revalidado com HTTP `200`, estoque `5`, movimento esperado e auditoria nova. O mantenedor revisou e aprovou formalmente o GATE-006 em 2026-11-11. Uma tentativa anterior HTTP `401` foi superada pela execução autenticada. O roteiro automatizado teve sintaxe validada, mas não foi executado nesta rodada. |
-| GATE-007 | EM REVISÃO | Commits de implementação/testes e roteiro registrados; TASK-009 está IN_REVIEW. Revisão final de rastreabilidade, Scope Guard e DoD em andamento. |
+| GATE-007 | APROVADO | Revisão final confirmou rastreabilidade, Scope Guard, DoD e commits. TASK-009 concluída como DONE. |
 
 ## Atualização da revalidação — 2026-11-11
 
-O mantenedor refez o login com conta ADMIN e revalidou MT-009-01: HTTP `200`, estoque `5`, movimento `PHYSICAL_ADJUSTMENT` de quantidade `5` e nova auditoria encontrada. Nenhum e-mail, senha, token ou identificador foi incluído na evidência. O mantenedor declarou: “Revisei e aprovo o GATE-006”. GATE-006 aprovado; GATE-007 segue em revisão final até fechar commits, Scope Guard e DoD.
+O mantenedor refez o login com conta ADMIN e revalidou MT-009-01: HTTP `200`, estoque `5`, movimento `PHYSICAL_ADJUSTMENT` de quantidade `5` e nova auditoria encontrada. Nenhum e-mail, senha, token ou identificador foi incluído na evidência. O mantenedor declarou: “Revisei e aprovo o GATE-006”. GATE-006 aprovado. A conclusão final aprovou GATE-007 e marcou TASK-009 como DONE após validar commits e Scope Guard.

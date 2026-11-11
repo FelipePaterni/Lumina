@@ -61,18 +61,18 @@ Relatório final é rastreável, não inventa aprovações e indica corretamente
 
 ## 12. GATE DA ETAPA
 
-- [ ] Relatório final é rastreável, não inventa aprovações e indica corretamente a próxima etapa/TASK elegível.
-- [ ] Evidências (comandos, saídas e arquivos inspecionados) registradas sem segredos/PII.
-- [ ] GATE-006 aprovado e evidência disponível.
+- [x] Relatório final é rastreável, não inventa aprovações e indica corretamente a próxima etapa/TASK elegível.
+- [x] Evidências (comandos, saídas e arquivos inspecionados) registradas sem segredos/PII.
+- [x] GATE-006 aprovado e evidência disponível.
 
 STATUS: APROVADO somente com todos os itens marcados por evidência; caso contrário, BLOQUEADO.
 
 ## 13. STATUS ACUMULADO DOS GATES
 
-GATE-007 — Conclusão e rastreabilidade: EM REVISÃO; GATE-006 aprovado com evidência manual e aprovação humana. Commits de implementação/testes e roteiro registrados; conclusão do DoD em andamento.
+GATE-007 — Conclusão e rastreabilidade: APROVADO em 2026-11-11; relatório, gates, commits, Scope Guard e DoD conferidos.
 
-GATES CONCLUÍDOS: 6/7
-GATES PENDENTES: 1/7
+GATES CONCLUÍDOS: 7/7
+GATES PENDENTES: 0/7
 GATES BLOQUEADOS: 0/7
 
 ## 14. RESULTADO OBRIGATÓRIO
@@ -82,35 +82,38 @@ Finalize a resposta exatamente com o bloco abaixo, preenchendo somente dados com
 ==================================================
 TASK: TASK-009
 ETAPA: 007
-STATUS DA ETAPA: APROVADA | REPROVADA | BLOQUEADA
+STATUS DA ETAPA: APROVADA
 ==================================================
 
 GATE DA ETAPA:
-[APROVADO | REPROVADO | BLOQUEADO]
+APROVADO
 
 GATES TOTAIS: 7
-GATES CONCLUÍDOS: [PREENCHER]
-GATES PENDENTES: [PREENCHER]
-GATES BLOQUEADOS: [PREENCHER]
+GATES CONCLUÍDOS: 7
+GATES PENDENTES: 0
+GATES BLOQUEADOS: 0
 
 PROBLEMAS ENCONTRADOS:
-- [PREENCHER]
+- GATES 001–004 foram registrados retrospectivamente, com desvio de sequência autorizado e sem retroagir datas.
+- A verificação global de formatação apontou 77 arquivos alheios à TASK-009; nenhum deles foi alterado.
 
 CORREÇÕES REALIZADAS:
-- [PREENCHER]
+- Corrigida a reconciliação do schema por migração aditiva e reforçada a validação de edição física/digital.
+- Registrados testes isolados, roteiro manual sanitizado, revisão humana e evidências de todos os gates.
 
 PENDÊNCIAS:
-- [PREENCHER]
+- Nenhuma para TASK-009. TASK-010 continua BLOCKED e exige revisão/autorização própria.
 
 TESTES RELACIONADOS:
-- [PREENCHER]
+- Unitários: 26/26; integração: 4/4 sem skips; lint, build, Prettier do escopo e sintaxe do roteiro passaram.
+- MT-009-01–10 aprovados; MT-009-01 revalidado com HTTP 200, estoque, movimento e auditoria confirmados.
 
 PRÓXIMA ETAPA:
-Nenhuma; aguardar decisão/execução manual conforme o estado final.
+Nenhuma. TASK-009 concluída. TASK-010 é a próxima na ordem, mas permanece BLOCKED; requer nova revisão/autorização.
 
 PRÓXIMA ETAPA HABILITADA:
-SIM | NÃO
+NÃO
 
 MOTIVO:
-A próxima etapa só é habilitada se o GATE atual for aprovado por evidência.
+O GATE-007 está aprovado; a TASK-010 segue BLOCKED no backlog e não foi iniciada nesta autorização.
 ==================================================

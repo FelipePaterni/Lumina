@@ -1,6 +1,6 @@
 # TASK-009 — plano mínimo e revisão retrospectiva
 
-**Data da revisão:** 2026-11-11  
+**Data da revisão:** 2026-11-11
 **Natureza:** retrospectiva, autorizada pelo mantenedor nesta data. Este documento não afirma que o plano foi aprovado antes da implementação nem retroage datas.
 
 ## Objetivo e critérios
@@ -34,4 +34,3 @@ As migrações são forward-only neste fluxo. Não executar rollback da migraç�
 ## Desvio de processo
 
 Os gates 001–004 não tinham registros duráveis quando a implementação já estava presente na branch. O mantenedor autorizou em 2026-11-11 uma avaliação retrospectiva com desvio de sequência explicitamente registrado. As aprovações dos gates 001–004 abaixo são efetivas nesta data e não certificam que a sequência original foi cumprida.
-
