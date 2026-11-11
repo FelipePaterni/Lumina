@@ -12,7 +12,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 6 | TASK-006 | PHASE-01 | CRITICAL | 001–005 | DONE |
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | DONE |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | DONE |
-| 9 | TASK-009 | PHASE-02 | HIGH | 007 | READY |
+| 9 | TASK-009 | PHASE-02 | HIGH | 007 | IN_REVIEW |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | BLOCKED |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | BLOCKED |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
@@ -125,12 +125,12 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** consultas relevantes têm índices/revisão de plano.
 
 ### TASK-009 — Inventário e ativos privados
-**Status:** READY · **Phase:** PHASE-02 · **Priority:** HIGH
+**Status:** IN_PROGRESS · **Phase:** PHASE-02 · **Priority:** HIGH
 **Objetivo:** Gerir estoque físico, licenças digitais e upload/versionamento privado local.
 **Dependências:** `DEPENDS_ON: TASK-007`
 **Relacionados:** RF-006,007; RN-003,004; ADR-004.
 **Artefatos esperados:** inventário, movimentos, ativo/versionamento e adaptador local privado.
-**ALLOWED_CHANGES:** `modules/catalog/assets/**`; `modules/inventory/**`; `storage/**`; `database/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/modules/catalog/assets/**`; `apps/api/src/modules/inventory/**`; `apps/api/src/storage/**`; `storage/**`; `database/**`; `tests/**`; `docs/testing/TASK-009-*.md`; `prompts/tasks/task-009/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** endpoint público de download; pedidos.
 **Aceitação/testes:** original não é servido publicamente; licença ilimitada/numerada e estoque são validados.
 **DoD específico:** mudança gera auditoria apropriada.

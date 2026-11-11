@@ -9,7 +9,7 @@
 
 ## Scope Guard
 
-- Permitido: `modules/catalog/assets/**`; `modules/inventory/**`; `storage/**`; `database/**`; `tests/**`; `TASKS.md`.
+- Permitido: `apps/api/src/modules/catalog/assets/**`; `apps/api/src/modules/inventory/**`; `apps/api/src/storage/**`; `storage/**`; `database/**`; `tests/**`; `docs/testing/TASK-009-*.md`; `prompts/tasks/task-009/**`; `TASKS.md`.
 - Proibido: endpoint público de download; pedidos.
 
 ## Workflow e gates
@@ -33,3 +33,13 @@
 ## Testes manuais previstos
 
 Roteiro manual funcional, de segurança e de regressão proporcional ao risco; execução humana obrigatória. Não substituem testes automatizados e começam como NÃO EXECUTADO.
+
+## Responsabilidade e evidências
+
+- Responsável e executor técnico do GATE-005: agente de programação responsável pela TASK-009; executa os comandos, registra resultados reais e marca o gate somente com evidências e pré-requisitos aprovados.
+- Ambiente de integração: operador local disponibiliza banco de teste isolado; teste de migração/rollback não usa banco de desenvolvimento.
+- Revisão humana obrigatória dos cenários manuais pertence ao GATE-006. O GATE-005 não tem uma pessoa nominal atribuída nem exige aprovação humana separada; decisões de escopo ou não aplicabilidade continuam sendo do mantenedor.
+- `felipePaterni` aparece como autor de commits, mas isso não é tratado como atribuição de aprovador.
+- Matriz cumulativa dos gates: `docs/testing/TASK-009-gates.md`; execuções devem ser acrescentadas sem apagar evidências anteriores.
+
+O roteiro automatizado preserva resultados humanos: cada execução registra seção datada, sem substituir as anteriores.

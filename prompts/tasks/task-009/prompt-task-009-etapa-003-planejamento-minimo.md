@@ -17,7 +17,7 @@ Esta etapa faz parte de um workflow controlado. Não execute etapas posteriores,
 - Branch de trabalho específica da TASK; main não pode receber desenvolvimento direto.
 - Working tree inspecionada e alterações alheias preservadas.
 - Documentos obrigatórios lidos na ordem: AGENTS.md, README.md, TASKS.md, ADRs relacionados, código e testes existentes.
-- Escopo autorizado: `modules/catalog/assets/**`; `modules/inventory/**`; `storage/**`; `database/**`; `tests/**`; `TASKS.md`.
+- Escopo autorizado: `apps/api/src/modules/catalog/assets/**`; `apps/api/src/modules/inventory/**`; `apps/api/src/storage/**`; `storage/**`; `database/**`; `tests/**`; `docs/testing/TASK-009-*.md`; `prompts/tasks/task-009/**`; `TASKS.md`.
 - Escopo proibido: endpoint público de download; pedidos.
 
 ## 4. ENTRADAS NECESSÁRIAS
@@ -29,6 +29,8 @@ Esta etapa faz parte de um workflow controlado. Não execute etapas posteriores,
 ## 5. ARQUIVOS E COMPONENTES ENVOLVIDOS
 
 Somente os caminhos autorizados no Scope Guard e artefatos mínimos diretamente necessários. Antes de editar, liste arquivos existentes, arquivos novos e arquivos que não serão tocados.
+
+Registre evidências desta etapa em `docs/testing/TASK-009-gates.md`, preservando registros anteriores. A estratégia de rollback deve usar banco de teste isolado; não execute reversões destrutivas em banco de desenvolvimento.
 
 ## 6. PROCEDIMENTO DETALHADO
 
@@ -67,11 +69,11 @@ STATUS: APROVADO somente com todos os itens marcados por evidência; caso contr�
 
 ## 13. STATUS ACUMULADO DOS GATES
 
-GATE-003 — Planejamento mínimo: EM EXECUÇÃO
+GATE-003 — Planejamento mínimo: APROVADO RETROSPECTIVAMENTE COM DESVIO EM 2026-11-11 (plano documentado após a implementação; sem retroagir data).
 
-GATES CONCLUÍDOS: [PREENCHER]/7
-GATES PENDENTES: [PREENCHER]/7
-GATES BLOQUEADOS: [PREENCHER]/7
+GATES CONCLUÍDOS: 5/7
+GATES PENDENTES: 2/7
+GATES BLOQUEADOS: 0/7
 
 ## 14. RESULTADO OBRIGATÓRIO
 
