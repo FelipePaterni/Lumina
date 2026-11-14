@@ -13,7 +13,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | DONE |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | DONE |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
-| 10 | TASK-010 | PHASE-02 | HIGH | 007 | BLOCKED |
+| 10 | TASK-010 | PHASE-02 | HIGH | 007 | IN_REVIEW |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | BLOCKED |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
@@ -136,12 +136,12 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** mudança gera auditoria apropriada.
 
 ### TASK-010 — Wishlist básica
-**Status:** BLOCKED · **Phase:** PHASE-02 · **Priority:** HIGH
+**Status:** IN_REVIEW · **Phase:** PHASE-02 · **Priority:** HIGH
 **Objetivo:** Implementar wishlist básica individual.
 **Dependências:** `DEPENDS_ON: TASK-007`
 **Relacionados:** RF-008.
 **Artefatos esperados:** lista pessoal de obras, com inclusão, remoção e consulta autorizadas.
-**ALLOWED_CHANGES:** `modules/wishlist/**`; `features/wishlist/**`; `tests/**wishlist/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/modules/wishlist/**`; `apps/api/src/app.module.ts`; `apps/web/src/features/wishlist/**`; `database/schema.prisma`; `database/migrations/**`; `tests/**wishlist/**`; `tests/manual/task-010/**`; `docs/testing/TASK-010-*.md`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** notificações de wishlist; checkout.
 **Aceitação/testes:** cliente só vê e altera a própria lista; duplicações e acessos de terceiros são recusados.
 **DoD específico:** sem alertas automáticos fora do escopo.
