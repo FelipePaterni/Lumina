@@ -43,7 +43,7 @@ Rollback: descartar somente os arquivos novos da TASK e reverter o estado de TAS
 
 ## Scope Guard
 
-Mudanças primárias limitadas a testes/documentação PHASE-03 e `TASKS.md`. Nenhuma implementação de produto será alterada. Incidental Changes: NONE.
+Mudanças primárias limitadas a testes/documentação PHASE-03 e `TASKS.md`. Incidental: o runner manual da TASK-014 recebeu rótulos específicos de etapa e evidência HTTP/schema sanitizada no relatório de falhas, para diagnosticar o pré-flight desta TASK; cenários e comportamento não foram alterados. Nenhuma implementação de produto foi alterada.
 
 ## Resultado dos gates automatizados
 

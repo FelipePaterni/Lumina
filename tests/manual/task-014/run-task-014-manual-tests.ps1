@@ -101,8 +101,9 @@ function Set-Scenario {
 }
 
 try {
-  $currentStage = "verificar API e banco locais"
+  $currentStage = "validar endpoint local"
   if (-not $apiUri.IsLoopback) { throw "Use somente uma API local de loopback." }
+  $currentStage = "carregar configuração do banco local"
   if (-not $databaseUrl -and -not (Test-Path -LiteralPath (Join-Path $root ".env"))) {
     throw "Disponibilize o .env local do projeto ou configure DATABASE_URL na sessão."
   }
@@ -121,6 +122,7 @@ try {
     $databaseBuilder.Password = [uri]::EscapeDataString($envValues.POSTGRES_PASSWORD)
     $databaseUrl = $databaseBuilder.Uri.AbsoluteUri
   }
+  $currentStage = "validar destino de banco local"
   $databaseUri = [uri]$databaseUrl
   if (-not $databaseUri.IsLoopback -or $databaseUri.AbsolutePath -notmatch '^/lumina(?:_[a-z0-9_]+)?$') {
     throw "Fixtures só são permitidas em banco local Lumina."
@@ -129,10 +131,13 @@ try {
   $locationPushed = $true
   $env:DATABASE_URL = $databaseUrl
   $env:TASK014_MANUAL_PREFIX = $prefix
+  $currentStage = "preflight GET /works"
   $health = Invoke-Api -Method "GET" -Path "/works?limit=1" -Token "" -Body $null -Key ""
   if ($health.Status -ne 200) { throw "API local indisponível (HTTP $($health.Status))." }
+  $currentStage = "preflight POST /checkout sem autenticação"
   $routeCheck = Invoke-Api -Method "POST" -Path "/checkout" -Token "" -Body $null -Key "$prefix-preflight"
   if ($routeCheck.Status -ne 401) { throw "API local não confirmou o comportamento de autenticação do checkout." }
+  $currentStage = "verificar schema de notificações"
   $schema = Invoke-FixtureScript -Mode "verify-schema"
   if (-not $schema.ready) { throw "Migration do outbox TASK-014 ausente; execute npm run db:migrate e reconstrua a API." }
 
@@ -203,7 +208,12 @@ try {
     Set-Scenario "MT-014-03" "REPROVADO" "Status HTTP: item $($addItem.Status), sem token $($unauthorized.Status), compra $($purchase.Status), replay $($replay.Status); notificações SENT $($orderEvent.sent)."
   }
 } catch {
-  $failure = "Falha na etapa $currentStage ($($_.Exception.GetType().Name)); consulte os pré-requisitos e não compartilhe credenciais nem respostas HTTP."
+  $preflight = @()
+  if ($null -ne $health) { $preflight += "GET /works HTTP $($health.Status)" }
+  if ($null -ne $routeCheck) { $preflight += "POST /checkout HTTP $($routeCheck.Status)" }
+  if ($null -ne $schema) { $preflight += "notifications schema ready=$([bool]$schema.ready)" }
+  $evidence = if ($preflight.Count) { "; evidência sanitizada: $($preflight -join ', ')" } else { "" }
+  $failure = "Falha na etapa $currentStage ($($_.Exception.GetType().Name))$evidence; consulte os pré-requisitos e não compartilhe credenciais nem respostas HTTP."
 } finally {
   if ($deactivationStarted -and -not $accountReactivated -and $customerToken) {
     try {
