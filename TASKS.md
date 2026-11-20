@@ -196,7 +196,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Gates:** GATE-001 a GATE-007 aprovados em 2026-11-20. Os três cenários manuais passaram, a limpeza foi confirmada e o responsável aprovou o relatório. Evidências em `docs/testing/TASK-014-planejamento-e-gates.md` e `docs/testing/TASK-014-testes-manuais-resultado.md`.
 
 ### TASK-015 — Checkpoint PHASE-03
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH
+**Status:** IN_PROGRESS · **Phase:** PHASE-03 · **Priority:** HIGH
 **Objetivo:** Validar compra gratuita/paga simulada, híbrida e concorrente.
 **Dependências:** `DEPENDS_ON: TASK-014`
 **Relacionados:** RF-009–012,020; RNF-009.
@@ -205,6 +205,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** biblioteca, bundles e logística.
 **Aceitação/testes:** todos cenários de checkout e regressões verdes.
 **DoD específico:** não há sobre-venda conhecida.
+**Progresso:** GATE-001 a GATE-003 aprovados; GATE-004 bloqueado pela ausência do banco isolado de integração; GATE-005 aguarda execução/revisão manual do responsável. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
 
 ### TASK-016 — Checkpoint de transição PHASE-03
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
