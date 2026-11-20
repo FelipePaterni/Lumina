@@ -25,20 +25,19 @@ $started = [DateTimeOffset]::UtcNow.ToString('o')
 $customer1 = Get-Credential -Message 'Conta CUSTOMER sintética 1'
 $customer2 = Get-Credential -Message 'Conta CUSTOMER sintética 2'
 $admin = Get-Credential -Message 'Conta ADMIN sintética'
-$customerForNotifications = Get-Credential -Message 'Conta CUSTOMER sintética para notificações'
 
 .\tests\manual\task-013\run-task-013-manual-tests.ps1 `
   -Customer1Credential $customer1 `
   -Customer2Credential $customer2 `
   -AdminCredential $admin
 .\tests\manual\task-014\run-task-014-manual-tests.ps1 `
-  -CustomerCredential $customerForNotifications
+  -CustomerCredential $customer1
 .\tests\manual\task-015\collect-task-015-results.ps1 `
   -ApiBaseUrl 'http://localhost:3001' `
   -ExecutionStartedAtUtc $started `
   -HumanReviewed
 ```
 
-Os dois roteiros fonte recebem credenciais via parâmetros `PSCredential` e geram relatórios sanitizados próprios. O coletor TASK-015 aceita somente relatórios atualizados após `$started`; não lê credenciais nem corpos HTTP. Sem aprovação humana, não use `-HumanReviewed` e não considere o gate aprovado.
+Os roteiros fonte recebem credenciais via parâmetros `PSCredential` e geram relatórios sanitizados próprios. O mesmo `$customer1` pode ser reutilizado no TASK-014, portanto são necessárias três contas distintas: dois CUSTOMER e um ADMIN. O coletor TASK-015 aceita somente relatórios atualizados após `$started`; não lê credenciais nem corpos HTTP. Sem aprovação humana, não use `-HumanReviewed` e não considere o gate aprovado.
 
 O coletor cria/atualiza `docs/testing/TASK-015-testes-manuais-resultado.md` e retorna código diferente de zero enquanto houver cenário não aprovado. Campos para revisão: status de cada cenário, evidência resumida e confirmação de limpeza nos dois relatórios fonte.

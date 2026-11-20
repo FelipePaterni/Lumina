@@ -39,7 +39,7 @@ Rollback: descartar somente os arquivos novos da TASK e reverter o estado de TAS
 | GATE-002 — Matriz de evidências | APROVADO | Matriz acima cobre compra gratuita/paga, híbrido, concorrência, notificações, regressão e lacuna manual. |
 | GATE-003 — Planejamento | APROVADO | Comandos e restrições reais identificados; Docker indisponível; integração condicionada ao DB isolado. |
 | GATE-004 — Validações automatizadas | APROVADO | `npm test` 50/50, lint, build, parser PowerShell, `git diff --check` e integração 8/8 passaram. O banco `lumina_task009_test` foi criado no PostgreSQL local; 11 migrations aplicadas. URL e credenciais ficaram somente em memória. Banco principal não foi usado. |
-| GATE-005 — Testes manuais e conclusão | BLOQUEADO | O roteiro está preparado; somente o responsável pode executar/revisar. Relatório inicia `NÃO EXECUTADO`. |
+| GATE-005 — Testes manuais e conclusão | BLOQUEADO | MT-013-01 a MT-013-04 foram aprovados e a limpeza confirmou. O roteiro TASK-014 bloqueou no pré-flight antes de criar fixtures; relatório fonte registra `RuntimeException`. Uma verificação posterior confirmou API (200), rota de checkout sem autenticação (401), banco local acessível e schema TASK-014 pronto, sem reproduzir a falha. MT-014 precisa ser repetido pelo responsável. |
 
 ## Scope Guard
 

@@ -32,7 +32,7 @@ foreach ($name in $sourceReports.Keys) {
   if ($started -and (Test-Path -LiteralPath $sourceReports[$name])) {
     $sourceFresh[$name] = (Get-Item -LiteralPath $sourceReports[$name]).LastWriteTimeUtc -ge $started.UtcDateTime
     if ($sourceFresh[$name]) {
-      $cleanupLine = Select-String -LiteralPath $sourceReports[$name] -Pattern "(?m)^- Limpeza:\s*CONFIRMADA\s*$" | Select-Object -First 1
+      $cleanupLine = Select-String -LiteralPath $sourceReports[$name] -Pattern "(?m)^- Limpeza:\s*(CONFIRMADA|NÃO NECESSÁRIA[^\r\n]*)\s*$" | Select-Object -First 1
       $sourceCleanup[$name] = $null -ne $cleanupLine
     }
   }
@@ -64,6 +64,9 @@ foreach ($id in $caseMap.Keys) {
     } elseif ($sourceStatus -eq "REPROVADO") {
       $status = "REPROVADO"
       $evidence = "Relatório sanitizado recente de $($case.source) registra reprovação."
+    } elseif ($sourceStatus -eq "BLOQUEADO") {
+      $status = "BLOQUEADO"
+      $evidence = "Relatório sanitizado recente de $($case.source) registra cenário bloqueado; confira a falha de pré-requisito no relatório fonte."
     } else {
       $status = "BLOQUEADO"
       $evidence = "Relatório fonte recente existe; revisão humana ou aprovação do cenário pendente."
