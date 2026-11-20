@@ -15,8 +15,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
-| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
-| 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
+| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | DONE |
+| 13 | TASK-013 | PHASE-03 | HIGH | 012 | READY |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | BLOCKED |
@@ -157,22 +157,22 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** autorizações, índices e não exposição de originais passam.
 **DoD específico:** PHASE-03 desbloqueada.
 
-**Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está READY e requer autorização própria para início.
+**Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está DONE; TASK-013 fica READY e requer autorização própria para início.
 
 ### TASK-012 — Carrinho, cupom e frete
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 **Dependências:** `DEPENDS_ON: TASK-011`
 **Relacionados:** RF-009–011; RN-005,008,009.
 **Artefatos esperados:** carrinho híbrido, regras de cupom e configuração de frete.
-**ALLOWED_CHANGES:** `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (read-only ownership lookup only); `apps/api/src/modules/identity/identity.module.ts`; `apps/api/src/modules/identity/application/services/local-customer-seed.service.ts`; `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `docker-compose.yml`; `.env`; `.env.example`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (read-only ownership lookup only); `apps/api/src/modules/identity/identity.module.ts`; `apps/api/src/modules/identity/application/services/local-customer-seed.service.ts`; `apps/api/package.json`; `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `apps/web/package.json`; `package.json`; `package-lock.json`; `database/schema.prisma`; `database/migrations/**`; `docker-compose.yml`; `.env`; `.env.example`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** confirmação de pedido; gateway real.
 **Aceitação/testes:** um cupom; validade/cota; endereço/CPF; frete somente físico; e-book duplicado é recusado; em Compose local, duas contas CUSTOMER sintéticas configuradas são criadas/atualizadas idempotentemente, sem gravar senha em claro, e o seed não roda em produção.
 **DoD específico:** valores usam decimal BRL e são recalculados no servidor; contas CUSTOMER fixas só são habilitadas explicitamente em ambiente local e exigem e-mail `@example.invalid`.
-**Bloqueio atual:** `npm run build` encerra com `SecurityFatalError` por vulnerabilidade conhecida da versão instalada do Next.js; atualização necessária está fora de `ALLOWED_CHANGES` e aguarda decisão de escopo.
+**Conclusão:** GATE-005 e GATE-007 aprovados em 2026-11-20. A atualização compatível da API eliminou as vulnerabilidades de produção; `npm audit --omit=dev` reportou zero vulnerabilidades. Evidências em `docs/testing/TASK-012-planejamento-e-gates.md`.
 
 ### TASK-013 — Pedido e checkout transacional
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH
+**Status:** READY · **Phase:** PHASE-03 · **Priority:** HIGH
 **Objetivo:** Criar pedido único híbrido, confirmação fictícia e consumo atômico de recursos.
 **Dependências:** `DEPENDS_ON: TASK-012`
 **Relacionados:** RF-012; RN-004,010,011; ADR-005.
