@@ -46,17 +46,27 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-012-carrinho-cupom-frete`.
 | GATE-002 — Contexto histórico | APROVADO | ADR-001/002/005/008, README, código, testes, checkpoint TASK-011 e baseline confirmados. |
 | GATE-003 — Planejamento mínimo | APROVADO | Plano desta tabela, mitigação e rollback; nenhuma confirmação de pedido/gateway no plano. |
 | GATE-004 — Implementação | APROVADO | Carrinho, cupom e frete entregues; seed local restrito a `NODE_ENV=development`, habilitação explícita e e-mails `@example.invalid`; senhas com hash; diff final sem pedido/gateway. |
-| GATE-005 — Gates automatizados | APROVADO | Após atualização para Next.js 16.4.6: build completo, lint, unitários (43/43), integração (6/6 no banco isolado), Prisma, parser PowerShell e `git diff --check` passaram. O build não interrompe mais por `SecurityFatalError`. |
+| GATE-005 — Gates automatizados | BLOQUEADO | Build completo com Next.js 16.4.6, lint, unitários (43/43), integração (6/6 no banco isolado), Prisma, parser PowerShell e `git diff --check` passaram. `npm audit --omit=dev` apontou seis vulnerabilidades altas em dependências da API. |
 | GATE-006 — Testes manuais | APROVADO | Execução de 2026-11-20T13:55:55Z: 10/10 cenários APROVADOS e limpeza aprovada pelo responsável; relatório sanitizado. |
-| GATE-007 — Conclusão | APROVADO | Implementação, gates e revisão manual aprovados; TASK-012 atualizada para DONE e TASK-013 para READY. |
+| GATE-007 — Conclusão | BLOQUEADO | A auditoria encontrou vulnerabilidades altas adicionais fora da ampliação de dependências aprovada; TASK-012/TASK-013 permanecem BLOCKED até decisão sobre a atualização da API. |
 
 ## Revisão e pendências de conclusão
 
-Os cenários manuais originais foram aprovados pelo responsável. A ampliação autorizada criou duas contas CUSTOMER locais além do ADMIN configurado. A consulta sanitizada confirmou 2 CUSTOMER sintéticos ativos/confirmados e 1 ADMIN ativo. O seed exige `NODE_ENV=development`, flag explícita e e-mails `@example.invalid`; o container PostgreSQL não recebe essas credenciais. Next.js foi atualizado para 16.4.6 em worktree separada e integrado após build completo, lint, 43 testes unitários e 6 testes de integração aprovados. TASK-012 está `DONE`; TASK-013 está `READY` e aguarda autorização própria.
+Os cenários manuais originais foram aprovados pelo responsável. A ampliação autorizada criou duas contas CUSTOMER locais além do ADMIN configurado. A consulta sanitizada confirmou 2 CUSTOMER sintéticos ativos/confirmados e 1 ADMIN ativo. O seed exige `NODE_ENV=development`, flag explícita e e-mails `@example.invalid`; o container PostgreSQL não recebe essas credenciais. Next.js foi atualizado para 16.4.6 em worktree separada; build completo, lint, 43 testes unitários e 6 testes de integração passaram. Depois, a auditoria de dependências de produção encontrou seis vulnerabilidades altas nas dependências da API. TASK-012 e TASK-013 permanecem `BLOCKED` enquanto essa ampliação de escopo não for decidida.
 
-## Resolução do bloqueio de segurança
+## Resolução do bloqueio de build do Next.js
 
 TASK: TASK-012
-O responsável autorizou o upgrade em worktree separada. O commit `ab08848` atualizou `apps/web/package.json` e `package-lock.json` para Next.js 16.4.6. O commit foi integrado ao branch da TASK-012 como `6ce2c8d`. Build e gates completos passaram após a integração.
+O responsável autorizou o upgrade em worktree separada. O commit `ab08848` atualizou `apps/web/package.json` e `package-lock.json` para Next.js 16.4.6. O commit foi integrado ao branch da TASK-012 como `6ce2c8d`. O build Docker completo passou após a integração.
+
+## BLOCKER / SCOPE ESCALATION
+
+TASK: TASK-012
+Problema: `npm audit --omit=dev` encontrou seis vulnerabilidades altas em dependências da API. Versões instaladas incluem `@nestjs/platform-express` 11.2.7, `multer` 2.4.0, `prisma` 6.19.3, `@prisma/config` 6.19.3, `deepmerge-ts` 7.1.5 e `effect` 3.21.0.
+Impacto: GATE-005 permanece bloqueado; TASK-012 não pode ser marcada `DONE` e TASK-013 não pode avançar.
+RF/RN/RNF/UC/ADR afetados: RF-006 para o caminho de upload, RNF-011 para validação da API e ADR-004 para ativos privados; alcance dos avisos Prisma requer avaliação específica.
+Alternativas: atualizar Nest/Multer e investigar atualização compatível do Prisma; aceitar formalmente o risco residual; manter tarefas bloqueadas.
+Recomendação: atualizar dependências em worktree de segurança e repetir os gates. O relatório do npm não indica correção compatível para Prisma 6.19.3.
+Decisão necessária: ampliar `ALLOWED_CHANGES` para `apps/api/package.json` e `package-lock.json`, autorizando upgrades compatíveis da API e avaliação de mudança major do Prisma.
 
 O roteiro para Windows/PowerShell e a tabela de cenários estão em `tests/manual/task-012/README.md`; execução: `./tests/manual/task-012/run-task-012-manual-tests.ps1`. O relatório inicial está em `docs/testing/TASK-012-testes-manuais-resultado.md` e será atualizado pelo script.
