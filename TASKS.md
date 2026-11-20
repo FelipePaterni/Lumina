@@ -16,7 +16,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | DONE |
-| 13 | TASK-013 | PHASE-03 | HIGH | 012 | READY |
+| 13 | TASK-013 | PHASE-03 | HIGH | 012 | DONE |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | BLOCKED |
@@ -172,15 +172,16 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** GATE-005 e GATE-007 aprovados em 2026-11-20. A atualização compatível da API eliminou as vulnerabilidades de produção; `npm audit --omit=dev` reportou zero vulnerabilidades. Evidências em `docs/testing/TASK-012-planejamento-e-gates.md`.
 
 ### TASK-013 — Pedido e checkout transacional
-**Status:** READY · **Phase:** PHASE-03 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-03 · **Priority:** HIGH
 **Objetivo:** Criar pedido único híbrido, confirmação fictícia e consumo atômico de recursos.
 **Dependências:** `DEPENDS_ON: TASK-012`
 **Relacionados:** RF-012; RN-004,010,011; ADR-005.
 **Artefatos esperados:** pedido, itens, endereço histórico e adaptador de pagamento simulado.
-**ALLOWED_CHANGES:** `modules/orders/**`; `modules/payments/**`; `database/**`; `tests/**orders/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/app.module.ts` (registro necessário dos módulos); `apps/api/src/modules/orders/**`; `apps/api/src/modules/payments/**`; `database/**`; `tests/unit/orders/**`; `tests/integration/orders/**`; `tests/manual/task-013/**` (roteiro exigido pelo AGENTS.md); `docs/testing/TASK-013-*.md` (plano/relatório sanitizado); `TASKS.md`.
 **FORBIDDEN_CHANGES:** gateway externo; biblioteca/download.
 **Aceitação/testes:** R$0 pula pagamento; conflito não cria pedido; cupom/estoque/licença não sobrevendem.
 **DoD específico:** idempotência e concorrência são testadas.
+**Conclusão:** concluída em 2026-11-20 após aprovação do responsável. GATE-001 a GATE-007 aprovados; os quatro cenários manuais passaram e a limpeza foi confirmada. Evidências em `docs/testing/TASK-013-planejamento-e-gates.md` e `docs/testing/TASK-013-testes-manuais-resultado.md`.
 
 ### TASK-014 — Notificações e ciclo de pedido
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
