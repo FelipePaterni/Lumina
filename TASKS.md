@@ -205,7 +205,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** biblioteca, bundles e logística.
 **Aceitação/testes:** todos cenários de checkout e regressões verdes.
 **DoD específico:** não há sobre-venda conhecida.
-**Progresso:** GATE-001 a GATE-003 aprovados; GATE-004 bloqueado pela ausência do banco isolado de integração; GATE-005 aguarda execução/revisão manual do responsável. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
+**Progresso:** GATE-001 a GATE-004 aprovados; GATE-005 aguarda execução/revisão manual do responsável. O banco isolado `lumina_task009_test` foi criado e a integração passou 8/8; URL e credenciais ficaram em memória. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
 
 ### TASK-016 — Checkpoint de transição PHASE-03
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
