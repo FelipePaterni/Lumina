@@ -14,7 +14,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | DONE |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
-| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | READY |
+| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | IN_PROGRESS |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
@@ -147,7 +147,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** sem alertas automáticos fora do escopo.
 
 ### TASK-011 — Checkpoint PHASE-02
-**Status:** BLOCKED · **Phase:** PHASE-02 · **Priority:** CRITICAL
+**Status:** IN_PROGRESS · **Phase:** PHASE-02 · **Priority:** CRITICAL
 **Objetivo:** Verificar catálogo, busca, inventário e segurança de arquivos.
 **Dependências:** `DEPENDS_ON: TASK-007, TASK-008, TASK-009, TASK-010`
 **Relacionados:** RF-003–008; RNF-004,010.
