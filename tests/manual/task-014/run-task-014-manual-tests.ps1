@@ -33,6 +33,9 @@ $customerToken = ""
 $userId = ""
 $orderId = ""
 $databaseUrl = $env:DATABASE_URL
+$databaseTarget = "não resolvido"
+$fixtureExitCode = $null
+$fixtureDiagnostic = ""
 
 function Write-SanitizedReport {
   $lines = [System.Collections.Generic.List[string]]::new()
@@ -40,6 +43,7 @@ function Write-SanitizedReport {
   $lines.Add("")
   $lines.Add("- Execução UTC: $runAt")
   $lines.Add("- Alvo: API local $($apiUri.Host):$($apiUri.Port) e banco local Lumina")
+  $lines.Add("- Banco validado: $databaseTarget")
   $lines.Add("- Dados: sintéticos; credenciais, tokens, destinatários, conteúdo de e-mail e corpos HTTP não são registrados")
   $lines.Add("- Limpeza: $cleanupStatus")
   $lines.Add("")
@@ -88,9 +92,17 @@ function Invoke-Api {
 
 function Invoke-FixtureScript {
   param([string]$Mode)
-  $result = & node $fixtureScript $Mode 2>$null
-  if ($LASTEXITCODE -ne 0) { throw "Fixture local falhou no modo $Mode." }
-  try { return ($result -join "`n") | ConvertFrom-Json } catch { throw "Resultado sanitizado da fixture inválido." }
+  $result = & node $fixtureScript $Mode 2>&1
+  $script:fixtureExitCode = $LASTEXITCODE
+  $outputText = $result -join "`n"
+  if ($script:fixtureExitCode -ne 0) {
+    $errorType = [regex]::Match($outputText, 'PrismaClient(?:Initialization|KnownRequest|Validation)Error').Value
+    $errorCode = [regex]::Match($outputText, '\bP\d{4}\b').Value
+    $script:fixtureDiagnostic = @(@($errorType, $errorCode) | Where-Object { $_ }) -join "; "
+    if (-not $script:fixtureDiagnostic) { $script:fixtureDiagnostic = "helper exit $script:fixtureExitCode" }
+    throw "Fixture local falhou no modo $Mode ($script:fixtureDiagnostic)."
+  }
+  try { return $outputText | ConvertFrom-Json } catch { throw "Resultado sanitizado da fixture inválido." }
 }
 
 function Set-Scenario {
@@ -104,29 +116,34 @@ try {
   $currentStage = "validar endpoint local"
   if (-not $apiUri.IsLoopback) { throw "Use somente uma API local de loopback." }
   $currentStage = "carregar configuração do banco local"
-  if (-not $databaseUrl -and -not (Test-Path -LiteralPath (Join-Path $root ".env"))) {
-    throw "Disponibilize o .env local do projeto ou configure DATABASE_URL na sessão."
-  }
-  if (-not $databaseUrl) {
+  $envFile = Join-Path $root ".env"
+  if (Test-Path -LiteralPath $envFile) {
     $envValues = @{}
-    Get-Content -LiteralPath (Join-Path $root ".env") | ForEach-Object {
+    Get-Content -LiteralPath $envFile | ForEach-Object {
       if ($_ -match '^([A-Za-z_][A-Za-z0-9_]*)=(.*)$') {
         $envValues[$matches[1]] = $matches[2].Trim().Trim('"').Trim("'")
       }
     }
-    foreach ($key in @("POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "POSTGRES_PORT")) {
-      if (-not $envValues.ContainsKey($key)) { throw "Configuração local de banco incompleta." }
+    $requiredDbKeys = @("POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "POSTGRES_PORT")
+    if (@($requiredDbKeys | Where-Object { -not $envValues.ContainsKey($_) }).Count -eq 0) {
+      # Prefer the repository Compose settings over a stale process-level
+      # DATABASE_URL left by an earlier integration run.
+      $databaseBuilder = [System.UriBuilder]::new("postgresql", "localhost", [int]$envValues.POSTGRES_PORT, $envValues.POSTGRES_DB)
+      $databaseBuilder.UserName = [uri]::EscapeDataString($envValues.POSTGRES_USER)
+      $databaseBuilder.Password = [uri]::EscapeDataString($envValues.POSTGRES_PASSWORD)
+      $databaseUrl = $databaseBuilder.Uri.AbsoluteUri
+    } elseif (-not $databaseUrl) {
+      throw "Configuração local de banco incompleta e DATABASE_URL não configurada."
     }
-    $databaseBuilder = [System.UriBuilder]::new("postgresql", "localhost", [int]$envValues.POSTGRES_PORT, $envValues.POSTGRES_DB)
-    $databaseBuilder.UserName = [uri]::EscapeDataString($envValues.POSTGRES_USER)
-    $databaseBuilder.Password = [uri]::EscapeDataString($envValues.POSTGRES_PASSWORD)
-    $databaseUrl = $databaseBuilder.Uri.AbsoluteUri
+  } elseif (-not $databaseUrl) {
+    throw "Disponibilize o .env local do projeto ou configure DATABASE_URL na sessão."
   }
   $currentStage = "validar destino de banco local"
   $databaseUri = [uri]$databaseUrl
   if (-not $databaseUri.IsLoopback -or $databaseUri.AbsolutePath -notmatch '^/lumina(?:_[a-z0-9_]+)?$') {
     throw "Fixtures só são permitidas em banco local Lumina."
   }
+  $databaseTarget = "$($databaseUri.Host):$($databaseUri.Port)/$([uri]::UnescapeDataString($databaseUri.AbsolutePath.TrimStart('/')))"
   Push-Location $root
   $locationPushed = $true
   $env:DATABASE_URL = $databaseUrl
@@ -212,6 +229,7 @@ try {
   if ($null -ne $health) { $preflight += "GET /works HTTP $($health.Status)" }
   if ($null -ne $routeCheck) { $preflight += "POST /checkout HTTP $($routeCheck.Status)" }
   if ($null -ne $schema) { $preflight += "notifications schema ready=$([bool]$schema.ready)" }
+  if ($null -ne $fixtureExitCode) { $preflight += "fixture helper exit=$fixtureExitCode $fixtureDiagnostic" }
   $evidence = if ($preflight.Count) { "; evidência sanitizada: $($preflight -join ', ')" } else { "" }
   $failure = "Falha na etapa $currentStage ($($_.Exception.GetType().Name))$evidence; consulte os pré-requisitos e não compartilhe credenciais nem respostas HTTP."
 } finally {

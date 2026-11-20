@@ -1,6 +1,6 @@
 # TASK-015 — Resultado dos testes manuais
 
-- Execução UTC: 2026-11-20T21:32:41Z
+- Execução UTC: 2026-11-20T21:39:06Z
 - Endpoint informado: localhost:3001
 - Revisão humana: CONFIRMADA
 - Dados: somente dados sintéticos nos roteiros predecessores

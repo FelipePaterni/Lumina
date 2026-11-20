@@ -205,7 +205,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** biblioteca, bundles e logística.
 **Aceitação/testes:** todos cenários de checkout e regressões verdes.
 **DoD específico:** não há sobre-venda conhecida.
-**Progresso:** GATE-001 a GATE-004 aprovados. Os cenários MT-013-01 a MT-013-04 passaram; MT-014 bloqueou no pré-flight antes de criar fixtures. A verificação posterior da API/banco/schema passou, sem reproduzir a falha; repetir o roteiro TASK-014 e coletor TASK-015. O banco isolado de integração passou 8/8. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
+**Progresso:** GATE-001 a GATE-004 aprovados. Os cenários MT-013-01 a MT-013-04 passaram; MT-014 bloqueia na consulta de schema. Consulta isolada ao destino Compose confirmou schema pronto; runner ajustado para preferir `.env` e registrar diagnóstico sanitizado. Repetir TASK-014 e coletor TASK-015. O banco isolado de integração passou 8/8. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
 
 ### TASK-016 — Checkpoint de transição PHASE-03
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL

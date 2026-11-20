@@ -39,11 +39,11 @@ Rollback: descartar somente os arquivos novos da TASK e reverter o estado de TAS
 | GATE-002 — Matriz de evidências | APROVADO | Matriz acima cobre compra gratuita/paga, híbrido, concorrência, notificações, regressão e lacuna manual. |
 | GATE-003 — Planejamento | APROVADO | Comandos e restrições reais identificados; Docker indisponível; integração condicionada ao DB isolado. |
 | GATE-004 — Validações automatizadas | APROVADO | `npm test` 50/50, lint, build, parser PowerShell, `git diff --check` e integração 8/8 passaram. O banco `lumina_task009_test` foi criado no PostgreSQL local; 11 migrations aplicadas. URL e credenciais ficaram somente em memória. Banco principal não foi usado. |
-| GATE-005 — Testes manuais e conclusão | BLOQUEADO | MT-013-01 a MT-013-04 foram aprovados e a limpeza confirmou. O roteiro TASK-014 bloqueou no pré-flight antes de criar fixtures; relatório fonte registra `RuntimeException`. Uma verificação posterior confirmou API (200), rota de checkout sem autenticação (401), banco local acessível e schema TASK-014 pronto, sem reproduzir a falha. MT-014 precisa ser repetido pelo responsável. |
+| GATE-005 — Testes manuais e conclusão | BLOQUEADO | MT-013-01 a MT-013-04 foram aprovados e a limpeza confirmou. TASK-014 chega ao helper de schema, mas registra `RuntimeException`. A consulta isolada no destino `.env` (`localhost:5433/lumina`) retorna schema pronto. O runner agora prioriza esse destino Compose em vez de uma `DATABASE_URL` possivelmente obsoleta e registrará banco/porta e código Prisma sanitizado. MT-014 precisa ser repetido pelo responsável. |
 
 ## Scope Guard
 
-Mudanças primárias limitadas a testes/documentação PHASE-03 e `TASKS.md`. Incidental: o runner manual da TASK-014 recebeu rótulos específicos de etapa e evidência HTTP/schema sanitizada no relatório de falhas, para diagnosticar o pré-flight desta TASK; cenários e comportamento não foram alterados. Nenhuma implementação de produto foi alterada.
+Mudanças primárias limitadas a testes/documentação PHASE-03 e `TASKS.md`. Incidental: o runner manual da TASK-014 prioriza as configurações Compose do `.env` sobre `DATABASE_URL` herdada, e inclui etapa/host/porta/banco/código Prisma sanitizados para diagnosticar a falha desta TASK; cenários e comportamento de produto não foram alterados. Nenhuma implementação de produto foi alterada.
 
 ## Resultado dos gates automatizados
 
