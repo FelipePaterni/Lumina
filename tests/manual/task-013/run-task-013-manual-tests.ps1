@@ -29,6 +29,7 @@ $scenarios = [ordered]@{
 }
 $cleanupStatus = "NÃO EXECUTADA"
 $failure = ""
+$couponPreparationStatuses = [System.Collections.Generic.List[string]]::new()
 $currentStage = "validação local"
 $httpClient = [System.Net.Http.HttpClient]::new()
 $locationPushed = $false
@@ -277,12 +278,15 @@ try {
   }
 
   $currentStage = "MT-013-04"
+  $customerIndex = 0
   foreach ($token in @($customer1Token, $customer2Token)) {
+    $customerIndex++
     foreach ($editionId in @($fixtures.physicalEditionId, $fixtures.hybridDigitalEditionId)) {
       $null = Invoke-Api -Method "DELETE" -Path "/cart/items/$editionId" -Token $token -Body $null -Key ""
     }
     $couponEditionAdd = Invoke-Api -Method "POST" -Path "/cart/items" -Token $token -Body @{ editionId = $fixtures.couponEditionId; quantity = 1 } -Key ""
     $couponApply = Invoke-Api -Method "POST" -Path "/cart/coupon" -Token $token -Body @{ code = $fixtures.couponCode } -Key ""
+    $couponPreparationStatuses.Add("cliente ${customerIndex}: inclusão HTTP $($couponEditionAdd.Status), cupom HTTP $($couponApply.Status)")
     if ($couponEditionAdd.Status -ne 201 -or $couponApply.Status -ne 201) { throw "Não foi possível preparar a concorrência de cupom." }
   }
   $couponRace = @(
@@ -306,7 +310,11 @@ try {
   if ($currentStage -eq "verificar API local" -and $health -and $health.Status -eq 0 -and $health.TransportError) {
     $exceptionType = $health.TransportError
   }
-  $failure = "Falha na etapa $currentStage ($exceptionType); confira o serviço local e repita sem compartilhar credenciais ou conteúdo HTTP."
+  if ($currentStage -eq "MT-013-04" -and $couponPreparationStatuses.Count -gt 0) {
+    $failure = "Falha na etapa $currentStage ($exceptionType); status sanitizados da preparação: $($couponPreparationStatuses -join '; ')."
+  } else {
+    $failure = "Falha na etapa $currentStage ($exceptionType); confira o serviço local e repita sem compartilhar credenciais ou conteúdo HTTP."
+  }
 } finally {
   if ($fixturePreparationStarted) {
     try {
