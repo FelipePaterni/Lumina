@@ -15,8 +15,8 @@ Data: 2026-11-20. Branch: `feature/TASK-016-checkpoint-transicao-phase-03`.
 | Dependências completas | TASK-012 a TASK-015 em `DONE`; relatórios de gates e manuais presentes | `TASKS.md` e existência dos oito relatórios | Confirmado na entrada; coletor repetirá a verificação | Automação local |
 | Gates predecessores rastreáveis | Todos os gates publicados como `APROVADO` nos quatro planos | Inspeção/contagem de linhas de gate; coletor fará a checagem | TASK-012 (7), TASK-013 (7), TASK-014 (7), TASK-015 (5) aprovados nos planos versionados | Automação local |
 | Evidência manual predecessora | Relatórios manuais preservados; revisão humana registrada onde a tarefa a exige | Inspeção de cada relatório e checklist do responsável | TASK-012 registra execução aprovada; TASK-013 registra 4 cenários e limpeza; TASK-014 registra revisão e 3 cenários; TASK-015 registra revisão e 4 cenários | Responsável humano confirma a leitura |
-| Rastreabilidade para transição PHASE-04 | Cadeia de dependências, gates e limitações explícitos; nenhuma implementação de produto | Revisão final do diff e matriz | Aguardando revisão humana final | Responsável humano |
-| DoD: TASK-017 torna-se elegível | TASK-016 concluída após gates aprovados; dependência 016 indicada em TASK-017 | Revisão de `TASKS.md` após aprovação manual | Pendente; TASK-017 não será desbloqueada agora | Responsável humano após aprovação |
+| Rastreabilidade para transição PHASE-04 | Cadeia de dependências, gates e limitações explícitos; nenhuma implementação de produto | Revisão final do diff e matriz | Confirmado; revisão humana aprovada e sem implementação de PHASE-04 | Responsável / agente |
+| DoD: TASK-017 torna-se elegível | TASK-016 concluída após gates aprovados; dependência 016 indicada em TASK-017 | Revisão de `TASKS.md` após aprovação manual | TASK-016 concluída; TASK-017 marcada `READY`, sem iniciar seu trabalho | Agente |
 
 ## GATE-003 — Planejamento de validação
 
@@ -36,15 +36,15 @@ Critério de parada: qualquer predecessor sem `DONE`, artefato ausente, gate pre
 
 ## GATE-005 — Testes manuais e conclusão
 
-**Estado: AGUARDANDO TESTES MANUAIS.** O roteiro está preparado em `tests/manual/task-016/README.md`. O cenário MT-016-01 começa como `NÃO EXECUTADO`; somente o responsável pode registrar sua revisão e evidência. Até a aprovação humana, TASK-016 permanece `IN_PROGRESS` e TASK-017 permanece `BLOCKED`.
+**Estado: APROVADO.** Em 2026-11-20, o responsável confirmou que revisou e aprova todos os resultados anteriores das TASK-012 a TASK-015. A coleta documental local confirmou os quatro predecessores como `DONE`, planos com todos os gates aprovados e relatórios manuais presentes. MT-016-01 foi registrado como aprovado no relatório sanitizado. Nenhuma falha foi informada. TASK-017 torna-se elegível (`READY`), sem iniciar seu trabalho.
 
 | Gate | Estado | Evidência |
 |---|---|---|
 | GATE-001 — Prontidão | APROVADO | Status resolvido pelo responsável; dependências `DONE`, artefatos e ADR conferidos. |
-| GATE-002 — Matriz de evidências | APROVADO | Matriz acima cobre todos os critérios e separa fatos documentais da revisão pendente. |
+| GATE-002 — Matriz de evidências | APROVADO | Matriz acima cobre todos os critérios e separa fatos documentais da avaliação humana registrada. |
 | GATE-003 — Planejamento | APROVADO | Comandos, ambiente local, critérios de parada e rollback definidos sem operação destrutiva. |
 | GATE-004 — Validações documentais/automatizáveis | APROVADO | Estados e relatórios predecessores conferidos; parser PowerShell e `git diff --check` aprovados. |
-| GATE-005 — Revisão manual e conclusão | AGUARDANDO TESTES MANUAIS | MT-016-01 está `NÃO EXECUTADO`; aprovação humana pendente. |
+| GATE-005 — Revisão manual e conclusão | APROVADO | Responsável revisou e aprovou os resultados predecessores; MT-016-01 registrado em `TASK-016-testes-manuais-resultado.md`. |
 
 ## Scope Guard
 
