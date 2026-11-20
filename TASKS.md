@@ -14,8 +14,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | DONE |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
-| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | IN_PROGRESS |
-| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
+| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
+| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | READY |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
@@ -147,7 +147,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** sem alertas automáticos fora do escopo.
 
 ### TASK-011 — Checkpoint PHASE-02
-**Status:** IN_PROGRESS · **Phase:** PHASE-02 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-02 · **Priority:** CRITICAL
 **Objetivo:** Verificar catálogo, busca, inventário e segurança de arquivos.
 **Dependências:** `DEPENDS_ON: TASK-007, TASK-008, TASK-009, TASK-010`
 **Relacionados:** RF-003–008; RNF-004,010.
@@ -157,8 +157,10 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** autorizações, índices e não exposição de originais passam.
 **DoD específico:** PHASE-03 desbloqueada.
 
+**Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está READY e requer autorização própria para início.
+
 ### TASK-012 — Carrinho, cupom e frete
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** READY · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 **Dependências:** `DEPENDS_ON: TASK-011`
 **Relacionados:** RF-009–011; RN-005,008,009.

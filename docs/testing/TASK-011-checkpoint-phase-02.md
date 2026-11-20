@@ -7,10 +7,10 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-011-checkpoint-phase-02`.
 | Gate | Estado | Evidência |
 |---|---|---|
 | GATE-001 — Prontidão | APROVADO | Branch específica; TASK-007–010 estão `DONE`; respectivos relatórios de testes/gates existem; checkout estava limpo antes da mudança deliberada de estado da TASK-011. |
-| GATE-002 — Matriz | APROVADO | A matriz abaixo relaciona critérios a fontes e validações. Lacunas de plano SQL permanecem marcadas como bloqueio, sem inferir aprovação. |
+| GATE-002 — Matriz | APROVADO | A matriz abaixo relaciona critérios a fontes e validações. A pendência original do plano SQL foi resolvida com fixture sintética, medição e aprovação humana documentadas. |
 | GATE-003 — Plano | APROVADO | Comandos independentes do banco e validações manuais delimitados abaixo; após confirmação do mantenedor, foi possível executar integração e EXPLAIN com acesso elevado ao Docker. |
 | GATE-004 — Execução | APROVADO COM PENDÊNCIA DE ACEITAÇÃO | `npm run test:integration` passou 4/4 no banco isolado; `EXPLAIN ANALYZE` e listagem de índices executados. Busca por substring/data teve varreduras sequenciais e ordenação; resultado documentado como pendência de aceitação/escopo, não como índice aprovado. |
-| GATE-005 — Manual e conclusão | BLOQUEADO POR DECISÃO DE ACEITAÇÃO | MT-011-01–06 aprovados por execução recente ou evidência manual anterior aprovada; MT-011-07 executado com 10.000 linhas sintéticas, mas a adequação do plano textual (Seq Scan, 14,655 ms) depende de decisão do responsável; rollback confirmou zero linhas remanescentes. |
+| GATE-005 — Manual e conclusão | APROVADO | MT-011-01–07 aprovados por execução recente ou evidência manual anterior aprovada. O responsável aprovou em 2026-11-20 o plano textual medido (Seq Scan, 14,655 ms em 10.000 linhas sintéticas) para o escopo atual; rollback confirmou zero linhas remanescentes. |
 
 ## Matriz de evidências
 
@@ -46,11 +46,13 @@ Critérios de parada: qualquer falha de autorização, exposição de `storageKe
 
 Rollback: não há migração nem alteração de dados neste checkpoint. Se o roteiro manual criar dados sintéticos, remover apenas os registros criados pelo próprio roteiro após guardar evidência sanitizada.
 
-## Bloqueio de escopo
+## Questão de escopo analisada
 
-O DoD da TASK-008 exige índices/revisão de plano. Foram confirmados índices para `title`, `authorId` e `priceCents`, e executados planos com 10.000 obras/edições sintéticas. O preço usou o índice esperado; a busca por substring/data percorreu 10.000 obras/autores e levou 14,655 ms. Não há índice `releaseDate`; busca `contains` não usa os B-tree observados. O projeto não define meta de latência ou escala para essa consulta, então a adequação desse plano precisa de decisão humana. Alterar índices/consultas exige tocar `database/schema.prisma`, migrações ou código de catálogo, caminhos não autorizados pela TASK-011.
+O DoD da TASK-008 exige índices/revisão de plano. Foram confirmados índices para `title`, `authorId` e `priceCents`, e executados planos com 10.000 obras/edições sintéticas. O preço usou o índice esperado; a busca por substring/data percorreu 10.000 obras/autores e levou 14,655 ms. Não há índice `releaseDate`; busca `contains` não usa os B-tree observados. Em 2026-11-20, o responsável aprovou esse plano para o escopo atual; a otimização textual pode ser reavaliada antes de ampliar a escala. Nenhuma mudança de schema/consulta foi autorizada ou realizada nesta TASK.
 
-### SCOPE ESCALATION
+### SCOPE ESCALATION — RESOLVIDA
+
+Status: responsável aprovou em 2026-11-20 o plano medido para o escopo atual; nenhuma alteração de código/schema foi solicitada.
 
 TASK: TASK-011  
 Necessidade identificada: decidir se o plano de busca textual (14,655 ms em 10.000 obras, sem índice usado) atende ao DoD ou se é necessário adicionar índices/alterar estratégia de consulta.
@@ -62,8 +64,8 @@ Por que não é incidental: pode alterar schema, migração e comportamento/perf
 Impacto se não realizada: não é possível declarar aceitação dos índices nem concluir TASK-011/desbloquear PHASE-03.
 Alternativas: aceitar o plano medido para a escala atual; ou aprovar escopo específico para índices/estratégia de busca e critérios de desempenho.
 Recomendação: definir um limite de latência e escala de referência; com esse critério, aceitar o plano ou priorizar mudança específica.
-Decisão necessária: o plano de busca textual com 14,655 ms/10.000 linhas é aceitável para o produto ou deve ser corrigido em escopo adicional?
+Decisão necessária: RESOLVIDA — em 2026-11-20, o responsável aprovou o plano medido para o escopo atual. Nenhuma mudança de schema/consulta foi autorizada nesta TASK.
 
 ## Estado final desta rodada
 
-TASK-011 permanece `IN_PROGRESS`; não há base para marcar `DONE` ou desbloquear PHASE-03 até o responsável aceitar o plano de busca medido ou aprovar escopo específico para correção. GATE-004 passou quanto à execução dos comandos; GATE-005 está bloqueado pela decisão sobre o critério de índices/performance. TASK-012 permanece `BLOCKED`.
+TASK-011 concluída como `DONE` em 2026-11-20 após aprovação humana dos sete cenários, dos gates, da decisão de aceitação, do Scope Guard e do DoD. GATE-004 e GATE-005 aprovados. PHASE-03 desbloqueada; TASK-012 está `READY` e aguarda autorização própria para iniciar. Nenhum trabalho da TASK-012 foi iniciado.
