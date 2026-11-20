@@ -46,8 +46,8 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-013-pedido-checkout-transacional
 | GATE-003 — Planejamento | APROVADO | Plano acima respeita API de pedidos/pagamento simulado e banco; sem web, biblioteca/download ou gateway. Artefatos manuais incluídos no Scope Guard para cumprir AGENTS.md. |
 | GATE-004 — Implementação | APROVADO | API de pedido e pagamento simulado, transação serializável, migração aditiva e testes implementados; diff dentro do Scope Guard. `app.module.ts` apenas registra o módulo novo. |
 | GATE-005 — Gates automatizados | APROVADO | lint; 46/46 unitários; 7/7 integrações em `lumina_task009_test`; migração aplicada duas vezes; Prisma validate; audit de produção 0; build completo; scripts manuais analisados; diff sem whitespace. |
-| GATE-006 — Testes manuais | EXECUTADO; AGUARDA REVISÃO | Relatório de 2026-11-20 registra MT-013-01 a MT-013-04 aprovados e limpeza confirmada. Falta revisão/aprovação explícita do responsável. |
-| GATE-007 — Conclusão | PENDENTE | — |
+| GATE-006 — Testes manuais | APROVADO | Responsável revisou e aprovou; MT-013-01 a MT-013-04 aprovados e limpeza confirmada em `TASK-013-testes-manuais-resultado.md`. |
+| GATE-007 — Conclusão | APROVADO | Implementação, critérios de aceitação, gates automatizados/manual, segurança, documentação e Scope Guard verificados; TASK-013 marcada `DONE` em 2026-11-20. Commits rastreáveis na branch da tarefa. |
 
 ## Scope Guard
 
@@ -55,4 +55,4 @@ Mudanças primárias: módulos API de pedidos e pagamento simulado; schema/migra
 
 ## Registro da execução manual no runner
 
-Na execução inicial pelo Codex, o PowerShell não conseguiu abrir sockets loopback do host. O responsável executou o roteiro no PowerShell local em 2026-11-20; MT-013-01 a MT-013-04 passaram e a limpeza foi confirmada no relatório sanitizado. Aguarda revisão/aprovação explícita do relatório para fechar o gate manual.
+Na execução inicial pelo Codex, o PowerShell não conseguiu abrir sockets loopback do host. O responsável executou o roteiro no PowerShell local em 2026-11-20; MT-013-01 a MT-013-04 passaram, a limpeza foi confirmada e o responsável aprovou o relatório. O GATE-006 e o GATE-007 estão aprovados.
