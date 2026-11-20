@@ -15,7 +15,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
-| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | IN_REVIEW |
+| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
@@ -160,7 +160,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está READY e requer autorização própria para início.
 
 ### TASK-012 — Carrinho, cupom e frete
-**Status:** IN_PROGRESS · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 **Dependências:** `DEPENDS_ON: TASK-011`
 **Relacionados:** RF-009–011; RN-005,008,009.
@@ -169,6 +169,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** confirmação de pedido; gateway real.
 **Aceitação/testes:** um cupom; validade/cota; endereço/CPF; frete somente físico; e-book duplicado é recusado; em Compose local, duas contas CUSTOMER sintéticas configuradas são criadas/atualizadas idempotentemente, sem gravar senha em claro, e o seed não roda em produção.
 **DoD específico:** valores usam decimal BRL e são recalculados no servidor; contas CUSTOMER fixas só são habilitadas explicitamente em ambiente local e exigem e-mail `@example.invalid`.
+**Bloqueio atual:** `npm run build` encerra com `SecurityFatalError` por vulnerabilidade conhecida da versão instalada do Next.js; atualização necessária está fora de `ALLOWED_CHANGES` e aguarda decisão de escopo.
 
 ### TASK-013 — Pedido e checkout transacional
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH
