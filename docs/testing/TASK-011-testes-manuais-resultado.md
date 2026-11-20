@@ -7,8 +7,8 @@ Data de geração: 2026-11-20; resultados fornecidos pelo responsável humano pa
 | MT-011-01 | Catálogo sem autenticação | APROVADO | `GET /works` sem Authorization retornou HTTP 200 em 2026-11-20 | Nenhuma |
 | MT-011-02 | Operação de catálogo por papel não autorizado | APROVADO | PATCH `/works/<uuid-inexistente>` com token CUSTOMER válido retornou HTTP 403; corpo vazio e ID inexistente evitaram mutação | Nenhuma |
 | MT-011-03 | Busca, filtros e paginação | BLOQUEADO | Busca encontrou 1 resultado; página 2 vazia com total 1; filtro combinado com idioma `en-US` manteve o resultado | Falta evidência de que obra oculta não aparece; aprovar se fixture oculta sintética estiver disponível |
-| MT-011-04 | Inventário por papel | BLOQUEADO | `GET /inventory/<edição-sintética>` com token CUSTOMER retornou HTTP 403 | Falta confirmar leitura autorizada ADMIN/STOCK HTTP 200; nenhuma mutação foi realizada |
-| MT-011-05 | Original digital privado | BLOQUEADO | `GET /catalog/assets/<edição-digital-sintética>` sem token retornou HTTP 401 | Falta consultar com ADMIN/CATALOG e confirmar ausência de `storageKey`/`contentBase64` na resposta; inspeção de rotas não substitui esta evidência HTTP |
+| MT-011-04 | Inventário por papel | APROVADO | `GET /inventory/<edição-sintética>` retornou HTTP 403 com token CUSTOMER e HTTP 200 com token ADMIN; nenhuma mutação foi realizada | Nenhuma |
+| MT-011-05 | Original digital privado | BLOQUEADO | Consulta sem token retornou HTTP 401. Consulta autenticada à primeira edição digital retornou HTTP 404 (ativo não cadastrado); verificação posterior de `$null` não é evidência válida de ausência dos campos | Há ativos digitais existentes no banco local; repetir consulta autenticada em edição que já possua ativo e verificar resposta não nula sem `storageKey`/`contentBase64` |
 | MT-011-06 | Wishlist isolada | NÃO EXECUTADO | PREENCHER PELO RESPONSÁVEL | PREENCHER PELO RESPONSÁVEL |
 | MT-011-07 | Índices e plano de consulta | NÃO EXECUTADO | PREENCHER PELO RESPONSÁVEL | PREENCHER PELO RESPONSÁVEL |
 
