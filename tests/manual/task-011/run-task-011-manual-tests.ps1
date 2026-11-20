@@ -6,6 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
 $resolvedReportPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $repoRoot $ReportPath }
+if (Test-Path -LiteralPath $resolvedReportPath) {
+  Write-Output "Relatório já existe; preservando resultados manuais: $resolvedReportPath"
+  exit 0
+}
 $reportDirectory = Split-Path -Parent $resolvedReportPath
 if (-not (Test-Path -LiteralPath $reportDirectory)) {
   New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
