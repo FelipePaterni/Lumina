@@ -83,7 +83,9 @@ function Invoke-Api {
     }
     return [pscustomobject]@{ Status = [int]$response.StatusCode; Json = $parsed }
   } catch {
-    return [pscustomobject]@{ Status = 0; Json = $null }
+    # Preserve only the exception type for troubleshooting; never write the
+    # exception message, request body, headers, or credentials to the report.
+    return [pscustomobject]@{ Status = 0; Json = $null; TransportError = $_.Exception.GetType().Name }
   }
 }
 
@@ -161,7 +163,10 @@ try {
   $env:TASK013_MANUAL_SHIPPING_RULE_ID = ""
 
   $health = Invoke-Api -Method "GET" -Path "/works?limit=1" -Token "" -Body $null -Key ""
-  if ($health.Status -ne 200) { throw "API local indisponível (HTTP $($health.Status))." }
+  if ($health.Status -ne 200) {
+    if ($health.Status -eq 0) { throw "API local sem conexão HTTP (falha de transporte: $($health.TransportError)); confira o serviço e a URL local." }
+    throw "API local respondeu HTTP $($health.Status) em /works; confira se o serviço correto está na porta configurada."
+  }
   $routeCheck = Invoke-Api -Method "POST" -Path "/checkout" -Token "" -Body $null -Key "$prefix-preflight"
   if ($routeCheck.Status -ne 401) { throw "API não expõe a rota TASK-013; aplique a migração e reconstrua o serviço api." }
 
@@ -297,7 +302,11 @@ try {
     Set-Scenario "MT-013-04" "REPROVADO" "Status concorrentes: $($couponStatuses -join ',')."
   }
 } catch {
-  $failure = "Falha na etapa $currentStage; consulte os pré-requisitos e repita sem compartilhar credenciais ou conteúdo HTTP."
+  $exceptionType = $_.Exception.GetType().Name
+  if ($currentStage -eq "verificar API local" -and $health -and $health.Status -eq 0 -and $health.TransportError) {
+    $exceptionType = $health.TransportError
+  }
+  $failure = "Falha na etapa $currentStage ($exceptionType); confira o serviço local e repita sem compartilhar credenciais ou conteúdo HTTP."
 } finally {
   if ($fixturePreparationStarted) {
     try {
