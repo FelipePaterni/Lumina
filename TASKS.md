@@ -18,8 +18,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | DONE |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | DONE |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | DONE |
-| 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
-| 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | BLOCKED |
+| 15 | TASK-015 | PHASE-03 | HIGH | 014 | DONE |
+| 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | READY |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | BLOCKED |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | BLOCKED |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
@@ -196,7 +196,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Gates:** GATE-001 a GATE-007 aprovados em 2026-11-20. Os três cenários manuais passaram, a limpeza foi confirmada e o responsável aprovou o relatório. Evidências em `docs/testing/TASK-014-planejamento-e-gates.md` e `docs/testing/TASK-014-testes-manuais-resultado.md`.
 
 ### TASK-015 — Checkpoint PHASE-03
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-03 · **Priority:** HIGH
 **Objetivo:** Validar compra gratuita/paga simulada, híbrida e concorrente.
 **Dependências:** `DEPENDS_ON: TASK-014`
 **Relacionados:** RF-009–012,020; RNF-009.
@@ -205,6 +205,8 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** biblioteca, bundles e logística.
 **Aceitação/testes:** todos cenários de checkout e regressões verdes.
 **DoD específico:** não há sobre-venda conhecida.
+**Gates:** GATE-001 a GATE-005 aprovados em 2026-11-20. Testes unitários 50/50, integração 8/8, lint e build passaram; cenários manuais 4/4 aprovados e revisados. Evidências em `docs/testing/TASK-015-planejamento-e-gates.md` e `docs/testing/TASK-015-testes-manuais-resultado.md`.
+**Conclusão:** checkpoint PHASE-03 aprovado; concorrência de estoque, licença e cupom passou sem sobre-venda conhecida. Incidental: tentativa de reexecução do helper TASK-014 bloqueou antes dos cenários; evidência aprovada e versionada da TASK-014 foi preservada. TASK-016 é a próxima elegível e requer autorização própria para início.
 
 ### TASK-016 — Checkpoint de transição PHASE-03
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
