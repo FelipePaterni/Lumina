@@ -5,6 +5,7 @@ import { JwtTokenService } from "./application/services/jwt-token.service.js";
 import { EmailDispatcherService } from "./application/services/email-dispatcher.service.js";
 import { AuthService } from "./application/services/auth.service.js";
 import { AdminSeedService } from "./application/services/admin-seed.service.js";
+import { LocalCustomerSeedService } from "./application/services/local-customer-seed.service.js";
 import { AccountService } from "./application/services/account.service.js";
 import { AuthController } from "./presentation/auth.controller.js";
 import { AccountController } from "./presentation/account.controller.js";
@@ -23,6 +24,7 @@ import { AuditModule } from "../audit/audit.module.js";
     EmailDispatcherService,
     AuthService,
     AdminSeedService,
+    LocalCustomerSeedService,
     AccountService,
     JwtAuthGuard,
     RolesGuard,

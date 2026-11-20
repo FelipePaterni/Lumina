@@ -160,15 +160,15 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está READY e requer autorização própria para início.
 
 ### TASK-012 — Carrinho, cupom e frete
-**Status:** IN_REVIEW · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** IN_PROGRESS · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 **Dependências:** `DEPENDS_ON: TASK-011`
 **Relacionados:** RF-009–011; RN-005,008,009.
 **Artefatos esperados:** carrinho híbrido, regras de cupom e configuração de frete.
-**ALLOWED_CHANGES:** `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (read-only ownership lookup only); `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (read-only ownership lookup only); `apps/api/src/modules/identity/identity.module.ts`; `apps/api/src/modules/identity/application/services/local-customer-seed.service.ts`; `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `docker-compose.yml`; `.env`; `.env.example`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** confirmação de pedido; gateway real.
-**Aceitação/testes:** um cupom; validade/cota; endereço/CPF; frete somente físico; e-book duplicado é recusado.
-**DoD específico:** valores usam decimal BRL e são recalculados no servidor.
+**Aceitação/testes:** um cupom; validade/cota; endereço/CPF; frete somente físico; e-book duplicado é recusado; em Compose local, duas contas CUSTOMER sintéticas configuradas são criadas/atualizadas idempotentemente, sem gravar senha em claro, e o seed não roda em produção.
+**DoD específico:** valores usam decimal BRL e são recalculados no servidor; contas CUSTOMER fixas só são habilitadas explicitamente em ambiente local e exigem e-mail `@example.invalid`.
 
 ### TASK-013 — Pedido e checkout transacional
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH

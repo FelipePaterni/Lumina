@@ -5,12 +5,13 @@
 - PowerShell 7, Node 24 e a API/web/PostgreSQL local em execução.
 - A migração `20261120120000_task_012_commerce_foundation` aplicada no mesmo banco local da API.
 - Conta sintética `CUSTOMER` com e-mail confirmado e carrinho vazio; conta sintética `ADMIN` ativa.
+- Para manter contas de teste reproduzíveis, configure `ADMIN_SEED_EMAIL`/`ADMIN_SEED_PASSWORD` e as duas contas `TEST_CUSTOMER_*` no `.env`; habilite `LOCAL_TEST_ACCOUNTS_ENABLED=true`. Os CUSTOMER seed são criados/atualizados no bootstrap local da API. Use somente e-mails `@example.invalid`; o seed é desabilitado em produção.
 - Catálogo com uma edição física visível e pelo menos uma unidade em estoque, além de uma edição digital visível. O roteiro procura os IDs na API e lê o estoque; não o altera.
 - Execute somente contra o PostgreSQL local `lumina` ou `lumina_task009_test`. Nunca use produção. O ajuste temporário de cota altera somente o cupom sintético `T012-MANUAL-*` criado pelo próprio roteiro e o restaura no `finally`.
 
 ## Execução
 
-Na raiz do repositório, forneça as credenciais interativamente; senhas e tokens permanecem na memória do processo:
+Na raiz do repositório, configure as credenciais sintéticas no `.env` (ignorado pelo Git). Para rodar os cenários, forneça-as interativamente; tokens permanecem na memória do processo:
 
 ```powershell
 $customer = Get-Credential -Message 'Conta CUSTOMER sintética confirmada'
