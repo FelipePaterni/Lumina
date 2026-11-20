@@ -46,7 +46,7 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-013-pedido-checkout-transacional
 | GATE-003 — Planejamento | APROVADO | Plano acima respeita API de pedidos/pagamento simulado e banco; sem web, biblioteca/download ou gateway. Artefatos manuais incluídos no Scope Guard para cumprir AGENTS.md. |
 | GATE-004 — Implementação | APROVADO | API de pedido e pagamento simulado, transação serializável, migração aditiva e testes implementados; diff dentro do Scope Guard. `app.module.ts` apenas registra o módulo novo. |
 | GATE-005 — Gates automatizados | APROVADO | lint; 46/46 unitários; 7/7 integrações em `lumina_task009_test`; migração aplicada duas vezes; Prisma validate; audit de produção 0; build completo; scripts manuais analisados; diff sem whitespace. |
-| GATE-006 — Testes manuais | BLOQUEADO | Roteiro e relatório sanitizado criados; fixtures auxiliares preparadas/limpas em DB isolado. O runner do Codex não conseguiu acessar o socket loopback do host; API responde 200/401 dentro do contêiner. Responsável precisa executar/revisar no PowerShell local. |
+| GATE-006 — Testes manuais | EXECUTADO; AGUARDA REVISÃO | Relatório de 2026-11-20 registra MT-013-01 a MT-013-04 aprovados e limpeza confirmada. Falta revisão/aprovação explícita do responsável. |
 | GATE-007 — Conclusão | PENDENTE | — |
 
 ## Scope Guard
@@ -55,4 +55,4 @@ Mudanças primárias: módulos API de pedidos e pagamento simulado; schema/migra
 
 ## Registro da execução manual no runner
 
-Na execução pelo Codex, o PowerShell não conseguiu abrir sockets loopback do host (`Invoke-WebRequest` falhou por permissão de socket). A mesma API respondeu HTTP 200 em `/works` e HTTP 401 sem token em `/checkout` quando consultada de dentro do contêiner. O helper de fixtures foi validado em `lumina_task009_test` e confirmou preparação/limpeza. A etapa manual permanece aguardando execução no PowerShell interativo do responsável; não há aprovação manual inferida.
+Na execução inicial pelo Codex, o PowerShell não conseguiu abrir sockets loopback do host. O responsável executou o roteiro no PowerShell local em 2026-11-20; MT-013-01 a MT-013-04 passaram e a limpeza foi confirmada no relatório sanitizado. Aguarda revisão/aprovação explícita do relatório para fechar o gate manual.

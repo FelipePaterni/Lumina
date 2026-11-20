@@ -181,7 +181,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** gateway externo; biblioteca/download.
 **Aceitação/testes:** R$0 pula pagamento; conflito não cria pedido; cupom/estoque/licença não sobrevendem.
 **DoD específico:** idempotência e concorrência são testadas.
-**Gates:** GATE-001 a GATE-005 aprovados; GATE-006 aguarda execução/revisão manual do responsável antes de fechar GATE-007.
+**Gates:** GATE-001 a GATE-005 aprovados; GATE-006 executado com 4/4 cenários aprovados e limpeza confirmada, aguardando revisão/aprovação manual do responsável antes de fechar GATE-007.
 
 ### TASK-014 — Notificações e ciclo de pedido
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
