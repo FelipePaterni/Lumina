@@ -60,7 +60,7 @@ function Get-Token {
   param([System.Management.Automation.PSCredential]$Credential)
   $password = $Credential.GetNetworkCredential().Password
   $response = Invoke-Api -Method 'POST' -Path '/auth/login' -Token '' -Body @{ email = $Credential.UserName; password = $password }
-  if ($response.Status -ne 200 -or -not $response.Json.accessToken) { throw 'Não foi possível autenticar uma conta sintética (sem registrar resposta).' }
+  if ($response.Status -ne 201 -or -not $response.Json.accessToken) { throw 'Não foi possível autenticar uma conta sintética (sem registrar resposta).' }
   return [string]$response.Json.accessToken
 }
 
