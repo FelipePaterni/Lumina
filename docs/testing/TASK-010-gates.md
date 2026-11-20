@@ -1,6 +1,6 @@
 # TASK-010 — Evidências dos gates
 
-Atualizado em 2026-11-14. A ETAPA 005 foi revalidada e aprovada em 2026-11-14. A TASK permanece em revisão até execução e aprovação humana do roteiro manual.
+Atualizado em 2026-11-20. A ETAPA 005 foi aprovada em 2026-11-20. O roteiro da ETAPA 006 foi executado com oito cenários aprovados; aguardando revisão humana do relatório.
 
 ## Prontidão e plano
 
@@ -23,7 +23,7 @@ Atualizado em 2026-11-14. A ETAPA 005 foi revalidada e aprovada em 2026-11-14. A
 | GATE-003 | APROVADO | Plano acima restrito ao escopo aprovado; banco PostgreSQL isolado identificado e integração executada. |
 | GATE-004 | APROVADO | Implementação revisada; teste de unidade cobre isolamento, duplicata, remoção alheia e obra não disponível. |
 | GATE-005 | APROVADO | 30/30 unitários; 4/4 integrações sem skips no banco isolado; lint, build completo, validação Prisma, formatação, parser PowerShell e `git diff --check` passaram. Migração `20261114120000_wishlist`, tabela e índices foram verificados no banco de integração. |
-| GATE-006 | PENDENTE — EXECUÇÃO/REVISÃO HUMANA | Oito cenários têm roteiro executável, status inicial NÃO EXECUTADO e relatório sanitizado. O operador ainda precisa executar e revisar os resultados. |
+| GATE-006 | PENDENTE — REVISÃO HUMANA | Oito cenários executados e aprovados; usuário deve revisar `TASK-010-testes-manuais-resultado.md`. Fixtures e API temporária foram removidos após a execução. |
 | GATE-007 | PENDENTE | Conclusão aguarda GATE-006 e revisão final; TASK não pode ser marcada DONE. Próxima tarefa continua bloqueada. |
 
 ## Comandos executados
@@ -40,6 +40,8 @@ Atualizado em 2026-11-14. A ETAPA 005 foi revalidada e aprovada em 2026-11-14. A
 | `git diff --check` | Exit 0; sem erros de whitespace. Git emitiu apenas avisos de conversão LF/CRLF. |
 | `npm run test:integration` | Exit 0; 4 aprovados, 0 falhas, 0 skips, usando apenas `lumina_task009_test`. A URL foi montada em memória a partir das configurações locais; não foi impressa nem gravada. |
 | Verificação SQL em `lumina_task009_test` | Exit 0; tabela `wishlist_items`, migração `20261114120000_wishlist` e índices de chave primária, unicidade `(user_id, work_id)` e ordenação por usuário/data presentes. |
+| `tests/manual/task-010/run-task-010-manual-tests.ps1` | Oito cenários APROVADO: HTTP 401 sem token; login CUSTOMER; adição HTTP 201; duplicação HTTP 409; isolamento entre clientes; exclusão alheia HTTP 404; item preservado após tentativa alheia; remoção própria HTTP 200. Relatório sanitizado gerado. |
+| Cleanup dos fixtures e instância API temporária | Exit 0; zero obras, usuários, autores e editoras com prefixo sintético da tarefa; listener temporário na porta 3002 encerrado. |
 
 ## Revisão do Scope Guard e DoD
 
@@ -47,5 +49,5 @@ Atualizado em 2026-11-14. A ETAPA 005 foi revalidada e aprovada em 2026-11-14. A
 - Roteiro manual em `tests/manual/task-010/` é incidental operacional exigido por `AGENTS.md`.
 - `database/schema.prisma`, migração, módulo API, feature Web e testes pertencem ao escopo aprovado.
 - GATE-005 foi reexecutado depois que o Docker foi reaberto; integração passou no banco isolado e a migração da TASK-010 foi confirmada.
-- GATE-006 exige execução/revisão humana; nenhum resultado manual foi presumido.
+- GATE-006: a execução automatizada produziu oito resultados APROVADO, mas o gate segue pendente até revisão humana explícita do relatório.
 - TASK permanece `IN_REVIEW`; a próxima TASK só fica elegível depois da conclusão dos testes manuais e GATE-007.
