@@ -18,27 +18,35 @@ Data: 2026-11-20. Branch: `feature/TASK-017-biblioteca-download-watermark`.
 - Não existe modelo `DownloadEvent`. `AuditService` já grava eventos de auditoria sanitizados; pode tornar solicitações/falhas observáveis sem alteração de schema.
 - `apps/api/src/app.module.ts` precisa registrar o módulo de biblioteca; esse arquivo está fora do `ALLOWED_CHANGES`, mas o registro isolado é incidental e tecnicamente necessário.
 - `npm test`: 50/50 aprovados. `npm run lint`: código 0. `npm run build`: código 0; build API e Next.js concluído.
-- `pdf-lib` e `jszip` não estão instalados nem declarados no workspace (`npm ls pdf-lib jszip --depth=0` retornou árvore vazia). Transformar PDF e editar o pacote ZIP EPUB sem ferramentas próprias exigiria implementar parsers de formatos complexos, com risco de arquivo inválido, perda de conteúdo ou exposição do original.
+- `pdf-lib` e `jszip` não estavam instalados; após autorização foram adicionados como dependências runtime `pdf-lib@1.17.1` e `jszip@3.10.2`. O `npm install` concluiu com 0 vulnerabilidades reportadas.
 
-## GATE-003 — Planejamento mínimo e bloqueio de escopo
+## GATE-003 — Planejamento mínimo
 
-O plano técnico requer leitura restrita do original privado, personalização de PDF e metadados EPUB, armazenamento somente da cópia derivada, biblioteca a partir de compras digitais confirmadas, bloqueio de lançamento futuro, links temporários renováveis e auditoria de falhas sem PII. Não é necessário alterar schema se os direitos forem derivados dos pedidos e os eventos forem gravados pela auditoria existente. O registro de `LibraryModule` em `AppModule` será incidental e documentado.
+O plano técnico requer leitura restrita do original privado; watermark legível nas páginas PDF; nova página XHTML no spine EPUB com nome, e-mail e ID do pedido; armazenamento somente da cópia derivada; biblioteca a partir de compras digitais confirmadas; bloqueio até o lançamento; links renováveis com token opaco de 15 minutos; e auditoria de falhas sem PII. Não haverá alteração de schema: direitos são derivados de pedidos confirmados e eventos usam `AuditService`. O registro de `LibraryModule` em `AppModule` será incidental e documentado.
 
-Para processar os formatos sem inventar implementações inseguras, são necessárias dependências runtime para manipular PDF e ZIP/EPUB. Esses manifestos estão fora do escopo autorizado atual. A etapa 003 está bloqueada até decisão sobre a ampliação.
+Para processar os formatos sem inventar implementações inseguras, são necessárias dependências runtime para manipular PDF e ZIP/EPUB. Em 2026-11-20, o responsável autorizou a ampliação de `ALLOWED_CHANGES` para `apps/api/package.json` e `package-lock.json`. O registro de `LibraryModule` em `AppModule` será incidental mínimo. Não haverá alteração de schema/migration; a biblioteca deriva direitos de compras confirmadas e usa auditoria existente para observabilidade.
 
-## SCOPE ESCALATION
+**Estado: APROVADO.** Escopo ampliado com autorização explícita. `pdf-lib` processa PDF e `jszip` modifica EPUB mantendo `mimetype` primeiro e não comprimido. O cliente informará `name` no POST de solicitação do link, pois o modelo atual não armazena nome; esse valor só entra na cópia e não será persistido ou registrado. O endpoint exige CUSTOMER autenticado com e-mail confirmado, pedido digital confirmado e data de lançamento atingida. Links usam token AES-256-GCM opaco derivado do segredo JWT, expiram em 15 minutos e podem ser renovados pela emissão autenticada de novo link. `AuditService` registra emissão, download e falhas somente com IDs, formato e códigos sanitizados. O corpo de resposta não expõe `storageKey`; GET de download lê apenas `derived`. Rollback: remover dependências e reverter somente arquivos exclusivos da TASK-017; sem migration ou alteração de dados.
 
-TASK: TASK-017
-Necessidade identificada: acrescentar bibliotecas de runtime para personalizar PDFs e editar os pacotes EPUB com segurança.
-Motivo: o workspace não possui processador PDF nem biblioteca ZIP/EPUB; processamento próprio de formatos binários não é uma solução segura nem proporcional.
-Arquivos/módulos afetados: `apps/api/package.json`, `package-lock.json`; incidental necessário `apps/api/src/app.module.ts` para registrar `LibraryModule`.
-Allowed Changes atual: `modules/library/**`; `modules/watermark/**`; `storage/**`; `features/library/**`; `tests/**`; `TASKS.md`.
-Forbidden Changes relacionado: DRM; arquivo original público; reembolso.
-Por que não é incidental: adicionar dependências runtime altera o manifesto e lockfile, supply chain e auditoria de segurança do produto.
-Impacto se não realizada: não é possível cumprir o DoD de cópias PDF/ePub personalizadas mantendo originais privados.
-Alternativas: (1) ampliar o escopo para manifestos e lockfile e validar as novas dependências; (2) aprovar ferramentas externas já disponíveis no ambiente de execução e sua portabilidade; (3) redefinir requisito para um único formato/saída, decisão que alteraria a aceitação.
-Recomendação: autorizar apenas `apps/api/package.json` e `package-lock.json` para dependências de PDF e ZIP/EPUB; tratar o registro em `AppModule` como incidental mínimo. Nenhuma migration ou mudança de schema é proposta.
-Decisão necessária: aprovar ou recusar a ampliação do `ALLOWED_CHANGES` para `apps/api/package.json` e `package-lock.json`.
+### Plano de arquivos
+
+- Alterar: `apps/api/src/storage/private-local.storage.ts`, `apps/api/src/app.module.ts` (incidental), `apps/api/package.json`, `package-lock.json`, `TASKS.md`.
+- Criar: `apps/api/src/modules/library/**`, `apps/api/src/modules/watermark/**`; unitários de processamento e tokens; integração API no banco isolado; `tests/manual/task-017/**`; `docs/testing/TASK-017-testes-manuais-resultado.md`.
+- Não tocar: schema/migrations, `OrderService`, módulos de reembolso, originais armazenados, leitores DRM, rotas públicas de asset e interface fora de `features/library/**`.
+
+### Matriz de implementação
+
+| Requisito | Implementação/verificação |
+|---|---|
+| Direitos de biblioteca | Listar edições digitais de `OrderItem` em pedidos `CONFIRMED` do cliente atual; negar propriedade de outro cliente e itens físicos. |
+| Pré-venda | Marcar a edição indisponível até `Work.releaseDate`; negar link e download anteriores a essa data. |
+| Cópia personalizada | Baixar versão marcada como original do storage privado; PDF recebe texto em cada página; EPUB recebe página XHTML no manifest/spine. Incluir nome fornecido, e-mail da conta e identificador do pedido. |
+| Arquivo original privado | Validar chave de storage por escopo e confinamento no root; servir somente cópia `derived`, sempre como attachment, com `Cache-Control: private, no-store` e `X-Content-Type-Options: nosniff`. |
+| Link temporário/renovável | Token AES-GCM opaco vinculado a cliente/edição/pedido/cópia e expiração de 15 minutos; novo POST autenticado emite novo link. Testar token adulterado/expirado e renovação. |
+| Falha de job observável | Capturar falha de transformação com código controlado; registrar `DIGITAL_COPY_PROCESSING_FAILED` sem conteúdo, e-mail ou token; responder erro genérico. |
+| Manual | Roteiro PowerShell com credenciais PSCredential e API local; relatório bloqueado até revisão humana e inspeção de cópia temporária. |
+
+Impacto: API nova; nenhuma migration; nenhuma página web obrigatória nos critérios, embora `features/library/**` permaneça permitida; dados de teste sintéticos; validação de segurança/regressão e suites do workspace.
 
 ## Estado dos gates
 
@@ -46,12 +54,26 @@ Decisão necessária: aprovar ou recusar a ampliação do `ALLOWED_CHANGES` para
 |---|---|---|
 | GATE-001 — Prontidão | APROVADO | Dependência, critérios, ADR, branch e árvore inicial conferidos. |
 | GATE-002 — Contexto histórico | APROVADO | Código, schema, testes relacionados e baseline registrados acima. |
-| GATE-003 — Planejamento mínimo | BLOQUEADO | Scope Escalation acima aguarda decisão sobre manifestos de dependências. |
-| GATE-004 — Implementação controlada | PENDENTE | Não iniciada. |
-| GATE-005 — Revisão e gates automatizados | PENDENTE | Não iniciada. |
-| GATE-006 — Testes manuais | PENDENTE | Não iniciada. |
-| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Não iniciada. |
+| GATE-003 — Planejamento mínimo | APROVADO | Plano autorizado; dependências delimitadas, rollback e mitigação registrados. |
+| GATE-004 — Implementação controlada | APROVADO | Módulo de biblioteca, processamento PDF/EPUB, token temporário, storage privado e cobertura unitária adicionados; build API e testes unitários aprovados. |
+| GATE-005 — Revisão e gates automatizados | BLOQUEADO | `npm test` 58/58 e `npm run lint` aprovados; build API aprovado. Build geral falhou no prerender Next.js por `EPERM` ao criar `.next/...`. Integração executada com URL construída em memória para `lumina_task009_test`, mas os 8 testes falharam porque PostgreSQL local em `localhost:5433` está indisponível. |
+| GATE-006 — Testes manuais | PENDENTE | Runner criado e sintaxe PowerShell validada; cenários não executados, relatório começa como NÃO EXECUTADO e precisa de revisão humana. |
+| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da resolução de GATE-005 e execução/revisão humana de GATE-006. |
 
 ## Scope Guard
 
-Nenhuma alteração de produto foi realizada. `TASKS.md` foi atualizado para `BLOCKED` pelo impedimento de escopo. O plano e este relatório são artefatos incidentais mínimos para registrar gates e bloqueio conforme AGENTS.md.
+Alterações primárias estão delimitadas a biblioteca, marca d’água, storage privado, testes, manifestos autorizados e `TASKS.md`. Incidental mínimo: registro de `LibraryModule` no `apps/api/src/app.module.ts` e `docs/testing/TASK-017-*.md` para rastreabilidade. Permanecem proibidos DRM, exposição de originais e reembolso.
+
+## GATE-004 — Implementação controlada
+
+**Estado: APROVADO.** Implementados `GET /library`, emissão autenticada de link e download por token AES-GCM; compras confirmadas digitais são a fonte de direitos. A emissão rejeita edição não comprada e pré-venda até `releaseDate`, e só lê originais do storage privado. PDF é marcado em cada página; EPUB recebe página XHTML no manifest/spine. O nome informado só participa do arquivo gerado. Auditoria registra IDs, formatos e códigos sem nome, e-mail, token ou conteúdo. A leitura de storage aceita apenas chaves hash e escopo explícito; extensão/MIME/chave precisam corresponder.
+
+Testes unitários cobrem PDF, EPUB, arquivos inválidos, token adulterado/expirado, storage confinado, negação de compra alheia e bloqueio de pré-venda.
+
+## GATE-005 — Revisão e gates automatizados
+
+**Estado: BLOQUEADO por ambiente.** `npm test`: 59/59 aprovados. `npm run lint`: aprovado. `npm run build --workspace=@lumina/api`: aprovado. `npm run build` compilou API e Next.js, mas falhou no prerender de `/_global-error` com `EPERM` ao criar diretório dentro de `apps/web/.next`. Integração foi tentada com URL construída em memória para o banco exato `lumina_task009_test`; os 8 testes falharam por `Can't reach database server at localhost:5433`. Nenhum banco fora do alvo isolado foi acessado. Rerun quando PostgreSQL local estiver ativo e o ambiente permitir o build web.
+
+## GATE-006 — Testes manuais
+
+**Estado: PENDENTE.** O roteiro `tests/manual/task-017/README.md` e o runner `run-task-017-manual-tests.ps1` foram criados; o parser PowerShell confirmou sintaxe válida. Cenários continuam `NÃO EXECUTADO`, pois dependem de API local, compra sintética e inspeção humana da cópia personalizada. O relatório correspondente não declara aprovação.
