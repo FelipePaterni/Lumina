@@ -4,7 +4,8 @@ import { PrismaClient } from "@prisma/client";
 import { PasswordHasherService } from "../../../apps/api/dist/modules/identity/application/services/password-hasher.service.js";
 import { TokenService } from "../../../apps/api/dist/modules/identity/application/services/token.service.js";
 import { JwtTokenService } from "../../../apps/api/dist/modules/identity/application/services/jwt-token.service.js";
-import { EmailDispatcherService } from "../../../apps/api/dist/modules/identity/application/services/email-dispatcher.service.js";
+import { NotificationService } from "../../../apps/api/dist/modules/notifications/notification.service.js";
+import { SimulatedEmailTransport } from "../../../apps/api/dist/modules/notifications/simulated-email-transport.js";
 import { AuthService } from "../../../apps/api/dist/modules/identity/application/services/auth.service.js";
 import { runAdminSeed } from "../../../database/seeds/admin-seed.mjs";
 import { getIntegrationDatabaseUrl } from "../test-database.mjs";
@@ -21,22 +22,31 @@ test("AuthService & Seed - Fluxo de identidade e regras de negócio", async () =
   const hasher = new PasswordHasherService();
   const tokenService = new TokenService();
   const jwtService = new JwtTokenService();
-  const emailDispatcher = new EmailDispatcherService(prisma);
+  const notifications = new NotificationService(prisma, new SimulatedEmailTransport());
   const authService = new AuthService(
     prisma,
     hasher,
     tokenService,
     jwtService,
-    emailDispatcher,
+    notifications,
   );
 
   const testEmail = `test_${Date.now()}@example.com`;
+  const adminEmail = `admin_${Date.now()}@example.com`;
   const testPassword = "Password123!";
+  let testUserId;
 
   try {
     // 1. Registro
     const regResult = await authService.register(testEmail, testPassword);
+    testUserId = regResult.userId;
     assert.ok(regResult.userId);
+    const confirmationNotifications = await prisma.outboxEmail.findMany({
+      where: { eventType: "EMAIL_CONFIRMATION_REQUESTED", eventKey: { startsWith: `identity:${regResult.userId}:` } },
+    });
+    assert.equal(confirmationNotifications.length, 1);
+    assert.equal(confirmationNotifications[0].deliveryStatus, "SENT");
+    assert.equal(confirmationNotifications[0].attemptCount, 1);
 
     // 2. Tentar login antes de confirmar e-mail
     const loginBeforeConfirm = await authService.login(testEmail, testPassword);
@@ -68,9 +78,13 @@ test("AuthService & Seed - Fluxo de identidade e regras de negócio", async () =
       forgotExistent.message,
       "Mensagem deve ser idêntica para evitar enumeração",
     );
+    const resetNotifications = await prisma.outboxEmail.findMany({
+      where: { eventType: "PASSWORD_RESET_REQUESTED", eventKey: { startsWith: `identity:${regResult.userId}:` } },
+    });
+    assert.equal(resetNotifications.length, 1);
+    assert.equal(resetNotifications[0].deliveryStatus, "SENT");
 
     // 6. Teste de Seed Controlado do Administrador
-    const adminEmail = `admin_${Date.now()}@example.com`;
     const seededAdmin = await runAdminSeed({
       email: adminEmail,
       password: "AdminPassword123!",
@@ -79,11 +93,16 @@ test("AuthService & Seed - Fluxo de identidade e regras de negócio", async () =
     assert.ok(seededAdmin?.id);
     assert.equal(seededAdmin?.role, "ADMIN");
 
-    // Limpeza
-    await prisma.user.deleteMany({
-      where: { email: { in: [testEmail, adminEmail] } },
-    });
   } finally {
+    await prisma.outboxEmail.deleteMany({
+      where: {
+        OR: [
+          { toEmail: testEmail },
+          ...(testUserId ? [{ eventKey: { startsWith: `identity:${testUserId}:` } }] : []),
+        ],
+      },
+    });
+    await prisma.user.deleteMany({ where: { email: { in: [testEmail, adminEmail] } } });
     await prisma.$disconnect();
   }
 });

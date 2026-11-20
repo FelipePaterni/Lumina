@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { EditionFormat, OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
@@ -9,6 +10,8 @@ import { PrismaService } from "../../infrastructure/persistence/prisma.service.j
 import { calculateCouponDiscount, validateCouponAvailability } from "../coupons/coupon.rules.js";
 import { ShippingAddressInput, matchesShippingRule, validateShippingAddress } from "../shipping/shipping.rules.js";
 import { SimulatedPaymentService } from "../payments/simulated-payment.service.js";
+import { NotificationEventType } from "../notifications/notification-event.js";
+import { NotificationService } from "../notifications/notification.service.js";
 import { formatBrl } from "../cart/money.js";
 import { sumOrderTotals, validateIdempotencyKey } from "./order.rules.js";
 
@@ -16,6 +19,7 @@ const orderInclude = {
   items: { orderBy: { createdAt: "asc" as const } },
   shippingAddress: true,
   payment: true,
+  user: { select: { email: true } },
 } satisfies Prisma.OrderInclude;
 
 const cartInclude = {
@@ -30,9 +34,12 @@ type OrderView = Prisma.OrderGetPayload<{ include: typeof orderInclude }>;
 
 @Injectable()
 export class OrderService {
+  private readonly logger = new Logger(OrderService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly payments: SimulatedPaymentService,
+    private readonly notifications: NotificationService,
   ) {}
 
   async checkout(userId: string, idempotencyKeyInput: unknown, addressInput?: ShippingAddressInput) {
@@ -42,11 +49,22 @@ export class OrderService {
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const order = await this.prisma.$transaction(
+        const result = await this.prisma.$transaction(
           (tx) => this.createOrder(tx, userId, idempotencyKey, addressInput),
           { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15_000 },
         );
-        return this.present(order);
+        if (result.created) {
+          await this.notifications.dispatchSimulatedEmail({
+            eventKey: `order:${result.order.id}:confirmed`,
+            eventType: NotificationEventType.ORDER_CONFIRMED,
+            toEmail: result.order.user.email,
+            subject: "Lumina Livros - Pedido confirmado",
+            body: `Seu pedido foi confirmado. Identificador: ${result.order.id}. Total: ${formatBrl(result.order.totalCents)}.`,
+          }).catch(() => {
+            this.logger.warn("notification persistence failed event=ORDER_CONFIRMED");
+          });
+        }
+        return this.present(result.order);
       } catch (error) {
         if (this.isTransactionConflict(error) && attempt < 2) continue;
         if (this.prismaCode(error) === "P2002") {
@@ -77,12 +95,12 @@ export class OrderService {
     userId: string,
     idempotencyKey: string,
     addressInput?: ShippingAddressInput,
-  ): Promise<OrderView> {
+  ): Promise<{ order: OrderView; created: boolean }> {
     const prior = await tx.order.findUnique({
       where: { userId_idempotencyKey: { userId, idempotencyKey } },
       include: orderInclude,
     });
-    if (prior) return prior;
+    if (prior) return { order: prior, created: false };
 
     const carts = await tx.$queryRaw<Array<{ id: string }>>`
       SELECT id FROM carts WHERE user_id = ${userId} FOR UPDATE
@@ -257,7 +275,7 @@ export class OrderService {
 
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
     await tx.cart.update({ where: { id: cart.id }, data: { couponId: null } });
-    return order;
+    return { order, created: true };
   }
 
   private findByKey(userId: string, idempotencyKey: string) {

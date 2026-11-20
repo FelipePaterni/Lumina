@@ -26,8 +26,8 @@ class MockEmailDispatcher {
     this.dispatched = [];
   }
 
-  async dispatchSimulatedEmail(toEmail, subject, body) {
-    this.dispatched.push({ toEmail, subject, body });
+  async dispatchSimulatedEmail(notification) {
+    this.dispatched.push(notification);
   }
 }
 
@@ -59,6 +59,7 @@ test("Account Lifecycle - solicitação de desativação define carência de 30 
   // Duas notificações devem ser emitidas: uma ao cliente e uma ao admin (RN-018 / RN-019)
   assert.equal(emailDispatcher.dispatched.length, 2);
   assert.equal(emailDispatcher.dispatched[0].toEmail, "cliente@teste.local");
+  assert.equal(emailDispatcher.dispatched[0].eventKey.includes(userId), true);
 });
 
 test("Account Lifecycle - reativação limpa datas e reativa a conta dentro do prazo (RN-018)", async () => {
@@ -85,8 +86,8 @@ test("Account Lifecycle - reativação limpa datas e reativa a conta dentro do p
   assert.equal(afterUser.deactivatedAt, null);
   assert.equal(afterUser.scheduledDeletionAt, null);
 
-  // Notificação de reativação enviada
-  assert.equal(emailDispatcher.dispatched.length, 1);
+  // Cliente e admin recebem notificações de reativação conforme RN-018/RN-019.
+  assert.equal(emailDispatcher.dispatched.length, 2);
   assert.equal(emailDispatcher.dispatched[0].toEmail, "cliente2@teste.local");
 });
 

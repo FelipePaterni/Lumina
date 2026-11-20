@@ -3,7 +3,8 @@ import test from "node:test";
 import { PrismaClient } from "@prisma/client";
 import { Role } from "../../../apps/api/dist/modules/identity/domain/role.enum.js";
 import { AccountService } from "../../../apps/api/dist/modules/identity/application/services/account.service.js";
-import { EmailDispatcherService } from "../../../apps/api/dist/modules/identity/application/services/email-dispatcher.service.js";
+import { NotificationService } from "../../../apps/api/dist/modules/notifications/notification.service.js";
+import { SimulatedEmailTransport } from "../../../apps/api/dist/modules/notifications/simulated-email-transport.js";
 import { AuditService } from "../../../apps/api/dist/modules/audit/application/services/audit.service.js";
 import { getIntegrationDatabaseUrl } from "../test-database.mjs";
 
@@ -15,10 +16,11 @@ test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async
   });
 
   await prisma.$connect();
+  const users = [];
 
   try {
-    const emailDispatcher = new EmailDispatcherService(prisma);
-    const accountService = new AccountService(prisma, emailDispatcher);
+    const notifications = new NotificationService(prisma, new SimulatedEmailTransport());
+    const accountService = new AccountService(prisma, notifications);
     const auditService = new AuditService(prisma);
 
     const testCustomerEmail = `rbac-customer-${Date.now()}@lumina.local`;
@@ -44,6 +46,7 @@ test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async
         isActive: true,
       },
     });
+    users.push(customer, admin);
 
     // 2. Testar desativação de conta de cliente com carência de 30 dias (RN-018)
     const deactivationResult = await accountService.requestAccountDeletion(
@@ -52,6 +55,9 @@ test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async
     );
     assert.ok(deactivationResult.deactivatedAt);
     assert.ok(deactivationResult.scheduledDeletionAt);
+    assert.equal(await prisma.outboxEmail.count({
+      where: { eventKey: { startsWith: `identity:${customer.id}:deletion-request:` }, deliveryStatus: "SENT" },
+    }), 2);
 
     // Registrar auditoria da ação sensível
     await auditService.logAction({
@@ -71,6 +77,20 @@ test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async
       "Promovido para gerência de catálogo",
     );
     assert.equal(roleUpdate.role, Role.CATALOG);
+    assert.equal(await prisma.outboxEmail.count({
+      where: { eventKey: { startsWith: `identity:${customer.id}:role-changed:` }, deliveryStatus: "SENT" },
+    }), 1);
+
+    const statusUpdate = await accountService.updateUserStatus(
+      admin.id,
+      customer.id,
+      true,
+      "Reativação para teste de notificação",
+    );
+    assert.equal(statusUpdate.isActive, true);
+    assert.equal(await prisma.outboxEmail.count({
+      where: { eventKey: { startsWith: `identity:${customer.id}:status-changed:` }, deliveryStatus: "SENT" },
+    }), 1);
 
     await auditService.logAction({
       actorId: admin.id,
@@ -90,14 +110,13 @@ test("Integration - RBAC, Auditoria estruturada e Desativação de conta", async
     assert.equal(recentLog.actorId, admin.id);
     assert.equal(recentLog.reason, "Promovido para gerência de catálogo");
 
-    // Limpeza de registros de teste
-    await prisma.auditLog.deleteMany({
-      where: { targetId: customer.id },
-    });
-    await prisma.user.deleteMany({
-      where: { id: { in: [customer.id, admin.id] } },
-    });
   } finally {
+    if (users.length) {
+      const userIds = users.map(({ id }) => id);
+      await prisma.outboxEmail.deleteMany({ where: { eventKey: { startsWith: `identity:${userIds[0]}:` } } });
+      await prisma.auditLog.deleteMany({ where: { OR: [{ actorId: { in: userIds } }, { targetId: { in: userIds } }] } });
+      await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    }
     await prisma.$disconnect();
   }
 });

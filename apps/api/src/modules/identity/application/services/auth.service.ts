@@ -9,7 +9,8 @@ import { Role } from "../../domain/role.enum.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
 import { TokenService } from "./token.service.js";
 import { JwtTokenService } from "./jwt-token.service.js";
-import { EmailDispatcherService } from "./email-dispatcher.service.js";
+import { NotificationEventType } from "../../../notifications/notification-event.js";
+import { NotificationService } from "../../../notifications/notification.service.js";
 
 export interface AuthResult {
   accessToken: string;
@@ -28,7 +29,7 @@ export class AuthService {
     private readonly hasher: PasswordHasherService,
     private readonly tokenService: TokenService,
     private readonly jwtService: JwtTokenService,
-    private readonly emailDispatcher: EmailDispatcherService,
+    private readonly notifications: NotificationService,
   ) {}
 
   async register(
@@ -59,7 +60,7 @@ export class AuthService {
     const { token, tokenHash } = this.tokenService.generateOpaqueToken();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
-    await this.prisma.emailVerificationToken.create({
+    const verificationRecord = await this.prisma.emailVerificationToken.create({
       data: {
         tokenHash,
         userId: user.id,
@@ -67,11 +68,13 @@ export class AuthService {
       },
     });
 
-    await this.emailDispatcher.dispatchSimulatedEmail(
-      user.email,
-      "Confirmação de Cadastro - Lumina Livros",
-      `Seu código de ativação é: ${token}`,
-    );
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `identity:${user.id}:email-confirmation:${verificationRecord.id}`,
+      eventType: NotificationEventType.EMAIL_CONFIRMATION_REQUESTED,
+      toEmail: user.email,
+      subject: "Confirmação de Cadastro - Lumina Livros",
+      body: `Seu código de ativação é: ${token}`,
+    });
 
     return {
       message:
@@ -168,7 +171,7 @@ export class AuthService {
     const { token, tokenHash } = this.tokenService.generateOpaqueToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
 
-    await this.prisma.passwordResetToken.create({
+    const resetRecord = await this.prisma.passwordResetToken.create({
       data: {
         tokenHash,
         userId: user.id,
@@ -176,11 +179,13 @@ export class AuthService {
       },
     });
 
-    await this.emailDispatcher.dispatchSimulatedEmail(
-      user.email,
-      "Recuperação de Senha - Lumina Livros",
-      `Seu token de recuperação é: ${token}`,
-    );
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `identity:${user.id}:password-reset:${resetRecord.id}`,
+      eventType: NotificationEventType.PASSWORD_RESET_REQUESTED,
+      toEmail: user.email,
+      subject: "Recuperação de Senha - Lumina Livros",
+      body: `Seu token de recuperação é: ${token}`,
+    });
 
     return genericSuccess;
   }
