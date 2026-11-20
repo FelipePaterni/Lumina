@@ -37,7 +37,7 @@ function Login([PSCredential]$Credential) {
   $password = $Credential.GetNetworkCredential().Password
   try {
     $response = Invoke-Api POST "/auth/login" $null @{ email = $Credential.UserName; password = $password }
-    if ($response.Status -ne 200) { return $null }
+    if ($response.Status -notin @(200, 201)) { return $null }
     $payload = $response.Content | ConvertFrom-Json
     return $payload.accessToken
   } finally { $password = $null }
