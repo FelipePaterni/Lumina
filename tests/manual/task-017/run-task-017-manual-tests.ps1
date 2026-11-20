@@ -51,7 +51,7 @@ function Invoke-Api {
   try {
     $response = Invoke-WebRequest @request
     $parsed = $null
-    if (-not $OutFile -and $response.Content) { try { $parsed = $response.Content | ConvertFrom-Json } catch { $parsed = $null } }
+    if (-not $OutFile -and $response.Content) { try { $parsed = ConvertFrom-Json -InputObject $response.Content -NoEnumerate } catch { $parsed = $null } }
     return [pscustomobject]@{ Status = [int]$response.StatusCode; Json = $parsed; ContentType = [string]$response.Headers['Content-Type'] }
   } catch { return [pscustomobject]@{ Status = 0; Json = $null; ContentType = '' } }
 }
