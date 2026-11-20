@@ -17,7 +17,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | DONE |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | DONE |
-| 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | IN_REVIEW |
+| 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | DONE |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | BLOCKED |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | BLOCKED |
@@ -184,7 +184,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** concluída em 2026-11-20 após aprovação do responsável. GATE-001 a GATE-007 aprovados; os quatro cenários manuais passaram e a limpeza foi confirmada. Evidências em `docs/testing/TASK-013-planejamento-e-gates.md` e `docs/testing/TASK-013-testes-manuais-resultado.md`.
 
 ### TASK-014 — Notificações e ciclo de pedido
-**Status:** IN_REVIEW · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** DONE · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Integrar caixa de saída simulada aos eventos de conta e pedido.
 **Dependências:** `DEPENDS_ON: TASK-012, TASK-013`
 **Relacionados:** RF-020; RN-019; ADR-005.
@@ -193,7 +193,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** provedor externo; conteúdo PII nos logs.
 **Aceitação/testes:** eventos exigidos disparam uma notificação simulada sem duplicação indevida.
 **DoD específico:** falha não invalida pedido confirmado.
-**Gates:** GATE-001 a GATE-005 aprovados; GATE-006 aguarda execução/revisão humana dos testes manuais; GATE-007 pendente.
+**Gates:** GATE-001 a GATE-007 aprovados em 2026-11-20. Os três cenários manuais passaram, a limpeza foi confirmada e o responsável aprovou o relatório. Evidências em `docs/testing/TASK-014-planejamento-e-gates.md` e `docs/testing/TASK-014-testes-manuais-resultado.md`.
 
 ### TASK-015 — Checkpoint PHASE-03
 **Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** HIGH

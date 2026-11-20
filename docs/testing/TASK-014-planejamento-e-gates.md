@@ -11,8 +11,8 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-014-notificacoes-ciclo-pedido`.
 | GATE-003 — Planejamento | APROVADO | Mapeamento abaixo; alterações em identidade, pedido, notifications, persistência e testes; sem provedor externo, biblioteca/download ou interface web. Rollback por migration e reversão do commit da TASK. |
 | GATE-004 — Implementação | APROVADO | Outbox persistente, módulo Notifications, estados/tentativas/retry, eventos de identidade e pedido; migration aditiva e rollback; diff classificado dentro do Scope Guard. |
 | GATE-005 — Gates automatizados | APROVADO | Em 2026-11-20: `npm run lint`; `npm test` 50/50; `npm run test:integration` 8/8 no banco isolado `lumina_task009_test`; `npm run build` completo; `npx prisma validate`; deploy repetido das migrations; parser PowerShell/`node --check`; `git diff --check`. `npm audit --omit=dev` havia reportado 0 vulnerabilidades numa execução com acesso à rede; a repetição no sandbox não alcançou `registry.npmjs.org` por DNS. |
-| GATE-006 — Testes manuais | AGUARDA EXECUÇÃO/REVISÃO | Roteiro e relatório sanitizado criados. Requer execução pelo responsável no PowerShell local e revisão humana dos cenários. |
-| GATE-007 — Conclusão | PENDENTE | — |
+| GATE-006 — Testes manuais | APROVADO | Em 2026-11-20, os cenários MT-014-01 a MT-014-03 passaram na API local; a limpeza foi confirmada. Relatório revisado e aprovado explicitamente pelo responsável. |
+| GATE-007 — Conclusão | APROVADO | Definition of Done validada: implementação, gates automatizados e manuais aprovados, relatório sanitizado registrado e alterações rastreadas nos commits `afaa404` e `a751948`; conclusão registrada neste commit. |
 
 ## Contexto confirmado
 

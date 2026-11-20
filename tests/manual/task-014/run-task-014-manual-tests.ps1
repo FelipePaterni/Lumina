@@ -54,7 +54,7 @@ function Write-SanitizedReport {
     $lines.Add("Falha/bloqueio: $failure")
   }
   $lines.Add("")
-  $lines.Add("Pré-requisitos locais: `npm run db:migrate`; `docker compose up -d --build api`. Execute este roteiro novamente no PowerShell do Windows.")
+  $lines.Add('Pré-requisitos locais: npm run db:migrate; docker compose up -d --build api. Execute este roteiro novamente no PowerShell do Windows.')
   Set-Content -LiteralPath $reportPath -Value $lines -Encoding utf8
 }
 
