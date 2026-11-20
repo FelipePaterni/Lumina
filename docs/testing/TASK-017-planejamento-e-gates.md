@@ -56,9 +56,9 @@ Impacto: API nova; nenhuma migration; nenhuma página web obrigatória nos crit�
 | GATE-002 — Contexto histórico | APROVADO | Código, schema, testes relacionados e baseline registrados acima. |
 | GATE-003 — Planejamento mínimo | APROVADO | Plano autorizado; dependências delimitadas, rollback e mitigação registrados. |
 | GATE-004 — Implementação controlada | APROVADO | Módulo de biblioteca, processamento PDF/EPUB, token temporário, storage privado e cobertura unitária adicionados; build API e testes unitários aprovados. |
-| GATE-005 — Revisão e gates automatizados | BLOQUEADO | `npm test` 58/58 e `npm run lint` aprovados; build API aprovado. Build geral falhou no prerender Next.js por `EPERM` ao criar `.next/...`. Integração executada com URL construída em memória para `lumina_task009_test`, mas os 8 testes falharam porque PostgreSQL local em `localhost:5433` está indisponível. |
-| GATE-006 — Testes manuais | PENDENTE | Runner criado e sintaxe PowerShell validada; cenários não executados, relatório começa como NÃO EXECUTADO e precisa de revisão humana. |
-| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da resolução de GATE-005 e execução/revisão humana de GATE-006. |
+| GATE-005 — Revisão e gates automatizados | APROVADO | `npm test` 59/59, lint, build geral e integração 8/8 aprovados. Integração usou exclusivamente `lumina_task009_test`; build e integração executados fora do sandbox para acesso local/escrita. |
+| GATE-006 — Testes manuais | PENDENTE | Runner criado e sintaxe PowerShell validada; cenários ainda bloqueados até execução e inspeção humana da cópia personalizada. |
+| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da aprovação humana de GATE-006. |
 
 ## Scope Guard
 
@@ -72,8 +72,8 @@ Testes unitários cobrem PDF, EPUB, arquivos inválidos, token adulterado/expira
 
 ## GATE-005 — Revisão e gates automatizados
 
-**Estado: BLOQUEADO por ambiente.** `npm test`: 59/59 aprovados. `npm run lint`: aprovado. `npm run build --workspace=@lumina/api`: aprovado. `npm run build` compilou API e Next.js, mas falhou no prerender de `/_global-error` com `EPERM` ao criar diretório dentro de `apps/web/.next`. Integração foi tentada com URL construída em memória para o banco exato `lumina_task009_test`; os 8 testes falharam por `Can't reach database server at localhost:5433`. Nenhum banco fora do alvo isolado foi acessado. Rerun quando PostgreSQL local estiver ativo e o ambiente permitir o build web.
+**Estado: APROVADO.** `npm test`: 59/59 aprovados. `npm run lint`: aprovado. `npm run build --workspace=@lumina/api`: aprovado. O primeiro build geral dentro do sandbox falhou por `EPERM` ao criar diretório no `.next`; o rerun fora do sandbox concluiu com sucesso. A integração passou fora do sandbox: 8/8 testes, com URL montada somente para `lumina_task009_test`; nenhum outro banco foi acessado.
 
 ## GATE-006 — Testes manuais
 
-**Estado: PENDENTE.** O roteiro `tests/manual/task-017/README.md` e o runner `run-task-017-manual-tests.ps1` foram criados; o parser PowerShell confirmou sintaxe válida. Cenários continuam `NÃO EXECUTADO`, pois dependem de API local, compra sintética e inspeção humana da cópia personalizada. O relatório correspondente não declara aprovação.
+**Estado: PENDENTE.** O roteiro `tests/manual/task-017/README.md` e o runner `run-task-017-manual-tests.ps1` foram criados; o parser PowerShell confirmou sintaxe válida. Cenários continuam `BLOQUEADO` (ainda não executados), pois dependem de API local, compra sintética e inspeção humana da cópia personalizada. O relatório correspondente não declara aprovação.

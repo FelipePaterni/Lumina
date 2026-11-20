@@ -20,7 +20,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | DONE |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | DONE |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | DONE |
-| 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | IN_PROGRESS |
+| 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | IN_REVIEW |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | BLOCKED |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
@@ -222,7 +222,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** checkpoint PHASE-03 aprovado pelo responsável; TASK-017 torna-se READY. Nenhuma implementação de PHASE-04 foi iniciada.
 
 ### TASK-017 — Biblioteca, download e marca d’água
-**Status:** IN_PROGRESS · **Phase:** PHASE-04 · **Priority:** CRITICAL
+**Status:** IN_REVIEW · **Phase:** PHASE-04 · **Priority:** CRITICAL
 **Objetivo:** Conceder direitos, gerar cópias personalizadas e links temporários renováveis.
 **Dependências:** `DEPENDS_ON: TASK-016`
 **Relacionados:** RF-013,014; RN-012; ADR-004.
@@ -232,7 +232,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** pré-venda bloqueia; cópia leva os três campos; original não é exposto; link expira/renova.
 **DoD específico:** teste de PDF/ePub e falha de job observável.
 **Decisão de escopo:** em 2026-11-20, o responsável autorizou ampliar `ALLOWED_CHANGES` para `apps/api/package.json` e `package-lock.json` para incluir processadores runtime de PDF/EPUB. `apps/api/src/app.module.ts` será incidental mínimo para registrar o módulo, sem alterar contrato da aplicação.
-**Gates:** GATE-001 a GATE-004 aprovados. GATE-005 bloqueado pelo PostgreSQL local indisponível e erro `EPERM` no build web; GATE-006 aguarda execução e revisão humana. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`.
+**Gates:** GATE-001 a GATE-005 aprovados (testes 59/59, lint, build geral e integração 8/8 no banco isolado). GATE-006 aguarda execução e revisão humana. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`.
 
 ### TASK-018 — Bundles e pré-vendas
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
