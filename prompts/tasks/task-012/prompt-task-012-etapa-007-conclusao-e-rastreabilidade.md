@@ -17,7 +17,7 @@ Esta etapa faz parte de um workflow controlado. Não execute etapas posteriores,
 - Branch de trabalho específica da TASK; main não pode receber desenvolvimento direto.
 - Working tree inspecionada e alterações alheias preservadas.
 - Documentos obrigatórios lidos na ordem: AGENTS.md, README.md, TASKS.md, ADRs relacionados, código e testes existentes.
-- Escopo autorizado (ampliações aprovadas pelo responsável em 2026-11-20): `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (consulta somente de direitos já adquiridos); `apps/api/src/modules/identity/identity.module.ts`; `apps/api/src/modules/identity/application/services/local-customer-seed.service.ts`; `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `apps/web/package.json`; `package-lock.json`; `database/schema.prisma`; `database/migrations/**`; `docker-compose.yml`; `.env` local ignorado pelo Git; `.env.example`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
+- Escopo autorizado (ampliações aprovadas pelo responsável em 2026-11-20): `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (consulta somente de direitos já adquiridos); `apps/api/src/modules/identity/identity.module.ts`; `apps/api/src/modules/identity/application/services/local-customer-seed.service.ts`; `apps/api/package.json`; `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `apps/web/package.json`; `package.json`; `package-lock.json`; `database/schema.prisma`; `database/migrations/**`; `docker-compose.yml`; `.env` local ignorado pelo Git; `.env.example`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 - Escopo proibido: confirmação de pedido; gateway real.
 
 ## 4. ENTRADAS NECESSÁRIAS
@@ -67,11 +67,11 @@ STATUS: APROVADO somente com todos os itens marcados por evidência; caso contr�
 
 ## 13. STATUS ACUMULADO DOS GATES
 
-GATE-007 — Conclusão e rastreabilidade: EM EXECUÇÃO
+GATE-007 — Conclusão e rastreabilidade: APROVADO
 
-GATES CONCLUÍDOS: [PREENCHER]/7
-GATES PENDENTES: [PREENCHER]/7
-GATES BLOQUEADOS: [PREENCHER]/7
+GATES CONCLUÍDOS: 7/7
+GATES PENDENTES: 0/7
+GATES BLOQUEADOS: 0/7
 
 ## 14. RESULTADO OBRIGATÓRIO
 
@@ -87,28 +87,28 @@ GATE DA ETAPA:
 [APROVADO | REPROVADO | BLOQUEADO]
 
 GATES TOTAIS: 7
-GATES CONCLUÍDOS: [PREENCHER]
-GATES PENDENTES: [PREENCHER]
-GATES BLOQUEADOS: [PREENCHER]
+GATES CONCLUÍDOS: 7
+GATES PENDENTES: 0
+GATES BLOQUEADOS: 0
 
 PROBLEMAS ENCONTRADOS:
-- [PREENCHER]
+- Auditoria inicial de dependências de produção encontrou seis vulnerabilidades altas; corrigida pela atualização compatível da API autorizada.
 
 CORREÇÕES REALIZADAS:
-- [PREENCHER]
+- Atualizados `@nestjs/platform-express`/Multer e dependências transitivas `deepmerge-ts` e `effect`; auditoria final sem vulnerabilidades.
 
 PENDÊNCIAS:
-- [PREENCHER]
+- Nenhuma pendência técnica da TASK-012.
 
 TESTES RELACIONADOS:
-- [PREENCHER]
+- Build completo, lint, 43 testes unitários, 6 testes de integração, validação Prisma, auditoria NPM, roteiro manual aprovado e `git diff --check`.
 
 PRÓXIMA ETAPA:
-Nenhuma; aguardar decisão/execução manual conforme o estado final.
+Nenhuma; TASK-012 concluída.
 
 PRÓXIMA ETAPA HABILITADA:
-SIM | NÃO
+NÃO
 
 MOTIVO:
-A próxima etapa só é habilitada se o GATE atual for aprovado por evidência.
+GATE-007 aprovado por evidências registradas; TASK-013 fica READY e requer autorização própria para início.
 ==================================================
