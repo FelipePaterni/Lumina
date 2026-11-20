@@ -38,6 +38,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
   auditLogs               AuditLog[]
+  wishlistItems           WishlistItem[]
 
   @@map("users")
 }
@@ -143,6 +144,7 @@ model Work {
   publisher   Publisher      @relation(fields: [publisherId], references: [id])
   categories  WorkCategory[]
   editions    Edition[]
+  wishlistItems WishlistItem[]
 
   @@index([title])
   @@index([authorId])
@@ -180,6 +182,19 @@ model Edition {
   @@unique([workId, format])
   @@index([priceCents])
   @@map("editions")
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  workId    String   @map("work_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@index([userId, createdAt])
+  @@map("wishlist_items")
 }
 
 model Inventory {
