@@ -15,7 +15,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
 | 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
 | 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | DONE |
-| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | READY |
+| 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | IN_REVIEW |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | BLOCKED |
@@ -160,12 +160,12 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** concluída em 2026-11-20; gates e testes manuais aprovados pelo responsável. TASK-012 está READY e requer autorização própria para início.
 
 ### TASK-012 — Carrinho, cupom e frete
-**Status:** READY · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** IN_REVIEW · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 **Dependências:** `DEPENDS_ON: TASK-011`
 **Relacionados:** RF-009–011; RN-005,008,009.
 **Artefatos esperados:** carrinho híbrido, regras de cupom e configuração de frete.
-**ALLOWED_CHANGES:** `modules/cart/**`; `modules/coupons/**`; `modules/shipping/**`; `features/checkout/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (read-only ownership lookup only); `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** confirmação de pedido; gateway real.
 **Aceitação/testes:** um cupom; validade/cota; endereço/CPF; frete somente físico; e-book duplicado é recusado.
 **DoD específico:** valores usam decimal BRL e são recalculados no servidor.
