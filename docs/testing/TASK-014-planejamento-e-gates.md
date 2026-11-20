@@ -9,9 +9,9 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-014-notificacoes-ciclo-pedido`.
 | GATE-001 — Prontidão | APROVADO | TASK-012 e TASK-013 `DONE`; requisitos RF-020/RN-019/UC-020, critérios e DoD definidos; ADR-005 `ACCEPTED`; branch própria; árvore inicial limpa. Scope Guard foi ampliado para `database/schema.prisma` e `database/migrations/**` por autorização explícita do responsável em 2026-11-20. |
 | GATE-002 — Contexto | APROVADO | README, TASKS, ADR-005, código de identidade/pedidos e testes relacionados lidos. Baseline atual: `npm test` 46/46; `npm run lint` passou; build repetido isoladamente passou. Integração de TASK-013 7/7 e migrations estão registradas em seu relatório de gates. |
 | GATE-003 — Planejamento | APROVADO | Mapeamento abaixo; alterações em identidade, pedido, notifications, persistência e testes; sem provedor externo, biblioteca/download ou interface web. Rollback por migration e reversão do commit da TASK. |
-| GATE-004 — Implementação | EM EXECUÇÃO | — |
-| GATE-005 — Gates automatizados | PENDENTE | — |
-| GATE-006 — Testes manuais | PENDENTE | — |
+| GATE-004 — Implementação | APROVADO | Outbox persistente, módulo Notifications, estados/tentativas/retry, eventos de identidade e pedido; migration aditiva e rollback; diff classificado dentro do Scope Guard. |
+| GATE-005 — Gates automatizados | APROVADO | Em 2026-11-20: `npm run lint`; `npm test` 50/50; `npm run test:integration` 8/8 no banco isolado `lumina_task009_test`; `npm run build` completo; `npx prisma validate`; deploy repetido das migrations; parser PowerShell/`node --check`; `git diff --check`. `npm audit --omit=dev` havia reportado 0 vulnerabilidades numa execução com acesso à rede; a repetição no sandbox não alcançou `registry.npmjs.org` por DNS. |
+| GATE-006 — Testes manuais | AGUARDA EXECUÇÃO/REVISÃO | Roteiro e relatório sanitizado criados. Requer execução pelo responsável no PowerShell local e revisão humana dos cenários. |
 | GATE-007 — Conclusão | PENDENTE | — |
 
 ## Contexto confirmado
@@ -46,18 +46,20 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-014-notificacoes-ciclo-pedido`.
 
 ## Plano técnico
 
-1. Estender o modelo existente de outbox com tipo de evento, chave única de deduplicação, status de entrega, tentativas, datas de tentativa/próximo retry e código de erro sanitizado; manter linhas históricas compatíveis por migration.
+1. Estender o modelo existente de outbox com tipo de evento, chave única de deduplicação, status de entrega, tentativas, datas de tentativa/próximo retry e código de erro sanitizado; manter linhas históricas compatíveis por migration e incluir rollback SQL.
 2. Criar serviço de notifications e worker local com transporte simulado, retry limitado e backoff observável. Não registrar destinatário, corpo, token, endereço nem PII em logs.
 3. Migrar os dispatches de confirmação/recuperação/exclusão/reativação para eventos idempotentes; adicionar confirmação de compra após pedido confirmado e nunca em replay idempotente.
 4. Falhas ao enfileirar/entregar devem ser capturadas fora da transação de negócio; compra, cadastro ou operação de conta já concluída não será revertida por falha de notificação.
 5. Cobrir deduplicação concorrente, retry/sucesso/falha terminal, falha isolada da notificação, eventos de conta e pedido, e relatório manual sanitizado.
 
-**Riscos e mitigação:** migration sobre tabela histórica será aditiva e testada em banco isolado; unicidade protege deduplicação; logs só incluem ID interno de evento e código controlado de falha; worker não chama rede externa; rollback documentado na migration.
+**Riscos e mitigação:** migration sobre tabela histórica é aditiva e repetida no banco isolado; unicidade protege deduplicação; logs só incluem tipo/tentativa/código controlado de falha; worker não chama rede externa; rollback preserva os campos históricos da tabela e remove somente os campos novos.
 
 ## Scope Guard
 
 Primário: módulos API de notifications, identity e orders; schema/migration PostgreSQL; testes autorizados. `docs/testing/**` e `tests/manual/task-014/**` são artefatos operacionais mínimos exigidos pelo AGENTS.md. Nenhum caminho proibido será modificado.
 
-## Limitações de baseline
+## Resultado final dos gates automatizados
 
-`TASK009_TEST_DATABASE_URL` não está configurada no ambiente de execução do Codex e o acesso ao Docker Desktop não está disponível neste runner. Por isso, a integração de dependência usa a evidência aprovada registrada na TASK-013; gates de integração da TASK-014 serão executados se o banco isolado estiver acessível, caso contrário serão reportados como bloqueados, nunca presumidos.
+O banco isolado `lumina_task009_test` foi configurado somente em memória a partir de `.env`; as migrations estavam aplicadas e o deploy repetido foi validado pela suíte. `npm run test:integration` concluiu 8/8, incluindo os testes de identidade, checkout, migration e deduplicação do outbox. Nenhum teste foi executado contra o banco local principal `lumina`.
+
+A repetição de `npm audit --omit=dev` durante a revisão final ficou indisponível por falha DNS do sandbox. A execução anterior com acesso à rede registrou zero vulnerabilidades de produção; nenhuma dependência foi alterada nesta etapa.

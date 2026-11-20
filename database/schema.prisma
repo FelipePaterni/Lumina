@@ -73,14 +73,31 @@ model PasswordResetToken {
 }
 
 model OutboxEmail {
-  id        String    @id @default(uuid())
-  toEmail   String    @map("to_email")
-  subject   String
-  body      String
-  sentAt    DateTime? @map("sent_at") @db.Timestamptz(6)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  id              String           @id @default(uuid())
+  eventKey        String?          @unique(map: "outbox_emails_event_key_key") @map("event_key") @db.VarChar(160)
+  eventType       String           @default("LEGACY") @map("event_type") @db.VarChar(80)
+  toEmail         String           @map("to_email")
+  subject         String
+  body            String
+  deliveryStatus  OutboxEmailStatus @default(PENDING) @map("delivery_status")
+  attemptCount    Int              @default(0) @map("attempt_count")
+  lastAttemptAt   DateTime?        @map("last_attempt_at") @db.Timestamptz(6)
+  nextAttemptAt   DateTime?        @map("next_attempt_at") @db.Timestamptz(6)
+  lastErrorCode   String?          @map("last_error_code") @db.VarChar(60)
+  sentAt          DateTime?        @map("sent_at") @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([deliveryStatus, nextAttemptAt, createdAt])
 
   @@map("outbox_emails")
+}
+
+enum OutboxEmailStatus {
+  PENDING
+  PROCESSING
+  RETRY
+  SENT
+  FAILED
 }
 
 model AuditLog {

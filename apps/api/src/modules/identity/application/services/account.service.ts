@@ -6,7 +6,8 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../../../infrastructure/persistence/prisma.service.js";
 import { Role } from "../../domain/role.enum.js";
-import { EmailDispatcherService } from "./email-dispatcher.service.js";
+import { NotificationEventType } from "../../../notifications/notification-event.js";
+import { NotificationService } from "../../../notifications/notification.service.js";
 
 type PrismaRole = import("@prisma/client").$Enums.Role;
 
@@ -14,7 +15,7 @@ type PrismaRole = import("@prisma/client").$Enums.Role;
 export class AccountService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailDispatcher: EmailDispatcherService,
+    private readonly notifications: NotificationService,
   ) {}
 
   /**
@@ -67,18 +68,22 @@ export class AccountService {
     });
 
     // Enviar notificações simuladas ao cliente e ao admin (RN-018 / RN-019)
-    await this.emailDispatcher.dispatchSimulatedEmail(
-      updatedUser.email,
-      "Lumina Livros - Solicitação de exclusão de conta",
-      `Sua conta foi desativada em ${now.toISOString()}. Você tem até ${scheduledDeletionAt.toISOString()} (30 dias) para reativá-la antes da exclusão definitiva.`,
-    );
-
     const adminEmail = process.env.ADMIN_SEED_EMAIL || "admin@lumina.local";
-    await this.emailDispatcher.dispatchSimulatedEmail(
-      adminEmail,
-      "Notificação Administrativa - Solicitação de exclusão de conta",
-      `O usuário ID ${userId} solicitou a exclusão da conta. Exclusão agendada para ${scheduledDeletionAt.toISOString()}.`,
-    );
+    const eventKey = `identity:${userId}:deletion-request:${now.getTime()}`;
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `${eventKey}:customer`,
+      eventType: NotificationEventType.ACCOUNT_DELETION_REQUESTED,
+      toEmail: updatedUser.email,
+      subject: "Lumina Livros - Solicitação de exclusão de conta",
+      body: `Sua conta foi desativada em ${now.toISOString()}. Você tem até ${scheduledDeletionAt.toISOString()} (30 dias) para reativá-la antes da exclusão definitiva.`,
+    });
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `${eventKey}:admin`,
+      eventType: NotificationEventType.ACCOUNT_DELETION_REQUESTED,
+      toEmail: adminEmail,
+      subject: "Notificação Administrativa - Solicitação de exclusão de conta",
+      body: `Uma conta solicitou exclusão. Identificador interno: ${userId}. Prazo: ${scheduledDeletionAt.toISOString()}.`,
+    });
 
     return {
       message:
@@ -113,21 +118,32 @@ export class AccountService {
       );
     }
 
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
         isActive: true,
         deactivatedAt: null,
         scheduledDeletionAt: null,
       },
+      select: { email: true },
     });
 
-    // Notificação ao cliente
-    await this.emailDispatcher.dispatchSimulatedEmail(
-      user.email,
-      "Lumina Livros - Conta reativada com sucesso",
-      "Sua solicitação de exclusão foi cancelada e sua conta foi reativada.",
-    );
+    const eventKey = `identity:${userId}:account-reactivated:${Date.now()}`;
+    const adminEmail = process.env.ADMIN_SEED_EMAIL || "admin@lumina.local";
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `${eventKey}:customer`,
+      eventType: NotificationEventType.ACCOUNT_REACTIVATED,
+      toEmail: updatedUser.email,
+      subject: "Lumina Livros - Conta reativada com sucesso",
+      body: "Sua solicitação de exclusão foi cancelada e sua conta foi reativada.",
+    });
+    await this.notifications.dispatchSimulatedEmail({
+      eventKey: `${eventKey}:admin`,
+      eventType: NotificationEventType.ACCOUNT_REACTIVATED,
+      toEmail: adminEmail,
+      subject: "Notificação Administrativa - Conta reativada",
+      body: `A conta de identificador interno ${userId} foi reativada dentro do prazo de carência.`,
+    });
 
     return {
       message: "Sua conta foi reativada com sucesso.",
@@ -220,8 +236,18 @@ export class AccountService {
     const updated = await this.prisma.user.update({
       where: { id: targetUserId },
       data: { role: newRole as unknown as PrismaRole },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email: true, role: true, updatedAt: true },
     });
+
+    if (targetUser.role !== updated.role) {
+      await this.notifications.dispatchSimulatedEmail({
+        eventKey: `identity:${updated.id}:role-changed:${updated.updatedAt.toISOString()}`,
+        eventType: NotificationEventType.ACCOUNT_ROLE_CHANGED,
+        toEmail: updated.email,
+        subject: "Lumina Livros - Perfil da conta atualizado",
+        body: `O perfil da sua conta foi atualizado para ${updated.role}.`,
+      });
+    }
 
     return {
       id: updated.id,
@@ -251,12 +277,29 @@ export class AccountService {
       );
     }
 
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+    if (!targetUser) {
+      throw new NotFoundException("Usuário alvo não encontrado");
+    }
+
     const updated = await this.prisma.user.update({
       where: { id: targetUserId },
       data: { isActive },
-      select: { id: true, isActive: true },
+      select: { id: true, email: true, isActive: true, updatedAt: true },
     });
 
-    return updated;
+    if (targetUser.isActive !== updated.isActive) {
+      await this.notifications.dispatchSimulatedEmail({
+        eventKey: `identity:${updated.id}:status-changed:${updated.updatedAt.toISOString()}`,
+        eventType: NotificationEventType.ACCOUNT_STATUS_CHANGED,
+        toEmail: updated.email,
+        subject: "Lumina Livros - Estado da conta atualizado",
+        body: `O estado da sua conta foi atualizado para ${updated.isActive ? "ativa" : "inativa"}.`,
+      });
+    }
+
+    return { id: updated.id, isActive: updated.isActive };
   }
 }

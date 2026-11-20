@@ -149,6 +149,10 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
     assert.deepEqual(hybridRequests.map((response) => response.status), [201, 201]);
     const hybridOrders = await Promise.all(hybridRequests.map((response) => response.json()));
     assert.equal(hybridOrders[0].id, hybridOrders[1].id);
+    assert.equal(await prisma.outboxEmail.count({
+      where: { eventKey: `order:${hybridOrders[0].id}:confirmed`, eventType: "ORDER_CONFIRMED", deliveryStatus: "SENT" },
+    }), 1);
+    assert.equal(await prisma.outboxEmail.count({ where: { eventType: "ORDER_CONFIRMED", toEmail: customerA.email } }), 1);
     assert.equal(hybridOrders[0].totalCents, 4_500);
     assert.equal(hybridOrders[0].payment.status, "APPROVED");
     assert.equal(hybridOrders[0].shippingAddress.postalCode, "01001000");
@@ -172,6 +176,9 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
     assert.equal(freeOrder.totalCents, 0);
     assert.equal(freeOrder.payment.status, "NOT_REQUIRED");
     assert.equal(freeOrder.shippingAddress, null);
+    assert.equal(await prisma.outboxEmail.count({
+      where: { eventKey: `order:${freeOrder.id}:confirmed`, eventType: "ORDER_CONFIRMED", deliveryStatus: "SENT" },
+    }), 1);
 
     const stockEdition = stockEditions[0];
     await prisma.cartItem.createMany({ data: [
@@ -221,6 +228,9 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
   } finally {
     await app.close();
     if (users.length) {
+      await prisma.outboxEmail.deleteMany({
+        where: { eventType: "ORDER_CONFIRMED", toEmail: { in: users.map((user) => user.email) } },
+      });
       await prisma.order.deleteMany({ where: { userId: { in: users.map((user) => user.id) } } });
       await prisma.cart.deleteMany({ where: { userId: { in: users.map((user) => user.id) } } });
       await prisma.libraryItem.deleteMany({ where: { userId: { in: users.map((user) => user.id) } } });
