@@ -75,7 +75,7 @@ $report = @(
   "# TASK-011 — Evidência de plano de consulta",
   "",
   "Executado em UTC: $((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'))",
-  "Banco: `$Database` (isolado)",
+  "Banco: $Database (isolado)",
   "Status: BLOQUEADO — revisão humana do plano pendente.",
   "Fixture: $SyntheticWorkCount obras/edições sintéticas; criadas dentro de transação e revertidas por ROLLBACK.",
   "",
