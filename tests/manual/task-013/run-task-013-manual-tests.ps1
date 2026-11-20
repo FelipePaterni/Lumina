@@ -127,7 +127,7 @@ function Set-Scenario {
 
 try {
   $currentStage = "verificar API local"
-  if (-not [uri]::IsLoopback($apiUri)) { throw "Use somente uma API local de loopback." }
+  if (-not $apiUri.IsLoopback) { throw "Use somente uma API local de loopback." }
   if (-not $databaseUrl -and -not (Test-Path -LiteralPath (Join-Path $root ".env"))) {
     throw "Disponibilize o .env local do projeto ou configure DATABASE_URL na sessão." 
   }
@@ -147,7 +147,7 @@ try {
     $databaseUrl = $databaseBuilder.Uri.AbsoluteUri
   }
   $databaseUri = [uri]$databaseUrl
-  if (-not [uri]::IsLoopback($databaseUri) -or $databaseUri.AbsolutePath -notmatch '^/lumina(?:_[a-z0-9_]+)?$') {
+  if (-not $databaseUri.IsLoopback -or $databaseUri.AbsolutePath -notmatch '^/lumina(?:_[a-z0-9_]+)?$') {
     throw "Fixtures só são permitidos em um banco local Lumina." 
   }
 
