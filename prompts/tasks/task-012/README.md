@@ -2,14 +2,14 @@
 
 ## Identificação
 
-- Estado inicial: BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
+- Estado inicial: READY · **Phase:** PHASE-03 · **Priority:** CRITICAL
 - Objetivo: Implementar carrinho, cupom global e simulação de frete por CEP/quantidade.
 - Dependências: `DEPENDS_ON: TASK-011`
 - Relacionados: RF-009–011; RN-005,008,009.
 
 ## Scope Guard
 
-- Permitido: `modules/cart/**`; `modules/coupons/**`; `modules/shipping/**`; `features/checkout/**`; `tests/**`; `TASKS.md`.
+- Permitido (ampliação aprovada pelo responsável em 2026-11-20): `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (somente consulta de direitos já adquiridos); `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 - Proibido: confirmação de pedido; gateway real.
 
 ## Workflow e gates

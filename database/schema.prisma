@@ -39,6 +39,8 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   auditLogs               AuditLog[]
   wishlistItems           WishlistItem[]
+  cart                    Cart?
+  libraryItems            LibraryItem[]
 
   @@map("users")
 }
@@ -126,24 +128,24 @@ model Category {
 }
 
 model Work {
-  id          String         @id @default(uuid())
-  title       String
-  slug        String         @unique
-  synopsis    String         @db.Text
-  coverUrl    String?        @map("cover_url")
-  isbn        String?
-  language    String         @default("pt-BR")
-  releaseDate DateTime       @map("release_date") @db.Date
-  edition     String?
-  isVisible   Boolean        @default(true) @map("is_visible")
-  authorId    String         @map("author_id")
-  publisherId String         @map("publisher_id")
-  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
-  author      Author         @relation(fields: [authorId], references: [id])
-  publisher   Publisher      @relation(fields: [publisherId], references: [id])
-  categories  WorkCategory[]
-  editions    Edition[]
+  id            String         @id @default(uuid())
+  title         String
+  slug          String         @unique
+  synopsis      String         @db.Text
+  coverUrl      String?        @map("cover_url")
+  isbn          String?
+  language      String         @default("pt-BR")
+  releaseDate   DateTime       @map("release_date") @db.Date
+  edition       String?
+  isVisible     Boolean        @default(true) @map("is_visible")
+  authorId      String         @map("author_id")
+  publisherId   String         @map("publisher_id")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  author        Author         @relation(fields: [authorId], references: [id])
+  publisher     Publisher      @relation(fields: [publisherId], references: [id])
+  categories    WorkCategory[]
+  editions      Edition[]
   wishlistItems WishlistItem[]
 
   @@index([title])
@@ -178,6 +180,8 @@ model Edition {
   work         Work          @relation(fields: [workId], references: [id], onDelete: Cascade)
   inventory    Inventory?
   digitalAsset DigitalAsset?
+  cartItems    CartItem[]
+  libraryItems LibraryItem[]
 
   @@unique([workId, format])
   @@index([priceCents])
@@ -195,6 +199,89 @@ model WishlistItem {
   @@unique([userId, workId])
   @@index([userId, createdAt])
   @@map("wishlist_items")
+}
+
+enum CouponDiscountType {
+  FIXED
+  PERCENTAGE
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique @map("user_id")
+  couponId  String?    @map("coupon_id")
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items     CartItem[]
+
+  @@index([couponId])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String   @map("cart_id")
+  editionId String   @map("edition_id")
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  edition   Edition  @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, editionId])
+  @@index([editionId])
+  @@map("cart_items")
+}
+
+model Coupon {
+  id                    String             @id @default(uuid())
+  code                  String             @unique @db.VarChar(40)
+  discountType          CouponDiscountType @map("discount_type")
+  fixedAmountCents      Int?               @map("fixed_amount_cents")
+  percentageBasisPoints Int?               @map("percentage_basis_points")
+  validFrom             DateTime           @map("valid_from") @db.Timestamptz(6)
+  validUntil            DateTime           @map("valid_until") @db.Timestamptz(6)
+  maxUses               Int                @map("max_uses")
+  usageCount            Int                @default(0) @map("usage_count")
+  isActive              Boolean            @default(true) @map("is_active")
+  createdAt             DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  carts                 Cart[]
+
+  @@index([isActive, validFrom, validUntil])
+  @@map("coupons")
+}
+
+model ShippingRule {
+  id                  String   @id @default(uuid())
+  postalCodeStart     String   @map("postal_code_start") @db.VarChar(8)
+  postalCodeEnd       String   @map("postal_code_end") @db.VarChar(8)
+  minPhysicalQuantity Int      @map("min_physical_quantity")
+  maxPhysicalQuantity Int?     @map("max_physical_quantity")
+  priceCents          Int      @map("price_cents")
+  priority            Int      @default(0)
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([isActive, priority])
+  @@map("shipping_rules")
+}
+
+// Minimal ownership projection for cart eligibility; TASK-017 may extend its lifecycle.
+model LibraryItem {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  editionId String   @map("edition_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  edition   Edition  @relation(fields: [editionId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, editionId])
+  @@index([editionId])
+  @@map("library_items")
 }
 
 model Inventory {

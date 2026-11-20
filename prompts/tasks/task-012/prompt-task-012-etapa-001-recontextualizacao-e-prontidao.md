@@ -1,4 +1,4 @@
-﻿# TASK-012 — ETAPA 001 — Recontextualização e prontidão
+# TASK-012 — ETAPA 001 — Recontextualização e prontidão
 
 ## 1. OBJETIVO
 
@@ -17,7 +17,7 @@ Esta etapa faz parte de um workflow controlado. Não execute etapas posteriores,
 - Branch de trabalho específica da TASK; main não pode receber desenvolvimento direto.
 - Working tree inspecionada e alterações alheias preservadas.
 - Documentos obrigatórios lidos na ordem: AGENTS.md, README.md, TASKS.md, ADRs relacionados, código e testes existentes.
-- Escopo autorizado: `modules/cart/**`; `modules/coupons/**`; `modules/shipping/**`; `features/checkout/**`; `tests/**`; `TASKS.md`.
+- Escopo autorizado (ampliado com aprovação do responsável em 2026-11-20): `apps/api/src/app.module.ts`; `apps/api/src/modules/cart/**`; `apps/api/src/modules/coupons/**`; `apps/api/src/modules/shipping/**`; `apps/api/src/modules/library/ownership/**` (consulta somente de direitos já adquiridos); `apps/web/src/features/checkout/**`; `apps/web/app/page.tsx`; `database/schema.prisma`; `database/migrations/**`; `tests/**`; `tests/manual/task-012/**`; `docs/testing/TASK-012-*.md`; `prompts/tasks/task-012/**`; `TASKS.md`.
 - Escopo proibido: confirmação de pedido; gateway real.
 
 ## 4. ENTRADAS NECESSÁRIAS
