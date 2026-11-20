@@ -46,26 +46,17 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-012-carrinho-cupom-frete`.
 | GATE-002 — Contexto histórico | APROVADO | ADR-001/002/005/008, README, código, testes, checkpoint TASK-011 e baseline confirmados. |
 | GATE-003 — Planejamento mínimo | APROVADO | Plano desta tabela, mitigação e rollback; nenhuma confirmação de pedido/gateway no plano. |
 | GATE-004 — Implementação | APROVADO | Carrinho, cupom e frete entregues; seed local restrito a `NODE_ENV=development`, habilitação explícita e e-mails `@example.invalid`; senhas com hash; diff final sem pedido/gateway. |
-| GATE-005 — Gates automatizados | BLOQUEADO | `npm run lint`, `npm test` (43/43), `npm run test:integration` (6/6 no banco isolado), `npx prisma validate`, parser PowerShell e `git diff --check` passaram. API compilou. Build completo compilou/pré-renderizou, mas terminou com `SecurityFatalError` do Next.js por vulnerabilidade conhecida. |
+| GATE-005 — Gates automatizados | APROVADO | Após atualização para Next.js 16.4.6: build completo, lint, unitários (43/43), integração (6/6 no banco isolado), Prisma, parser PowerShell e `git diff --check` passaram. O build não interrompe mais por `SecurityFatalError`. |
 | GATE-006 — Testes manuais | APROVADO | Execução de 2026-11-20T13:55:55Z: 10/10 cenários APROVADOS e limpeza aprovada pelo responsável; relatório sanitizado. |
-| GATE-007 — Conclusão | BLOQUEADO | A atualização de Next.js necessária para liberar o build excede o escopo aprovado e aguarda decisão do responsável. |
+| GATE-007 — Conclusão | APROVADO | Implementação, gates e revisão manual aprovados; TASK-012 atualizada para DONE e TASK-013 para READY. |
 
 ## Revisão e pendências de conclusão
 
-Os cenários manuais originais foram aprovados pelo responsável. Depois, em 2026-11-20, a TASK-012 foi ampliada para duas contas CUSTOMER locais. A consulta sanitizada confirmou 2 CUSTOMER sintéticos ativos/confirmados e 1 ADMIN ativo. O seed exige `NODE_ENV=development`, flag explícita e e-mails `@example.invalid`; o container PostgreSQL não recebe essas credenciais. As suítes unitária e de integração, lint, Prisma e sintaxe PowerShell passaram. O único bloqueio restante é o build web que recusa continuar devido a uma vulnerabilidade conhecida no Next.js; TASK-012 e TASK-013 ficam `BLOCKED` até a decisão de atualização.
+Os cenários manuais originais foram aprovados pelo responsável. A ampliação autorizada criou duas contas CUSTOMER locais além do ADMIN configurado. A consulta sanitizada confirmou 2 CUSTOMER sintéticos ativos/confirmados e 1 ADMIN ativo. O seed exige `NODE_ENV=development`, flag explícita e e-mails `@example.invalid`; o container PostgreSQL não recebe essas credenciais. Next.js foi atualizado para 16.4.6 em worktree separada e integrado após build completo, lint, 43 testes unitários e 6 testes de integração aprovados. TASK-012 está `DONE`; TASK-013 está `READY` e aguarda autorização própria.
 
-## BLOQUEIO / SCOPE ESCALATION
+## Resolução do bloqueio de segurança
 
 TASK: TASK-012
-Necessidade identificada: atualizar a dependência Next.js para que `npm run build` conclua.
-Motivo: o build terminou com `SecurityFatalError` e recomendação explícita de atualização por vulnerabilidade conhecida.
-Arquivos/módulos afetados: dependência web em `apps/web/package.json` e lockfile raiz `package-lock.json`.
-Allowed Changes atual: código do checkout, seed local, Compose, `.env` local/`.env.example`, testes e documentos da TASK-012.
-Forbidden Changes relacionado: nenhuma proibição explícita de upgrade; os manifestos/lockfile de dependências não estão no escopo aprovado.
-Por que não é incidental: pode atualizar a árvore transitiva e altera a dependência de plataforma da aplicação.
-Impacto se não realizada: GATE-005 não aprova e TASK-012/TASK-013 permanecem bloqueadas.
-Alternativas: executar o upgrade de segurança em worktree isolada; executar no checkout atual; manter o bloqueio até decisão posterior.
-Recomendação: worktree isolada para revisar o diff da atualização antes de integrá-la.
-Decisão necessária: autorizar o upgrade de segurança e escolher worktree separada ou checkout atual.
+O responsável autorizou o upgrade em worktree separada. O commit `ab08848` atualizou `apps/web/package.json` e `package-lock.json` para Next.js 16.4.6. O commit foi integrado ao branch da TASK-012 como `6ce2c8d`. Build e gates completos passaram após a integração.
 
 O roteiro para Windows/PowerShell e a tabela de cenários estão em `tests/manual/task-012/README.md`; execução: `./tests/manual/task-012/run-task-012-manual-tests.ps1`. O relatório inicial está em `docs/testing/TASK-012-testes-manuais-resultado.md` e será atualizado pelo script.
