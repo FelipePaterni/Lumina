@@ -19,7 +19,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | DONE |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | DONE |
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | DONE |
-| 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | READY |
+| 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | IN_PROGRESS |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | BLOCKED |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | BLOCKED |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
@@ -209,7 +209,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** checkpoint PHASE-03 aprovado; concorrência de estoque, licença e cupom passou sem sobre-venda conhecida. Incidental: tentativa de reexecução do helper TASK-014 bloqueou antes dos cenários; evidência aprovada e versionada da TASK-014 foi preservada. TASK-016 é a próxima elegível e requer autorização própria para início.
 
 ### TASK-016 — Checkpoint de transição PHASE-03
-**Status:** BLOCKED · **Phase:** PHASE-03 · **Priority:** CRITICAL
+**Status:** IN_PROGRESS · **Phase:** PHASE-03 · **Priority:** CRITICAL
 **Objetivo:** Autorizar a entrega digital e regras pós-compra.
 **Dependências:** `DEPENDS_ON: TASK-012, TASK-013, TASK-014, TASK-015`
 **Relacionados:** PHASE-03.
@@ -218,6 +218,8 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** novas funcionalidades.
 **Aceitação/testes:** checkpoints e rastreabilidade aprovados.
 **DoD específico:** TASK-017 torna-se elegível.
+**Gates:** GATE-001 a GATE-004 aprovados em 2026-11-20. Os estados `DONE`, planos e relatórios manuais de TASK-012 a TASK-015 foram conferidos; parser do roteiro PowerShell e `git diff --check` passaram. GATE-005 aguarda revisão humana MT-016-01; evidências em `docs/testing/TASK-016-planejamento-e-gates.md` e `docs/testing/TASK-016-testes-manuais-resultado.md`.
+**Estado atual:** IN_PROGRESS; TASK-017 permanece BLOCKED até a revisão humana e conclusão do GATE-005.
 
 ### TASK-017 — Biblioteca, download e marca d’água
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** CRITICAL
