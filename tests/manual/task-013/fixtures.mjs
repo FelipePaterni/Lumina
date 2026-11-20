@@ -58,7 +58,8 @@ try {
     ]);
     const coupon = await prisma.coupon.create({
       data: {
-        code: `${prefix}-FREE`,
+        // Match CouponService.normalizeCouponCode(), which uppercases requests.
+        code: `${prefix}-FREE`.toUpperCase(),
         discountType: "PERCENTAGE",
         percentageBasisPoints: 10_000,
         validFrom: new Date(Date.now() - 60_000),
