@@ -1,6 +1,6 @@
 # TASK-010 — Evidências dos gates
 
-Atualizado em 2026-11-20. A ETAPA 005 foi aprovada em 2026-11-20. O roteiro da ETAPA 006 foi executado com oito cenários aprovados; aguardando revisão humana do relatório.
+Atualizado em 2026-11-20. O mantenedor revisou e aprovou o relatório do GATE-006 em 2026-11-20. Os sete gates da TASK-010 estão concluídos; TASK-010 está DONE.
 
 ## Prontidão e plano
 
@@ -23,8 +23,8 @@ Atualizado em 2026-11-20. A ETAPA 005 foi aprovada em 2026-11-20. O roteiro da E
 | GATE-003 | APROVADO | Plano acima restrito ao escopo aprovado; banco PostgreSQL isolado identificado e integração executada. |
 | GATE-004 | APROVADO | Implementação revisada; teste de unidade cobre isolamento, duplicata, remoção alheia e obra não disponível. |
 | GATE-005 | APROVADO | 30/30 unitários; 4/4 integrações sem skips no banco isolado; lint, build completo, validação Prisma, formatação, parser PowerShell e `git diff --check` passaram. Migração `20261114120000_wishlist`, tabela e índices foram verificados no banco de integração. |
-| GATE-006 | PENDENTE — REVISÃO HUMANA | Oito cenários executados e aprovados; usuário deve revisar `TASK-010-testes-manuais-resultado.md`. Fixtures e API temporária foram removidos após a execução. |
-| GATE-007 | PENDENTE | Conclusão aguarda GATE-006 e revisão final; TASK não pode ser marcada DONE. Próxima tarefa continua bloqueada. |
+| GATE-006 | APROVADO | O mantenedor revisou e aprovou o relatório em 2026-11-20; oito cenários aprovados. Fixtures e API temporária removidos após a execução. |
+| GATE-007 | APROVADO | Aceitação, DoD, evidências, commits e Scope Guard conferidos; TASK-010 concluída como DONE. TASK-011 está READY e aguarda autorização própria para iniciar. |
 
 ## Comandos executados
 
@@ -49,5 +49,7 @@ Atualizado em 2026-11-20. A ETAPA 005 foi aprovada em 2026-11-20. O roteiro da E
 - Roteiro manual em `tests/manual/task-010/` é incidental operacional exigido por `AGENTS.md`.
 - `database/schema.prisma`, migração, módulo API, feature Web e testes pertencem ao escopo aprovado.
 - GATE-005 foi reexecutado depois que o Docker foi reaberto; integração passou no banco isolado e a migração da TASK-010 foi confirmada.
-- GATE-006: a execução automatizada produziu oito resultados APROVADO, mas o gate segue pendente até revisão humana explícita do relatório.
-- TASK permanece `IN_REVIEW`; a próxima TASK só fica elegível depois da conclusão dos testes manuais e GATE-007.
+- GATE-006: o mantenedor revisou e aprovou explicitamente o relatório manual em 2026-11-20.
+- GATE-007: conclusão aprovada após validar os sete gates, critérios de aceitação, DoD e ausência de alterações proibidas.
+- Scope Guard final: mudanças primárias ficaram nos caminhos autorizados após ampliação aprovada; ajustes de formatação e o roteiro manual são incidentais/processuais e documentados. Notificações e checkout não foram alterados.
+- TASK-010 está `DONE`; TASK-011 está `READY`, sem início de execução nesta branch.

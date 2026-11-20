@@ -13,8 +13,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 7 | TASK-007 | PHASE-02 | CRITICAL | 006 | DONE |
 | 8 | TASK-008 | PHASE-02 | HIGH | 007 | DONE |
 | 9 | TASK-009 | PHASE-02 | HIGH | 007 | DONE |
-| 10 | TASK-010 | PHASE-02 | HIGH | 007 | IN_REVIEW |
-| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | BLOCKED |
+| 10 | TASK-010 | PHASE-02 | HIGH | 007 | DONE |
+| 11 | TASK-011 | PHASE-02 | CRITICAL | 007–010 | READY |
 | 12 | TASK-012 | PHASE-03 | CRITICAL | 011 | BLOCKED |
 | 13 | TASK-013 | PHASE-03 | HIGH | 012 | BLOCKED |
 | 14 | TASK-014 | PHASE-03 | CRITICAL | 012,013 | BLOCKED |
@@ -136,7 +136,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** mudança gera auditoria apropriada.
 
 ### TASK-010 — Wishlist básica
-**Status:** IN_REVIEW · **Phase:** PHASE-02 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-02 · **Priority:** HIGH
 **Objetivo:** Implementar wishlist básica individual.
 **Dependências:** `DEPENDS_ON: TASK-007`
 **Relacionados:** RF-008.
