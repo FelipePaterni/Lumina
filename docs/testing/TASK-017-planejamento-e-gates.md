@@ -57,7 +57,7 @@ Impacto: API nova; nenhuma migration; nenhuma página web obrigatória nos crit�
 | GATE-003 — Planejamento mínimo | APROVADO | Plano autorizado; dependências delimitadas, rollback e mitigação registrados. |
 | GATE-004 — Implementação controlada | APROVADO | Módulo de biblioteca, processamento PDF/EPUB, token temporário, storage privado e cobertura unitária adicionados; build API e testes unitários aprovados. |
 | GATE-005 — Revisão e gates automatizados | APROVADO | `npm test` 59/59, lint, build geral e integração 8/8 aprovados. Integração usou exclusivamente `lumina_task009_test`; build e integração executados fora do sandbox para acesso local/escrita. |
-| GATE-006 — Testes manuais | PENDENTE | Runner criado e sintaxe PowerShell validada; cenários ainda bloqueados até execução e inspeção humana da cópia personalizada. |
+| GATE-006 — Testes manuais | PENDENTE | Primeira tentativa foi bloqueada antes dos cenários porque as duas credenciais CUSTOMER usavam a mesma conta. Runner corrigido para aceitar o HTTP 201 do login; aguarda nova execução com contas distintas e inspeção humana da cópia. |
 | GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da aprovação humana de GATE-006. |
 
 ## Scope Guard

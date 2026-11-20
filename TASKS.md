@@ -232,7 +232,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Aceitação/testes:** pré-venda bloqueia; cópia leva os três campos; original não é exposto; link expira/renova.
 **DoD específico:** teste de PDF/ePub e falha de job observável.
 **Decisão de escopo:** em 2026-11-20, o responsável autorizou ampliar `ALLOWED_CHANGES` para `apps/api/package.json` e `package-lock.json` para incluir processadores runtime de PDF/EPUB. `apps/api/src/app.module.ts` será incidental mínimo para registrar o módulo, sem alterar contrato da aplicação.
-**Gates:** GATE-001 a GATE-005 aprovados (testes 59/59, lint, build geral e integração 8/8 no banco isolado). GATE-006 aguarda execução e revisão humana. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`.
+**Gates:** GATE-001 a GATE-005 aprovados (testes 59/59, lint, build geral e integração 8/8 no banco isolado). Primeira tentativa de GATE-006 parou antes dos cenários por duplicidade da conta CUSTOMER; runner corrigido para HTTP 201. GATE-006 aguarda nova execução com dois CUSTOMER distintos e revisão humana. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`.
 
 ### TASK-018 — Bundles e pré-vendas
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
