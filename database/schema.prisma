@@ -41,6 +41,7 @@ model User {
   wishlistItems           WishlistItem[]
   cart                    Cart?
   libraryItems            LibraryItem[]
+  orders                  Order[]
 
   @@map("users")
 }
@@ -182,6 +183,7 @@ model Edition {
   digitalAsset DigitalAsset?
   cartItems    CartItem[]
   libraryItems LibraryItem[]
+  orderItems   OrderItem[]
 
   @@unique([workId, format])
   @@index([priceCents])
@@ -284,6 +286,87 @@ model LibraryItem {
   @@map("library_items")
 }
 
+enum OrderStatus {
+  CONFIRMED
+}
+
+enum PaymentMethod {
+  SIMULATED
+}
+
+enum PaymentStatus {
+  APPROVED
+  NOT_REQUIRED
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  userId            String      @map("user_id")
+  idempotencyKey    String      @map("idempotency_key") @db.VarChar(128)
+  status            OrderStatus @default(CONFIRMED)
+  subtotalCents     Int         @map("subtotal_cents")
+  discountCents     Int         @default(0) @map("discount_cents")
+  shippingCents     Int         @default(0) @map("shipping_cents")
+  totalCents        Int         @map("total_cents")
+  couponCode        String?     @map("coupon_code") @db.VarChar(40)
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  user              User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items             OrderItem[]
+  shippingAddress   ShippingAddress?
+  payment           Payment?
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String       @id @default(uuid())
+  orderId         String       @map("order_id")
+  editionId       String       @map("edition_id")
+  workTitle       String       @map("work_title")
+  format          EditionFormat
+  unitPriceCents  Int          @map("unit_price_cents")
+  quantity        Int
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  edition         Edition      @relation(fields: [editionId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([editionId])
+  @@map("order_items")
+}
+
+model ShippingAddress {
+  id              String   @id @default(uuid())
+  orderId         String   @unique @map("order_id")
+  recipientName   String   @map("recipient_name") @db.VarChar(120)
+  phone           String   @db.VarChar(20)
+  postalCode      String   @map("postal_code") @db.VarChar(8)
+  street          String   @db.VarChar(160)
+  number          String   @db.VarChar(20)
+  complement      String?  @db.VarChar(120)
+  district        String   @db.VarChar(100)
+  city            String   @db.VarChar(100)
+  state           String   @db.Char(2)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("shipping_addresses")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  orderId        String        @unique @map("order_id")
+  method         PaymentMethod @default(SIMULATED)
+  status         PaymentStatus
+  amountCents    Int           @map("amount_cents")
+  processedAt    DateTime      @default(now()) @map("processed_at") @db.Timestamptz(6)
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
 model Inventory {
   id                  String              @id @default(uuid())
   editionId           String              @unique @map("edition_id")
@@ -300,6 +383,7 @@ model Inventory {
 
 enum InventoryMovementType {
   PHYSICAL_ADJUSTMENT
+  PHYSICAL_SALE
   DIGITAL_ALLOCATION
   DIGITAL_RELEASE
 }

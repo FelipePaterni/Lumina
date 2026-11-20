@@ -44,11 +44,15 @@ Atualizado em 2026-11-20. Branch: `feature/TASK-013-pedido-checkout-transacional
 | GATE-001 — Prontidão | APROVADO | TASK-012 `DONE`; critérios/DoD existem; branch `feature/TASK-013-pedido-checkout-transacional`; árvore inicial limpa. |
 | GATE-002 — Contexto | APROVADO | README, TASKS, ADR-005, código/testes da TASK-012; baseline 43 unitários, 6 integrações e build com dependências alinhadas. |
 | GATE-003 — Planejamento | APROVADO | Plano acima respeita API de pedidos/pagamento simulado e banco; sem web, biblioteca/download ou gateway. Artefatos manuais incluídos no Scope Guard para cumprir AGENTS.md. |
-| GATE-004 — Implementação | EM EXECUÇÃO | — |
-| GATE-005 — Gates automatizados | PENDENTE | — |
-| GATE-006 — Testes manuais | PENDENTE | — |
+| GATE-004 — Implementação | APROVADO | API de pedido e pagamento simulado, transação serializável, migração aditiva e testes implementados; diff dentro do Scope Guard. `app.module.ts` apenas registra o módulo novo. |
+| GATE-005 — Gates automatizados | APROVADO | lint; 46/46 unitários; 7/7 integrações em `lumina_task009_test`; migração aplicada duas vezes; Prisma validate; audit de produção 0; build completo; scripts manuais analisados; diff sem whitespace. |
+| GATE-006 — Testes manuais | BLOQUEADO | Roteiro e relatório sanitizado criados; fixtures auxiliares preparadas/limpas em DB isolado. O runner do Codex não conseguiu acessar o socket loopback do host; API responde 200/401 dentro do contêiner. Responsável precisa executar/revisar no PowerShell local. |
 | GATE-007 — Conclusão | PENDENTE | — |
 
 ## Scope Guard
 
-Mudanças primárias: módulos API de pedidos e pagamento simulado; schema/migração; testes unitários e de integração; `TASKS.md`. Caminhos foram especificados sob a raiz real `apps/api/src/modules/`. O roteiro `tests/manual/task-013/**` e seu relatório sanitizado `docs/testing/TASK-013-*.md` são artefatos operacionais mínimos exigidos pelo `AGENTS.md`, sem alteração de requisitos ou contratos fora da TASK.
+Mudanças primárias: módulos API de pedidos e pagamento simulado; schema/migração; testes unitários e de integração; `TASKS.md`. Caminhos foram especificados sob a raiz real `apps/api/src/modules/`. O registro em `apps/api/src/app.module.ts` é incidental mínimo para ativar o módulo. O roteiro `tests/manual/task-013/**` e o relatório sanitizado `docs/testing/TASK-013-*.md` cumprem o `AGENTS.md`, sem ampliar requisitos de produto. Nenhum caminho proibido foi alterado.
+
+## Registro da execução manual no runner
+
+Na execução pelo Codex, o PowerShell não conseguiu abrir sockets loopback do host (`Invoke-WebRequest` falhou por permissão de socket). A mesma API respondeu HTTP 200 em `/works` e HTTP 401 sem token em `/checkout` quando consultada de dentro do contêiner. O helper de fixtures foi validado em `lumina_task009_test` e confirmou preparação/limpeza. A etapa manual permanece aguardando execução no PowerShell interativo do responsável; não há aprovação manual inferida.
