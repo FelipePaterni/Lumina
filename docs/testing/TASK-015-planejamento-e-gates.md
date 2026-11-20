@@ -37,9 +37,9 @@ Rollback: descartar somente os arquivos novos da TASK e reverter o estado de TAS
 |---|---|---|
 | GATE-001 — Prontidão | APROVADO | Dependência, artefatos, ADR, critérios e branch verificados. |
 | GATE-002 — Matriz de evidências | APROVADO | Matriz acima cobre compra gratuita/paga, híbrido, concorrência, notificações, regressão e lacuna manual. |
-| GATE-003 — Planejamento | APROVADO | Comandos e restrições reais identificados; Docker indisponível; integração condicionada ao DB isolado. |
+| GATE-003 — Planejamento | APROVADO | Comandos e restrições reais identificados; o Docker ficou inicialmente bloqueado no sandbox, depois acessado para criar o banco isolado e executar as integrações. |
 | GATE-004 — Validações automatizadas | APROVADO | `npm test` 50/50, lint, build, parser PowerShell, `git diff --check` e integração 8/8 passaram. O banco `lumina_task009_test` foi criado no PostgreSQL local; 11 migrations aplicadas. URL e credenciais ficaram somente em memória. Banco principal não foi usado. |
-| GATE-005 — Testes manuais e conclusão | BLOQUEADO | MT-013-01 a MT-013-04 foram aprovados e a limpeza confirmou. TASK-014 chega ao helper de schema, mas registra `RuntimeException`. A consulta isolada no destino `.env` (`localhost:5433/lumina`) retorna schema pronto. O runner agora prioriza esse destino Compose em vez de uma `DATABASE_URL` possivelmente obsoleta e registrará banco/porta e código Prisma sanitizado. MT-014 precisa ser repetido pelo responsável. |
+| GATE-005 — Testes manuais e conclusão | APROVADO | MT-013-01 a MT-013-04 passaram e a limpeza foi confirmada no relatório recente. Para MT-015-04, foi reutilizada a aprovação manual versionada da TASK-014 (`DONE`), confirmada pelo responsável no chat referenciado. Uma tentativa posterior de reexecução do runner parou no helper de schema antes dos cenários e não substitui aquela execução aprovada. O responsável executou o coletor TASK-015 com `-HumanReviewed`; relatório registra 4/4 cenários aprovados. |
 
 ## Scope Guard
 
@@ -59,4 +59,4 @@ Executado em 2026-11-20:
 | Parser de `collect-task-015-results.ps1` | APROVADO | Sem erros de sintaxe PowerShell. |
 | `git diff --check` | APROVADO | Código de saída 0. |
 
-Limite: os gates automatizados da Etapa 004 passaram, incluindo os cenários concorrentes de estoque, licença e cupom. A validação manual e revisão humana da Etapa 005 continuam pendentes; portanto, a TASK-015 ainda não está concluída.
+Os gates automatizados e a validação manual da Etapa 005 estão aprovados. Cenários concorrentes de estoque, licença e cupom passaram na integração e no relatório manual da TASK-013. Incidental: uma tentativa posterior de reexecutar o helper TASK-014 falhou antes dos cenários; a evidência aprovada original da dependência permanece versionada e válida.
