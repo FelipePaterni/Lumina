@@ -24,12 +24,13 @@ Este roteiro precisa de uma API local iniciada e de uma edição digital já com
   ```powershell
   $customer = Get-Credential -Message 'CUSTOMER sintético e confirmado'
   $admin = Get-Credential -Message 'ADMIN sintético'
-  .\tests\manual\task-017\prepare-task-017-purchase.ps1 `
+  $purchase = .\tests\manual\task-017\prepare-task-017-purchase.ps1 `
     -CustomerCredential $customer `
     -AdminCredential $admin
+  $purchase | Format-Table
   ```
 
-- Copie o `editionId` mostrado somente após o script confirmar a compra e `downloadAvailable=True`. Se o login ADMIN retornar 401, digite o e-mail da conta no campo `Usuário:` do diálogo e a senha no campo `Senha:`; não cole comandos enquanto esse diálogo estiver aberto.
+- O resultado contém `EditionId`, `OrderId` e `DownloadAvailable`. Só prossiga se `DownloadAvailable` for `True`. Se o login ADMIN retornar 401, digite o e-mail da conta no campo `Usuário:` do diálogo e a senha no campo `Senha:`; não cole comandos enquanto esse diálogo estiver aberto.
 
 ## Executar os testes manuais
 
@@ -43,7 +44,7 @@ $admin = Get-Credential -Message 'ADMIN sintético'
   -CustomerCredential $customer `
   -OtherCustomerCredential $other `
   -AdminCredential $admin `
-  -EditionId '<editionId-retornado-pelo-script>'
+  -EditionId $purchase.EditionId
 ```
 
 ## Cenários

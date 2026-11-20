@@ -81,8 +81,11 @@ try {
   $library = Invoke-Api -Method 'GET' -Path '/library' -Token $customerToken -Body $null -IdempotencyKey ''
   $item = @($library.Json | Where-Object { $_.editionId -eq $editionId }) | Select-Object -First 1
   if ($library.Status -ne 200 -or -not $item -or -not $item.downloadAvailable) { throw 'Compra confirmada, mas a edição não apareceu disponível na biblioteca.' }
-  Write-Output "Compra sintética confirmada. editionId=$editionId orderId=$($order.Json.id) downloadAvailable=$($item.downloadAvailable)"
-  Write-Output 'Use esse editionId no roteiro run-task-017-manual-tests.ps1.'
+  [pscustomobject]@{
+    EditionId = $editionId
+    OrderId = [string]$order.Json.id
+    DownloadAvailable = [bool]$item.downloadAvailable
+  }
 } finally {
   $customerToken = $null
   $adminToken = $null
