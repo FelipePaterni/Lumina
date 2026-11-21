@@ -23,7 +23,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | DONE |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | DONE |
-| 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
+| 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | IN_REVIEW |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
@@ -294,7 +294,7 @@ Recomendação: alternativa A, com um registro transacional de refund e estado m
 Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampliado para `database/schema.prisma`, `database/migrations/**` e estado mínimo de fulfillment/retorno compatível com consumo futuro pela TASK-021. Pagamentos permanecem simulados; sem gateway real nem novas regras legais.
 
 ### TASK-020 — Checkpoint PHASE-04
-**Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** CRITICAL
+**Status:** IN_REVIEW · **Phase:** PHASE-04 · **Priority:** CRITICAL
 **Objetivo:** Validar ciclo digital completo e pós-compra.
 **Dependências:** `DEPENDS_ON: TASK-017, TASK-018, TASK-019`
 **Relacionados:** RF-013–018; RNF-010.
@@ -303,6 +303,9 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **FORBIDDEN_CHANGES:** logística, avaliações e painéis.
 **Aceitação/testes:** originais protegidos, regras temporais e reversões passam.
 **DoD específico:** PHASE-05 desbloqueada.
+**Prontidão:** READY em 2026-11-21 após confirmar TASK-017, TASK-018 e TASK-019 como DONE, relatórios e gates predecessores existentes, critérios/Scope Guard definidos e ADR-003/004/005 aceitos. Iniciada após autorização do responsável.
+**Gates:** GATE-001 a GATE-004 APROVADOS em 2026-11-21. Build, lint, Prisma validate, testes unitários (70/70), integração (10/10 no banco isolado `lumina_task009_test`), parser PowerShell e diff check passaram. GATE-005 aguarda revisão humana consolidada; evidências predecessoras e regressão de revogação estão registradas em `docs/testing/TASK-020-testes-manuais-resultado.md`.
+**Estado de revisão:** IN_REVIEW; PHASE-05 continua bloqueada até aprovação explícita do responsável. Nenhuma mudança de logística, avaliações ou painéis foi iniciada.
 
 ### TASK-021 — Estoque e logística física
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
