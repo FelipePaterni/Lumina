@@ -2,6 +2,7 @@
 
 Data: 2026-11-21
 Branch: `feature/TASK-022-avaliacoes-denuncia-moderacao`
+Commit parcial: `3e8fb02` (`feat(reviews): add reviews and moderation [TASK-022]`)
 
 ## Contexto e prontidão
 
