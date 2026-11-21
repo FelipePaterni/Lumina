@@ -308,7 +308,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão:** DONE em 2026-11-21. Critérios e DoD satisfeitos; originais protegidos, regras temporais e reversões validados; PHASE-05 desbloqueada. Mudanças primárias limitadas a teste/documentação PHASE-04 e `TASKS.md`; nenhuma incidental; nenhuma alteração proibida. Commits exclusivos: `aa6e06a`, `59c78c5`, `1424a2c` e commit final de conclusão.
 
 ### TASK-021 — Estoque e logística física
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Entregar movimentos, alertas e estados/rastreio manuais para o Estoquista.
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-007,017; RN-004,012,015.
