@@ -1,0 +1,30 @@
+.panel { display: grid; gap: 2rem; }
+.header { max-width: 760px; margin: 0; }
+.eyebrow { color: #a65334; letter-spacing: .14em; font: 700 .72rem Arial, sans-serif; text-transform: uppercase; }
+.header h1 { margin: .45rem 0; font-size: clamp(2rem, 5vw, 3.4rem); }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; }
+.metric { display: grid; gap: .8rem; padding: 1rem; background: #fffdf9; border: 1px solid #e5ddd2; }
+.metric span, .sectionHeading > span { color: #6d746e; font: .82rem Arial, sans-serif; }
+.metric strong { color: #315848; font: 600 2rem Arial, sans-serif; }
+.alerts { padding: 1rem 1.2rem; background: #fff7ef; border-left: 4px solid #a65334; }
+.alerts h2, .sectionHeading h2 { margin: .25rem 0; }
+.alerts ul, .order ul { padding-left: 1.2rem; }
+.alerts li span { color: #6d746e; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1rem; }
+.orders { display: grid; gap: 1rem; }
+.order { display: grid; gap: .85rem; padding: 1.2rem; background: #fffdf9; border: 1px solid #e5ddd2; }
+.orderTop { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+.orderTop span { color: #315848; font: 700 .8rem Arial, sans-serif; }
+.order address { color: #48544d; font: .9rem/1.55 Arial, sans-serif; font-style: normal; }
+.tracking { margin: 0; font: .9rem Arial, sans-serif; }
+.transitionForm { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; }
+.transitionForm label { display: grid; gap: .35rem; font: .85rem Arial, sans-serif; }
+.transitionForm input { box-sizing: border-box; padding: .7rem; border: 1px solid #b8ad9f; border-radius: 4px; background: #fff; font: inherit; }
+.transitionForm button, .pagination button { border: 1px solid #315848; border-radius: 4px; background: #315848; color: #fff; padding: .7rem 1rem; cursor: pointer; }
+.transitionForm button:disabled, .pagination button:disabled { opacity: .5; cursor: not-allowed; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.2rem; }
+.empty { padding: 1.5rem; background: #fffdf9; text-align: center; }
+.error, .notice { padding: .8rem 1rem; border-radius: 4px; font: .9rem Arial, sans-serif; }
+.error { background: #fff0ed; color: #8e3025; }
+.notice { background: #ecf5ef; color: #315848; }
+@media (max-width: 600px) { .sectionHeading, .orderTop { align-items: flex-start; flex-direction: column; } }
