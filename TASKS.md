@@ -22,7 +22,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | DONE |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | DONE |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
-| 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | IN_PROGRESS |
+| 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -265,7 +265,7 @@ Recomendação: ampliar explicitamente `ALLOWED_CHANGES` para `database/schema.p
 Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `ALLOWED_CHANGES` acima; a guarda de expedição será implementada na TASK-021 junto ao fluxo logístico, sem permitir expedição antecipada.
 
 ### TASK-019 — Cancelamentos e reembolsos
-**Status:** IN_PROGRESS · **Phase:** PHASE-04 · **Priority:** HIGH
+**Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
 **Objetivo:** Aplicar regras automáticas digitais e decisão administrativa/estado físico.
 **Dependências:** `DEPENDS_ON: TASK-017, TASK-018`
 **Relacionados:** RF-018; RN-013–015,017.
@@ -275,6 +275,20 @@ Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `AL
 **Aceitação/testes:** janelas 2h/2 semanas/1 semana; reembolso digital revoga acesso e restaura licença limitada; físico pré-envio e estoque restaurado somente após devolução confirmada; Admin auditado.
 **DoD específico:** exceção não permite violar janela sem Admin.
 **Prontidão:** READY em 2026-11-20 após confirmação de TASK-017 e TASK-018 como DONE, evidências e gates disponíveis, RN/UC/aceitação/Scope Guard definidos e ADR-003/005 aceitos. Sem pendências bloqueantes; o responsável autorizou a promoção para READY e início.
+**Gates:** GATE-001 APROVADO; GATE-002 BLOQUEADO pela lacuna de persistência e estado logístico descrita abaixo. Nenhum código de refund foi implementado.
+
+## SCOPE ESCALATION
+TASK: TASK-019
+Necessidade identificada: persistir solicitações/decisões/reembolsos por item, revogação de acesso, reversões idempotentes de licença/estoque e estado de envio/devolução física.
+Motivo: `OrderStatus` possui somente `CONFIRMED`, `PaymentStatus` somente `APPROVED`/`NOT_REQUIRED`; não há modelo de refund, lifecycle de OrderItem nem estado de expedição/devolução. TASK-021 (logística) ainda está bloqueada e depende do checkpoint TASK-020. Implementar só com logs de auditoria ou apagando OrderItem deixa o pagamento aparentemente aprovado, perde histórico da compra e pode impedir idempotência/controle de licença.
+Arquivos/módulos afetados: `database/schema.prisma`, `database/migrations/**`; potencial estado mínimo de fulfillment integrado entre `apps/api/src/modules/orders/**`, `apps/api/src/modules/refunds/**` e futura `apps/api/src/modules/logistics/**`.
+Allowed Changes atual: `modules/refunds/**`; `modules/orders/**`; `modules/library/**`; `modules/audit/**`; `tests/**`; `TASKS.md`.
+Forbidden Changes relacionado: gateway real; regras legais não aprovadas.
+Por que não é incidental: altera persistência e contrato de ciclo de vida de pagamentos, itens comprados e expedição física, exigindo migração e regra compartilhada com logística.
+Impacto se não realizada: não é possível cumprir com segurança revogação/restauração de direitos, impedir dupla restituição, manter rastreabilidade financeira nem distinguir pedido físico pré-envio de pedido enviado/devolvido.
+Alternativas: (A) ampliar `ALLOWED_CHANGES` para `database/schema.prisma` e `database/migrations/**` e aprovar a definição do estado mínimo de fulfillment/retorno a ser consumido pela TASK-021; (B) implementar somente reembolsos digitais agora e revisar a aceitação/dependências da TASK-019 para mover reembolsos físicos à TASK-021, evitando ciclo no grafo de tarefas.
+Recomendação: alternativa A, com um registro transacional de refund e estado mínimo compatível com a logística futura; manter gateway simulado e sem criar regras legais novas.
+Decisão necessária: aprovar a ampliação do escopo de persistência e decidir se TASK-019 deve introduzir estado mínimo de fulfillment/retorno ou se o fluxo físico será explicitamente adiado/replanejado para TASK-021.
 
 ### TASK-020 — Checkpoint PHASE-04
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** CRITICAL
