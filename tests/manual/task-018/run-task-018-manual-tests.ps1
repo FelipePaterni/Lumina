@@ -22,6 +22,7 @@ $scenarios = [ordered]@{
 }
 $failure = ''
 $stage = 'validação inicial'
+$lastHttpStatus = 0
 $tokens = [System.Collections.Generic.List[string]]::new()
 $libraryByUser = @{}
 
@@ -40,7 +41,7 @@ function Write-SanitizedReport {
     $evidence = if ($scenarios[$id].evidence) { $scenarios[$id].evidence } else { 'Não executado.' }
     $lines.Add("| $id — $($scenarios[$id].title) | $($scenarios[$id].status) | $evidence |")
   }
-  if ($failure) { $lines.Add(''); $lines.Add("Falha/bloqueio: $failure") }
+  if ($failure) { $lines.Add(''); $lines.Add("Falha/bloqueio: $failure (último status HTTP: $lastHttpStatus)") }
   $lines.Add('')
   $lines.Add('Pré-requisitos: API local conectada exclusivamente ao banco isolado `lumina_task009_test`; duas contas CUSTOMER sintéticas com carrinhos vazios e sem posse dos e-books informados; obras têm edição digital visível e inventário configurado. O runner prepara compras sintéticas para os cenários de posse parcial e total.')
   Set-Content -LiteralPath $reportPath -Value $lines -Encoding utf8
@@ -55,10 +56,12 @@ function Invoke-Api {
   if ($null -ne $Body) { $request.ContentType = 'application/json'; $request.Body = $Body | ConvertTo-Json -Depth 8 -Compress }
   try {
     $response = Invoke-WebRequest @request
+    $script:lastHttpStatus = [int]$response.StatusCode
     $parsed = $null
     if ($response.Content) { try { $parsed = ConvertFrom-Json -InputObject $response.Content } catch { $parsed = $null } }
     return [pscustomobject]@{ Status = [int]$response.StatusCode; Json = $parsed }
   } catch {
+    $script:lastHttpStatus = 0
     return [pscustomobject]@{ Status = 0; Json = $null }
   }
 }
@@ -130,6 +133,7 @@ try {
   $customerCarts = @($fullCart, $partialCart)
   if (@($customerCarts | Where-Object { $_.Status -ne 200 -or $_.Json.items.Count -gt 0 -or $_.Json.bundles.Count -gt 0 }).Count -gt 0) { throw 'As duas contas CUSTOMER precisam ter carrinhos vazios.' }
 
+  $stage = 'verificação da posse inicial e preparação da biblioteca'
   foreach ($credential in @($FullPurchaseCredential, $PartialOwnerCredential)) {
     $libraryToken = if ($credential.UserName -eq $FullPurchaseCredential.UserName) { $fullToken } else { $partialToken }
     $library = Invoke-Api -Method 'GET' -Path '/library' -Token $libraryToken -Body $null -Key ''
@@ -205,5 +209,5 @@ try {
   $password = $null
   Write-SanitizedReport
   Write-Output "Relatório sanitizado criado/atualizado: $reportPath"
-  if ($failure) { Write-Output 'Execução BLOQUEADA; verifique o banco local isolado e as pré-condições descritas no README.' }
+  if ($failure) { Write-Output "Execução BLOQUEADA durante $stage; último status HTTP: $lastHttpStatus. Consulte o relatório sanitizado." }
 }

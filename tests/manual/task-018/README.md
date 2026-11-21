@@ -52,7 +52,7 @@ $envValues = $null
   -SyntheticTestDatabaseConfirmed
 ```
 
-O runner mantém senhas e tokens somente em memória. O CUSTOMER de posse parcial compra sinteticamente dois componentes para preparar o cenário; o outro realiza uma compra integral simulada. O script gera um relatório sanitizado em `docs/testing/TASK-018-testes-manuais-resultado.md`, sem registrar credenciais, tokens, e-mails ou IDs. Ele não apaga compras ou bundles.
+O runner mantém senhas e tokens somente em memória. O CUSTOMER de posse parcial compra sinteticamente dois componentes para preparar o cenário; o outro realiza uma compra integral simulada. O script gera um relatório sanitizado em `docs/testing/TASK-018-testes-manuais-resultado.md`, sem registrar credenciais, tokens, e-mails ou IDs. Ele não apaga compras ou bundles e não pode ser repetido com as mesmas contas/obras na mesma base: as compras ficam permanentes e afetam a posse dos e-books. Para uma nova execução, use uma base isolada limpa e contas sintéticas sem pedidos anteriores. Revise o relatório aprovado existente antes de iniciar outra execução.
 
 ## Cenários
 
