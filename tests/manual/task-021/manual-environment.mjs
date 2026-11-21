@@ -35,3 +35,14 @@ export function getTaskCustomerEmails() {
   }
   return { customer1Email, customer2Email };
 }
+
+export function getTaskLoginCredentials() {
+  const adminEmail = process.env.ADMIN_SEED_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_SEED_PASSWORD;
+  const customer1Password = process.env.TEST_CUSTOMER_1_PASSWORD;
+  const customer2Password = process.env.TEST_CUSTOMER_2_PASSWORD;
+  if (!adminEmail?.endsWith("@example.invalid") || !adminPassword || !customer1Password || !customer2Password) {
+    throw new Error("Configure ADMIN_SEED_EMAIL/PASSWORD e TEST_CUSTOMER_1/2_PASSWORD com contas sintéticas no .env.");
+  }
+  return { adminEmail, adminPassword, customer1Password, customer2Password };
+}

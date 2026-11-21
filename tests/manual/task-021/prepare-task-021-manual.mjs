@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import process from "node:process";
 import { randomUUID } from "node:crypto";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { getTaskCustomerEmails, getTaskDatabaseUrl, loadLocalEnvironment } from "./manual-environment.mjs";
+import { getTaskCustomerEmails, getTaskDatabaseUrl, getTaskLoginCredentials, loadLocalEnvironment } from "./manual-environment.mjs";
 
 loadLocalEnvironment();
 let databaseUrl;
 let customer1Email;
 let customer2Email;
+let loginCredentials;
 try {
   databaseUrl = getTaskDatabaseUrl();
   ({ customer1Email, customer2Email } = getTaskCustomerEmails());
+  loginCredentials = getTaskLoginCredentials();
 } catch (error) {
   process.stderr.write(`BLOQUEADO: ${error instanceof Error ? error.message : "Configuração manual inválida."}\n`);
   process.exit(2);
@@ -26,7 +29,22 @@ try {
   assert.ok(customer2?.role === "CUSTOMER" && customer2.isActive, "A segunda conta deve ser CUSTOMER sintética ativa.");
 
   const suffix = `${Date.now()}-${randomUUID().slice(0, 8)}`;
+  const stockEmail = `task021-stock-${randomUUID().slice(0, 12)}@example.invalid`;
+  const stockPassword = randomUUID() + randomUUID();
+  const stockPasswordHash = await bcrypt.hash(stockPassword, 10);
   const fixtures = await prisma.$transaction(async (tx) => {
+    const ensureSyntheticUser = async (email, password, role) => {
+      const existing = await tx.user.findUnique({ where: { email } });
+      if (existing && existing.role !== role) throw new Error("Conta sintética configurada com papel inesperado.");
+      const passwordHash = await bcrypt.hash(password, 10);
+      const data = { passwordHash, role, isEmailConfirmed: true, isActive: true, deactivatedAt: null, scheduledDeletionAt: null };
+      if (existing) return tx.user.update({ where: { id: existing.id }, data });
+      return tx.user.create({ data: { email, ...data } });
+    };
+    await ensureSyntheticUser(loginCredentials.adminEmail, loginCredentials.adminPassword, "ADMIN");
+    await ensureSyntheticUser(customer1Email, loginCredentials.customer1Password, "CUSTOMER");
+    await ensureSyntheticUser(customer2Email, loginCredentials.customer2Password, "CUSTOMER");
+    await ensureSyntheticUser(stockEmail, stockPassword, "STOCK");
     const [author, publisher] = await Promise.all([
       tx.author.create({ data: { name: `TASK021 Manual Author ${suffix}` } }),
       tx.publisher.create({ data: { name: `TASK021 Manual Publisher ${suffix}` } }),
@@ -83,6 +101,7 @@ try {
     const preorder = await createOrderFixture("Preorder", new Date(Date.now() + 14 * 86_400_000));
     return { released, preorder };
   });
+  fixtures.stockCredential = { email: stockEmail, password: stockPassword };
   process.stdout.write(`${JSON.stringify(fixtures)}\n`);
 } finally {
   await prisma.$disconnect();

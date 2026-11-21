@@ -147,6 +147,5 @@ $lines.Add('')
 $lines.Add('Revisão humana: PENDENTE.')
 Set-Content -LiteralPath $reportPath -Value $lines -Encoding utf8
 
-if ($results.Status -contains 'REPROVADO') { exit 1 }
-if ($results.Status -contains 'BLOQUEADO') { exit 2 }
-exit 0
+$exitCode = if ($results.Status -contains 'REPROVADO') { 1 } elseif ($results.Status -contains 'BLOQUEADO') { 2 } else { 0 }
+[pscustomobject]@{ Task = 'TASK-021'; ExitCode = $exitCode; ReportPath = $reportPath }

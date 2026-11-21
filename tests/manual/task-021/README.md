@@ -50,12 +50,26 @@ Após aprovação do escopo e dos gates automatizados, o runner deverá validar:
 
 ## Preparação e execução manual
 
+Atalho para executar o fluxo inteiro na máquina local: o wrapper carrega credenciais sintéticas do `.env` em memória, deriva a URL do banco isolado `lumina_task009_test` a partir do `DATABASE_URL` local, prepara fixtures/contas sintéticas, inicia uma API temporária na porta 3002, executa os cenários e encerra essa API. Confirme que Docker/PostgreSQL local está ativo e que o banco isolado existe antes de executar:
+
+```powershell
+./tests/manual/task-021/run-task-021-local-manual-tests.ps1
+```
+
+O relatório sanitizado fica em `docs/testing/TASK-021-testes-manuais-resultado.md`. Revise-o manualmente; execução automatizada não substitui a revisão humana.
+
+### Execução por etapas
+
 O preparador e o verificador carregam o `.env` da raiz automaticamente sem imprimir valores. Configure nele `TASK009_TEST_DATABASE_URL` apontando para `lumina_task009_test` e use `TEST_CUSTOMER_1_EMAIL`/`TEST_CUSTOMER_2_EMAIL` (ou os nomes `TASK021_CUSTOMER_*`) com duas contas sintéticas `@example.invalid`. O endereço do banco deve existir e estar acessível; o script não cria bancos nem inicia serviços. Use uma conta STOCK e uma ADMIN como `PSCredential`; mantenha as senhas somente na sessão PowerShell. A API local deve estar conectada ao mesmo banco de teste e ter migrations aplicadas.
 
 ```powershell
 $fixtureJson = node ./tests/manual/task-021/prepare-task-021-manual.mjs
 if ($LASTEXITCODE -ne 0) { throw 'Preparação TASK-021 falhou' }
 $fixture = $fixtureJson | ConvertFrom-Json
+$stockPassword = ConvertTo-SecureString $fixture.stockCredential.password -AsPlainText -Force
+$stock = [PSCredential]::new($fixture.stockCredential.email, $stockPassword)
+$fixture.stockCredential.password = $null
+$fixtureJson = $null
 ./tests/manual/task-021/run-task-021-manual-tests.ps1 `
   -ApiBaseUrl 'http://localhost:3001' `
   -StockCredential $stock -AdminCredential $admin `
@@ -67,6 +81,8 @@ $fixture = $fixtureJson | ConvertFrom-Json
   -SyntheticTestDatabaseConfirmed
 ```
 
-O runner escreve o relatório sanitizado em `docs/testing/TASK-021-testes-manuais-resultado.md`. Fixtures são somente adicionadas ao banco de teste, com obras/pedidos/destinatário sintéticos; não apaga nem altera dados existentes. Revise o relatório manualmente. Os testes manuais permanecem NÃO EXECUTADOS até essa operação humana; não aprove o gate por inferência.
+O preparador cria uma conta `STOCK` sintética de uso único no banco de teste e devolve a senha somente no JSON capturado por `$fixtureJson`; converta-a imediatamente em `PSCredential`, limpe a string e não imprima esse objeto. As credenciais ADMIN/CUSTOMER devem ser carregadas do `.env` para `PSCredential` em memória. A API precisa rodar localmente na mesma base isolada, por exemplo em `http://localhost:3002`; não use a API Docker da porta 3001, que normalmente aponta para o banco de desenvolvimento.
+
+O runner escreve o relatório sanitizado em `docs/testing/TASK-021-testes-manuais-resultado.md`. Fixtures são somente adicionadas ao banco de teste, com obras/pedidos/destinatário sintéticos; não apaga nem altera dados existentes. Revise o relatório manualmente. Os cenários só são considerados aprovados após essa revisão humana; não aprove o gate por inferência.
 
 Nenhuma senha, token, PII real ou arquivo original será gravado no roteiro ou relatório. A documentação de relatório em `docs/testing/` é incidental mínima, exigida pelo padrão de testes manuais de `AGENTS.md`.
