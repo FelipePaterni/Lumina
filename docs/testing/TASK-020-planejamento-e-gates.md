@@ -69,7 +69,7 @@ O build API foi compilado antes da suíte unitária; build geral executado novam
 
 ## GATE-005 — Revisão manual e conclusão
 
-**Estado: AGUARDANDO REVISÃO HUMANA.** O roteiro e relatório sanitizado estão preparados. Esta etapa não aprova a revisão humana por inferência. A PHASE-05 permanece bloqueada até o responsável revisar e aprovar o checkpoint integral.
+**Estado: APROVADO pelo responsável em 2026-11-21.** O responsável executou o coletor com `-HumanReviewConfirmed` após revisar as evidências consolidadas; MT-020-01 a MT-020-05 constam como APROVADO em `docs/testing/TASK-020-testes-manuais-resultado.md`. TASK-020 foi concluída e TASK-021 tornou-se a primeira TASK READY da PHASE-05. Nenhuma implementação da TASK-021 foi iniciada.
 
 ## Scope Guard
 
