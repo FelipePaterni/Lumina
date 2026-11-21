@@ -24,7 +24,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | DONE |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | DONE |
-| 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
+| 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -317,8 +317,8 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **FORBIDDEN_CHANGES:** transportadoras; preço/catálogo pelo Estoquista.
 **Aceitação/testes:** somente estoquista/Admin altera físico; transições inválidas e pré-venda antecipada falham.
 **DoD específico:** cada status relevante notifica cliente.
-**Gates:** GATE-001 a GATE-005 aprovados. GATE-005: build API/web, lint, testes unitários (76/76), integração (10/10 no `lumina_task009_test`), Prisma validate, sintaxe Node/PowerShell e `git diff --check` passaram. GATE-006: cenários MT-021-00 a MT-021-05 aprovados pelo roteiro automatizado em API local e banco isolado; revisão humana do relatório pendente. GATE-007 pendente.
-**Prontidão:** READY em 2026-11-21 após TASK-020 DONE, dependência validada, requisitos/aceitação/testes/Scope Guard definidos e ADR-005 aceito. Iniciada em branch própria após autorização do responsável. O responsável aprovou em 2026-11-21 a ampliação mínima de ALLOWED_CHANGES para `apps/api/src/modules/notifications/notification-event.ts`, exclusivamente para adicionar evento específico de atualização logística. TASK-021 permanece BLOCKED aguardando revisão humana do relatório dos cenários manuais.
+**Gates:** GATE-001 a GATE-005 aprovados. GATE-005: build API/web, lint, testes unitários (76/76), integração (10/10 no `lumina_task009_test`), Prisma validate, sintaxe Node/PowerShell e `git diff --check` passaram. GATE-006: cenários MT-021-00 a MT-021-05 aprovados pelo roteiro automatizado em API local e banco isolado; revisão humana aprovada pelo responsável em 2026-11-21. Relatório em `docs/testing/TASK-021-testes-manuais-resultado.md`. GATE-007 aprovado em 2026-11-21: DoD satisfeita, Scope Guard validado; nenhuma alteração proibida ou incidental além do relatório manual exigido por `AGENTS.md`.
+**Prontidão:** READY em 2026-11-21 após TASK-020 DONE, dependência validada, requisitos/aceitação/testes/Scope Guard definidos e ADR-005 aceito. Iniciada em branch própria após autorização do responsável. O responsável aprovou em 2026-11-21 a ampliação mínima de ALLOWED_CHANGES para `apps/api/src/modules/notifications/notification-event.ts`, exclusivamente para adicionar evento específico de atualização logística. TASK-021 iniciada em branch própria e concluída após revisão humana aprovada em 2026-11-21. Commits exclusivos: `56fec72`, `09bbeb1` e `c91e10d`; relatório manual em `docs/testing/TASK-021-testes-manuais-resultado.md`.
 
 ### TASK-022 — Avaliações, denúncia e moderação
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH

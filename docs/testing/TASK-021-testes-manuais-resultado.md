@@ -13,4 +13,4 @@ Credenciais, tokens, IDs, endereços e conteúdo dos pedidos foram omitidos.
 | MT-021-04 — cliente consulta o próprio rastreio | APROVADO | Cliente dono do pedido recebeu o rastreio sintético. |  |
 | MT-021-05 — autorização e isolamento entre clientes | APROVADO | Cliente não alterou logística nem consultou pedido de outro cliente. |  |
 
-Revisão humana: PENDENTE.
+Revisão humana: APROVADA pelo responsável em 2026-11-21.
