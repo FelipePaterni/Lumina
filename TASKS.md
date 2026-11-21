@@ -326,10 +326,12 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-019,022; RN-016,017.
 **Artefatos esperados:** reviews, reports e moderação Admin.
-**ALLOWED_CHANGES:** `modules/reviews/**`; `features/reviews/**`; `modules/audit/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `modules/reviews/**`; `features/reviews/**`; `modules/audit/**`; `apps/api/src/modules/catalog/**` (integração mínima da média visível, autorizada pelo responsável em 2026-11-21); `database/schema.prisma`; `database/migrations/**` (autorizado pelo responsável em 2026-11-21); `tests/**`; `tests/manual/task-021/manual-environment.mjs` e `tests/manual/task-021/prepare-task-021-manual.mjs` (expansão mínima autorizada pelo responsável em 2026-11-21 para desbloquear o lint global); `TASKS.md`.
 **FORBIDDEN_CHANGES:** aprovação prévia obrigatória; alteração de regras de compra.
 **Aceitação/testes:** só adquirente cria; qualquer usuário denuncia; remoção exige motivo/auditoria.
 **DoD específico:** catálogo calcula média somente de avaliações visíveis.
+**Prontidão:** READY em 2026-11-21 após confirmar TASK-020 DONE e seus gates/relatório, RF-019/RF-022, RN-016/RN-017, aceitação, testes, Scope Guard e ADR-003 aceito. O responsável autorizou ampliar `ALLOWED_CHANGES` para `database/schema.prisma` e `database/migrations/**` em 2026-11-21, pois o schema não possuía persistência de avaliações/denúncias, e para `apps/api/src/modules/catalog/**` para retornar agregados de avaliações visíveis ao catálogo. Iniciada em branch própria após autorização.
+**Progresso:** API, persistência, agregados do catálogo e migração implementados. Auditoria sanitiza PII/credenciais no motivo textual. O responsável autorizou em 2026-11-21 a expansão mínima para corrigir dois erros preexistentes de lint em scripts manuais da TASK-021. Build, lint, Prisma validate e 83 testes automatizados locais passaram. Integração/migração/manual bloqueadas: Docker indisponível, `TASK009_TEST_DATABASE_URL` ausente do ambiente e porta local de teste 5433 sem serviço. Relatório e roteiro: `docs/testing/TASK-022-planejamento-e-gates.md` e `tests/manual/task-022/run-task-022-manual-tests.ps1`. A alteração de uma linha na tabela de APIs do README é incidental, para manter o contrato documentado.
 
 ### TASK-023 — Painéis e relatórios essenciais
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH

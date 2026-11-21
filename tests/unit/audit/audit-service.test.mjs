@@ -92,3 +92,21 @@ test("AuditLogEntity - sanitiza PII e credenciais nos metadados (RN-017 / RNF-00
   assert.equal(parsed.nested.normalField, "visible");
   assert.equal(parsed.newRole, "CATALOG");
 });
+
+test("AuditLogEntity - remove PII e tokens do motivo textual", () => {
+  const audit = new AuditLogEntity({
+    actorId: "admin-1",
+    actorRole: Role.ADMIN,
+    action: "REVIEW_REMOVED",
+    targetType: "REVIEW",
+    targetId: "review-1",
+    reason:
+      "Remoção solicitada por pessoa@example.invalid, CPF 123.456.789-00, telefone (11) 98765-4321 e Bearer secret-token",
+  });
+
+  assert.equal(audit.reason.includes("pessoa@example.invalid"), false);
+  assert.equal(audit.reason.includes("123.456.789-00"), false);
+  assert.equal(audit.reason.includes("98765-4321"), false);
+  assert.equal(audit.reason.includes("secret-token"), false);
+  assert.match(audit.reason, /\[REDACTED\]/);
+});

@@ -44,6 +44,9 @@ model User {
   orders                  Order[]
   refundRequests          Refund[] @relation("RefundRequester")
   refundDecisions         Refund[] @relation("RefundDecider")
+  reviews                 Review[] @relation("ReviewAuthor")
+  moderatedReviews       Review[] @relation("ReviewModerator")
+  reviewReports           ReviewReport[] @relation("ReviewReporter")
 
   @@map("users")
 }
@@ -168,6 +171,7 @@ model Work {
   editions      Edition[]
   wishlistItems WishlistItem[]
   bundleItems   BundleItem[]
+  reviews       Review[]
 
   @@index([title])
   @@index([authorId])
@@ -182,6 +186,49 @@ model WorkCategory {
 
   @@id([workId, categoryId])
   @@map("work_categories")
+}
+
+enum ReviewReportStatus {
+  OPEN
+  DISMISSED
+  ACTIONED
+}
+
+model Review {
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  workId           String    @map("work_id")
+  rating           Int
+  comment          String    @db.VarChar(2000)
+  isVisible        Boolean   @default(true) @map("is_visible")
+  moderationReason String?   @map("moderation_reason") @db.VarChar(500)
+  moderatedById    String?   @map("moderated_by_id")
+  moderatedAt      DateTime? @map("moderated_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user             User      @relation("ReviewAuthor", fields: [userId], references: [id], onDelete: Restrict)
+  work             Work      @relation(fields: [workId], references: [id], onDelete: Cascade)
+  moderator        User?     @relation("ReviewModerator", fields: [moderatedById], references: [id], onDelete: SetNull)
+  reports          ReviewReport[]
+
+  @@unique([userId, workId])
+  @@index([workId, isVisible, createdAt])
+  @@map("reviews")
+}
+
+model ReviewReport {
+  id         String             @id @default(uuid())
+  reviewId   String             @map("review_id")
+  reporterId String             @map("reporter_id")
+  reason     String             @db.VarChar(500)
+  status     ReviewReportStatus @default(OPEN)
+  createdAt  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  review     Review             @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter   User               @relation("ReviewReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+
+  @@unique([reviewId, reporterId])
+  @@index([status, createdAt])
+  @@map("review_reports")
 }
 
 enum EditionFormat {

@@ -31,7 +31,6 @@ try {
   const suffix = `${Date.now()}-${randomUUID().slice(0, 8)}`;
   const stockEmail = `task021-stock-${randomUUID().slice(0, 12)}@example.invalid`;
   const stockPassword = randomUUID() + randomUUID();
-  const stockPasswordHash = await bcrypt.hash(stockPassword, 10);
   const fixtures = await prisma.$transaction(async (tx) => {
     const ensureSyntheticUser = async (email, password, role) => {
       const existing = await tx.user.findUnique({ where: { email } });

@@ -215,7 +215,7 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 | `GET /library`, `POST /library/{id}/download` | Biblioteca e link temporário | RF-013–014 |
 | `PATCH /inventory`, `PATCH /orders/{id}/shipping` | Estoque/expedição autorizados | RF-007,017 |
 | `POST /orders/{id}/cancel`, `/refund` | Cancelamento e reembolso | RF-018 |
-| `POST /works/{id}/reviews`, `POST /reviews/{id}/reports`, `DELETE /admin/reviews/{id}` | Avaliação/moderação | RF-019 |
+| `GET/POST /works/{id}/reviews`, `POST /reviews/{id}/reports`, `GET /admin/review-reports`, `DELETE /admin/reviews/{id}` | Avaliação/moderação | RF-019,022 |
 | `GET /admin/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` | Indicadores por papel | RF-021 |
 
 Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.

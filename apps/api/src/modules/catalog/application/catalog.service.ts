@@ -17,10 +17,17 @@ export function validIsbn(value?: string | null): boolean {
 @Injectable()
 export class CatalogService {
   constructor(private readonly prisma: PrismaService) {}
-  async list(query: { search?: string; category?: string; visibleOnly?: boolean }) {
-    return this.prisma.work.findMany({ where: { isVisible: query.visibleOnly !== false ? true : undefined, OR: query.search ? [{ title: { contains: query.search, mode: "insensitive" } }, { author: { name: { contains: query.search, mode: "insensitive" } } }] : undefined, categories: query.category ? { some: { category: { name: query.category } } } : undefined }, include: { author: true, publisher: true, categories: { include: { category: true } }, editions: true }, orderBy: { title: "asc" } });
+  private async withReviewSummary<T extends { id: string }>(work: T) {
+    const summary = await this.prisma.review.aggregate({ where: { workId: work.id, isVisible: true }, _avg: { rating: true }, _count: { _all: true } });
+    return { ...work, averageRating: summary._avg.rating, reviewCount: summary._count._all };
   }
-  async get(slug: string, includeHidden = false) { const item = await this.prisma.work.findFirst({ where: { slug, isVisible: includeHidden ? undefined : true }, include: { author: true, publisher: true, categories: { include: { category: true } }, editions: true } }); if (!item) throw new NotFoundException("Obra não encontrada"); return item; }
+  async list(query: { search?: string; category?: string; visibleOnly?: boolean }) {
+    const works = await this.prisma.work.findMany({ where: { isVisible: query.visibleOnly !== false ? true : undefined, OR: query.search ? [{ title: { contains: query.search, mode: "insensitive" } }, { author: { name: { contains: query.search, mode: "insensitive" } } }] : undefined, categories: query.category ? { some: { category: { name: query.category } } } : undefined }, include: { author: true, publisher: true, categories: { include: { category: true } }, editions: true }, orderBy: { title: "asc" } });
+    const summaries = works.length ? await this.prisma.review.groupBy({ by: ["workId"], where: { workId: { in: works.map((work) => work.id) }, isVisible: true }, _avg: { rating: true }, _count: { _all: true } }) : [];
+    const byWorkId = new Map(summaries.map((summary) => [summary.workId, summary]));
+    return works.map((work) => { const summary = byWorkId.get(work.id); return { ...work, averageRating: summary?._avg.rating ?? null, reviewCount: summary?._count._all ?? 0 }; });
+  }
+  async get(slug: string, includeHidden = false) { const item = await this.prisma.work.findFirst({ where: { slug, isVisible: includeHidden ? undefined : true }, include: { author: true, publisher: true, categories: { include: { category: true } }, editions: true } }); if (!item) throw new NotFoundException("Obra não encontrada"); return this.withReviewSummary(item); }
   async upsert(input: WorkInput, id?: string) {
     if (!input.title || !input.author || !input.publisher || !input.synopsis || !input.releaseDate || !input.editions?.length) throw new BadRequestException("Metadados e ao menos uma edição são obrigatórios");
     if (input.isbn && !validIsbn(input.isbn)) throw new BadRequestException("ISBN inválido");
