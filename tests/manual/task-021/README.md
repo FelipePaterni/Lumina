@@ -50,7 +50,7 @@ Após aprovação do escopo e dos gates automatizados, o runner deverá validar:
 
 ## Preparação e execução manual
 
-Configure as variáveis abaixo em memória na sessão PowerShell, usando contas `@example.invalid` e a URL apenas do banco sintético `lumina_task009_test`: `TASK009_TEST_DATABASE_URL`, `TASK021_CUSTOMER_1_EMAIL` e `TASK021_CUSTOMER_2_EMAIL`. Use duas contas CUSTOMER distintas, uma conta STOCK e uma conta ADMIN como `PSCredential`; os valores não são impressos nem persistidos pelo runner. A API local deve estar conectada ao mesmo banco de teste e ter migrations aplicadas.
+O preparador e o verificador carregam o `.env` da raiz automaticamente sem imprimir valores. Configure nele `TASK009_TEST_DATABASE_URL` apontando para `lumina_task009_test` e use `TEST_CUSTOMER_1_EMAIL`/`TEST_CUSTOMER_2_EMAIL` (ou os nomes `TASK021_CUSTOMER_*`) com duas contas sintéticas `@example.invalid`. O endereço do banco deve existir e estar acessível; o script não cria bancos nem inicia serviços. Use uma conta STOCK e uma ADMIN como `PSCredential`; mantenha as senhas somente na sessão PowerShell. A API local deve estar conectada ao mesmo banco de teste e ter migrations aplicadas.
 
 ```powershell
 $fixtureJson = node ./tests/manual/task-021/prepare-task-021-manual.mjs

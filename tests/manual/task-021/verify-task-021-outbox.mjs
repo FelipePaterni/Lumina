@@ -1,13 +1,12 @@
 import assert from "node:assert/strict";
 import process from "node:process";
-import { URL } from "node:url";
 import { PrismaClient } from "@prisma/client";
+import { getTaskDatabaseUrl, loadLocalEnvironment } from "./manual-environment.mjs";
 
-const databaseUrl = process.env.TASK009_TEST_DATABASE_URL;
+loadLocalEnvironment();
+const databaseUrl = getTaskDatabaseUrl();
 const orderId = process.argv[2];
-assert.ok(databaseUrl && orderId, "Informe TASK009_TEST_DATABASE_URL e um pedido sintético.");
-const parsedUrl = new URL(databaseUrl);
-assert.equal(decodeURIComponent(parsedUrl.pathname.slice(1)), "lumina_task009_test", "A verificação só consulta a base isolada lumina_task009_test.");
+assert.ok(orderId, "Informe um pedido sintético.");
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 try {
   const rows = await prisma.outboxEmail.findMany({

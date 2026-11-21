@@ -1,17 +1,20 @@
 import assert from "node:assert/strict";
 import process from "node:process";
 import { randomUUID } from "node:crypto";
-import { URL } from "node:url";
 import { PrismaClient } from "@prisma/client";
+import { getTaskCustomerEmails, getTaskDatabaseUrl, loadLocalEnvironment } from "./manual-environment.mjs";
 
-const databaseUrl = process.env.TASK009_TEST_DATABASE_URL;
-const customer1Email = process.env.TASK021_CUSTOMER_1_EMAIL?.trim().toLowerCase();
-const customer2Email = process.env.TASK021_CUSTOMER_2_EMAIL?.trim().toLowerCase();
-assert.ok(databaseUrl, "Configure TASK009_TEST_DATABASE_URL para o banco isolado.");
-assert.ok(customer1Email && customer2Email && customer1Email !== customer2Email, "Configure dois CUSTOMER sintéticos distintos para TASK-021.");
-assert.ok(customer1Email.endsWith("@example.invalid") && customer2Email.endsWith("@example.invalid"), "Contas sintéticas devem usar o domínio reservado example.invalid.");
-const parsedUrl = new URL(databaseUrl);
-assert.equal(decodeURIComponent(parsedUrl.pathname.slice(1)), "lumina_task009_test", "O preparador só pode escrever na base isolada lumina_task009_test.");
+loadLocalEnvironment();
+let databaseUrl;
+let customer1Email;
+let customer2Email;
+try {
+  databaseUrl = getTaskDatabaseUrl();
+  ({ customer1Email, customer2Email } = getTaskCustomerEmails());
+} catch (error) {
+  process.stderr.write(`BLOQUEADO: ${error instanceof Error ? error.message : "Configuração manual inválida."}\n`);
+  process.exit(2);
+}
 
 const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 try {
