@@ -265,7 +265,7 @@ Recomendação: ampliar explicitamente `ALLOWED_CHANGES` para `database/schema.p
 Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `ALLOWED_CHANGES` acima; a guarda de expedição será implementada na TASK-021 junto ao fluxo logístico, sem permitir expedição antecipada.
 
 ### TASK-019 — Cancelamentos e reembolsos
-**Status:** IN_REVIEW · **Phase:** PHASE-04 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-04 · **Priority:** HIGH
 **Objetivo:** Aplicar regras automáticas digitais e decisão administrativa/estado físico.
 **Dependências:** `DEPENDS_ON: TASK-017, TASK-018`
 **Relacionados:** RF-018; RN-013–015,017.
@@ -275,9 +275,10 @@ Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `AL
 **Aceitação/testes:** janelas 2h/2 semanas/1 semana; reembolso digital revoga acesso e restaura licença limitada; físico pré-envio e estoque restaurado somente após devolução confirmada; Admin auditado.
 **DoD específico:** exceção não permite violar janela sem Admin.
 **Prontidão:** READY em 2026-11-20 após confirmação de TASK-017 e TASK-018 como DONE, evidências e gates disponíveis, RN/UC/aceitação/Scope Guard definidos e ADR-003/005 aceitos. Sem pendências bloqueantes; o responsável autorizou a promoção para READY e início.
-**Gates:** GATE-001 a GATE-004 APROVADOS. GATE-005 BLOQUEADO: testes de integração ainda não executaram (PostgreSQL indisponível na sessão do agente); build geral, lint, unidade, Prisma validate, sintaxe PowerShell e diff check passaram. GATE-006 REPROVADO na última tentativa: o fluxo alcançou a API, mas a constraint antiga `payments_status_amount_check` rejeitou `REFUNDED`; migration corretiva `20261121120000_task_019_payment_refund_check` adicionada, aguardando reexecução e aprovação humana. A tentativa anterior com UUIDs placeholder foi rejeitada antes de alterar dados. Relatório sanitizado em `docs/testing/TASK-019-testes-manuais-resultado.md`. GATE-007 PENDENTE. Evidências em `docs/testing/TASK-019-planejamento-e-gates.md`.
+**Gates:** GATE-001 a GATE-007 APROVADOS em 2026-11-21. Build completo, lint, Prisma validate, testes unitários (69/69), integração (10/10), sintaxe PowerShell e diff check passaram. Quatro cenários manuais aprovados pelo responsável; verificação suplementar confirmou reposição de estoque e movimento físico. Scope Guard e DoD validados. Evidências em `docs/testing/TASK-019-planejamento-e-gates.md` e `docs/testing/TASK-019-testes-manuais-resultado.md`.
 **Decisão de cálculo:** desconto do cupom será rateado proporcionalmente entre linhas, com distribuição determinística dos centavos restantes; frete não integra o reembolso. Decisão aprovada pelo responsável em 2026-11-20.
 **Plano GATE-003:** adicionar registro persistente por linha de pedido com quantidade, valor, solicitante, decisão, estado, motivos e timestamps; estado de fulfillment no pedido (`NOT_REQUIRED`, `PENDING`, `PICKING`, `SHIPPED`, `DELIVERED`) e trilha de retorno no reembolso, compatíveis com TASK-021; estado/valor reembolsado no pagamento e movimento de reposição física. Rotas do cliente solicitam cancelamento; Admin decide exceções/físicos e confirma devolução. Operações de auditoria, reembolso e estoque/licença usam a mesma transação com locks e idempotência. Biblioteca e pedidos excluem direitos já reembolsados; link temporário emitido anteriormente volta a validar o direito antes de entregar a cópia. Cobertura: regras unitárias, integração com banco sintético e roteiro manual PowerShell com relatório sanitizado.
+**Conclusão:** DONE após aprovação humana e revisão final em 2026-11-21. Commits exclusivos: `dca7453`, `d381df2`, `349a078`, `84e467f`, `8537ced`, `a3dbcee`, `a8a7fb8`, `ef6d2e7`, `bd1f7ef`. Mudanças primárias autorizadas em orders/refunds/library/audit, schema/migrations e testes; documentação de evidências em `docs/testing/` incidental mínima, exigida por `AGENTS.md`. Nenhuma mudança proibida. TASK-020 continua aguardando autorização própria.
 
 ## SCOPE ESCALATION
 TASK: TASK-019
