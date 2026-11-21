@@ -22,7 +22,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | DONE |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | DONE |
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
-| 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
+| 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | IN_PROGRESS |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -265,7 +265,7 @@ Recomendação: ampliar explicitamente `ALLOWED_CHANGES` para `database/schema.p
 Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `ALLOWED_CHANGES` acima; a guarda de expedição será implementada na TASK-021 junto ao fluxo logístico, sem permitir expedição antecipada.
 
 ### TASK-019 — Cancelamentos e reembolsos
-**Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
+**Status:** IN_PROGRESS · **Phase:** PHASE-04 · **Priority:** HIGH
 **Objetivo:** Aplicar regras automáticas digitais e decisão administrativa/estado físico.
 **Dependências:** `DEPENDS_ON: TASK-017, TASK-018`
 **Relacionados:** RF-018; RN-013–015,017.
@@ -274,6 +274,7 @@ Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `AL
 **FORBIDDEN_CHANGES:** gateway real; regras legais não aprovadas.
 **Aceitação/testes:** janelas 2h/2 semanas/1 semana; reembolso digital revoga acesso e restaura licença limitada; físico pré-envio e estoque restaurado somente após devolução confirmada; Admin auditado.
 **DoD específico:** exceção não permite violar janela sem Admin.
+**Prontidão:** READY em 2026-11-20 após confirmação de TASK-017 e TASK-018 como DONE, evidências e gates disponíveis, RN/UC/aceitação/Scope Guard definidos e ADR-003/005 aceitos. Sem pendências bloqueantes; o responsável autorizou a promoção para READY e início.
 
 ### TASK-020 — Checkpoint PHASE-04
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** CRITICAL
