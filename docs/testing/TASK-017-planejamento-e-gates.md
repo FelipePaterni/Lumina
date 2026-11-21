@@ -57,8 +57,8 @@ Impacto: API nova; nenhuma migration; nenhuma página web obrigatória nos crit�
 | GATE-003 — Planejamento mínimo | APROVADO | Plano autorizado; dependências delimitadas, rollback e mitigação registrados. |
 | GATE-004 — Implementação controlada | APROVADO | Módulo de biblioteca, processamento PDF/EPUB, token temporário, storage privado e cobertura unitária adicionados; build API e testes unitários aprovados. |
 | GATE-005 — Revisão e gates automatizados | APROVADO | `npm test` 59/59, lint, build geral e integração 8/8 aprovados. Integração usou exclusivamente `lumina_task009_test`; build e integração executados fora do sandbox para acesso local/escrita. |
-| GATE-006 — Testes manuais | PENDENTE | MT-017-01 a MT-017-03 passaram. MT-017-04 foi bloqueado ao gravar a resposta binária com `Invoke-WebRequest -OutFile`; runner agora usa `HttpClient` e grava bytes após HTTP 200. Repetir e inspecionar a cópia para concluir GATE-006. |
-| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da aprovação humana de GATE-006. |
+| GATE-006 — Testes manuais | APROVADO | MT-017-01 a MT-017-04 aprovados. O responsável inspecionou a cópia PDF e aprovou a legibilidade dos três campos; evidência sanitizada registrada no relatório manual. |
+| GATE-007 — Conclusão e rastreabilidade | APROVADO | Critérios, DoD, Scope Guard, alterações incidentais, testes, revisão humana, branch e commits conferidos; TASKS.md atualizado para DONE. |
 
 ## Scope Guard
 
@@ -76,4 +76,10 @@ Testes unitários cobrem PDF, EPUB, arquivos inválidos, token adulterado/expira
 
 ## GATE-006 — Testes manuais
 
-**Estado: PENDENTE.** O roteiro `tests/manual/task-017/README.md` e o runner `run-task-017-manual-tests.ps1` foram criados; o parser PowerShell confirmou sintaxe válida. Cenários continuam `BLOQUEADO` (ainda não executados), pois dependem de API local, compra sintética e inspeção humana da cópia personalizada. O relatório correspondente não declara aprovação.
+**Estado: APROVADO em 2026-11-21.** MT-017-01 a MT-017-04 passaram. O responsável inspecionou a cópia PDF temporária e confirmou que nome, e-mail e identificador de compra estão legíveis. Evidência sanitizada em `docs/testing/TASK-017-testes-manuais-resultado.md`; valores e arquivo não foram armazenados no relatório.
+
+## GATE-007 — Conclusão e rastreabilidade
+
+**Estado: APROVADO em 2026-11-21.** Critérios de aceitação e DoD atendidos; GATE-001 a GATE-006 aprovados; Scope Guard validado. Alterações primárias cobertas pela ampliação autorizada para manifestos; único incidental de código é o registro do módulo em `apps/api/src/app.module.ts`, documentado. Não houve migrations, alterações de schema, DRM, exposição de originais ou reembolso. Relatórios e `TASKS.md` atualizados; commits exclusivos da TASK-017 na branch `feature/TASK-017-biblioteca-download-watermark`.
+
+**Matriz final de gates:** GATE-001 APROVADO; GATE-002 APROVADO; GATE-003 APROVADO; GATE-004 APROVADO; GATE-005 APROVADO; GATE-006 APROVADO; GATE-007 APROVADO.
