@@ -21,6 +21,7 @@ import {
   WatermarkProcessingError,
   WatermarkService,
 } from "../watermark/watermark.service.js";
+import { assertPreorderReleased, preorderAvailability, PreorderReleaseError } from "../preorders/preorder.rules.js";
 
 const purchaseInclude = {
   order: {
@@ -111,7 +112,7 @@ export class LibraryService {
         purchasedAt: purchase.order.createdAt,
         releaseAt,
         downloadAvailable:
-          releaseAt.getTime() <= now.getTime() &&
+          preorderAvailability(releaseAt, now) === "RELEASED" &&
           original !== null &&
           this.isSupportedMimeType(original.mimeType),
       };
@@ -136,8 +137,10 @@ export class LibraryService {
     if (!purchase || purchase.edition.format !== EditionFormat.DIGITAL) {
       throw new NotFoundException("E-book adquirido não encontrado");
     }
-    if (purchase.edition.work.releaseDate.getTime() > now.getTime()) {
-      throw new ConflictException("O e-book ainda não foi liberado");
+    try { assertPreorderReleased(purchase.edition.work.releaseDate, now); }
+    catch (error) {
+      if (error instanceof PreorderReleaseError) throw new ConflictException("O e-book ainda não foi liberado");
+      throw error;
     }
 
     const original = this.latestOriginal(purchase);

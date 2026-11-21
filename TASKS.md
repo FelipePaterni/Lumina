@@ -21,7 +21,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | DONE |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | DONE |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | DONE |
-| 18 | TASK-018 | PHASE-04 | HIGH | 017 | BLOCKED |
+| 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -235,15 +235,34 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** DONE em 2026-11-21 após aprovação humana dos quatro cenários manuais e inspeção da cópia PDF. GATE-001 a GATE-007 aprovados. Testes 59/59; integração 8/8 no banco isolado; lint, build geral, build API e sintaxe PowerShell passaram. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Branch `feature/TASK-017-biblioteca-download-watermark`; commits exclusivos registrados no histórico.
 
 ### TASK-018 — Bundles e pré-vendas
-**Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-04 · **Priority:** HIGH
 **Objetivo:** Implementar composição, preço proporcional e liberação de pré-vendas físicas/digitais.
 **Dependências:** `DEPENDS_ON: TASK-017`
 **Relacionados:** RF-015,016; RN-006,007,012,013.
 **Artefatos esperados:** agregados/regras de bundle e agenda de lançamento.
-**ALLOWED_CHANGES:** `modules/bundles/**`; `modules/preorders/**`; `modules/orders/**`; `modules/library/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `modules/bundles/**`; `modules/preorders/**`; `modules/orders/**`; `modules/library/**`; `modules/cart/**` (integração mínima de carrinho); `database/schema.prisma`; `database/migrations/**`; `apps/api/src/app.module.ts` (registro mínimo dos módulos); `tests/**`; `docs/testing/TASK-018-*.md`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** descontos não especificados; expedição antes de lançamento.
 **Aceitação/testes:** composição duplicada falha; desconto nunca negativo; todos possuídos bloqueia; liberação só na data.
 **DoD específico:** compra de bundle concede cada item separadamente.
+**Decisão de escopo:** em 2026-11-20, o responsável aprovou ampliar `ALLOWED_CHANGES` para schema/migrations, integração do carrinho, registro mínimo em `app.module.ts` e relatório `docs/testing/TASK-018-*.md`. A guarda concreta de expedição será aplicada quando o fluxo logístico for criado na TASK-021; até lá, o serviço de pré-vendas expõe a regra temporal comum e a biblioteca a aplica aos downloads digitais.
+**Gates:** GATE-001 a GATE-005 APROVADOS. `npm run build`, `npm run lint`, `npm test` (64/64), `npm run test:integration` (9/9), `prisma validate`, sintaxe do runner PowerShell e `git diff --check` passaram. Evidências em `docs/testing/TASK-018-planejamento-e-gates.md`.
+**GATE-006:** APROVADO pelo responsável em 2026-11-20 após revisar o relatório. Na execução aprovada, MT-018-01 a MT-018-04 passaram usando as contas ADMIN e os dois CUSTOMER do `.env` contra API isolada em `localhost:3002`/`lumina_task009_test`. Uma repetição posterior foi bloqueada porque as compras sintéticas da execução anterior já haviam alterado a posse das contas; o roteiro e o relatório registram essa condição. Evidências em `docs/testing/TASK-018-testes-manuais-resultado.md` e `tests/manual/task-018/`.
+**GATE-007:** APROVADO em 2026-11-20. Definition of Done satisfeita; Scope Guard validado; evidências, gates e commits exclusivos registrados. TASK-018 concluída.
+**Prontidão:** READY em 2026-11-20; dependência TASK-017 verificada como DONE, com gates GATE-001 a GATE-007 aprovados e evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Iniciada após autorização do responsável.
+**Conclusão:** DONE em 2026-11-20 após aprovação humana dos quatro cenários manuais. GATE-001 a GATE-007 aprovados; build, lint, testes unitários (64/64), integração (9/9), Prisma validate, parser PowerShell e `git diff --check` passaram. Scope Guard cumprido; sem mudanças incidentais. Commits TASK-018: `dd6317b`, `8746e32`, `3275672`, `0d1fa9b`, `ef21cc0`, `57f8f49`.
+
+## SCOPE ESCALATION
+TASK: TASK-018
+Necessidade identificada: persistir composição de bundles e ligar a compra do bundle à concessão de cada edição; também documentar o relatório dos testes manuais.
+Motivo: o schema atual não possui entidades de bundle e o checkout aceita somente edições no carrinho. O fluxo de logística física ainda não existe; a liberação antecipada precisa ser impedida quando expedição for implementada. O roteiro operacional exige relatório sanitizado em `docs/testing/`.
+Arquivos/módulos afetados: `database/schema.prisma`, `database/migrations/**`, `apps/api/src/modules/cart/**`, `apps/api/src/app.module.ts`, `apps/api/src/modules/bundles/**`, `apps/api/src/modules/preorders/**`, `apps/api/src/modules/orders/**`, `apps/api/src/modules/library/**`, `tests/**`, `docs/testing/TASK-018-*.md`.
+Allowed Changes atual: `modules/bundles/**`; `modules/preorders/**`; `modules/orders/**`; `modules/library/**`; `tests/**`; `TASKS.md`.
+Forbidden Changes relacionado: expedição antes de lançamento; descontos não especificados.
+Por que não é incidental: schema/migrations e integração do carrinho alteram contratos e persistência, sendo necessárias para a funcionalidade; relatório em `docs/testing/` está fora dos caminhos permitidos.
+Impacto se não realizada: bundles não podem ser compostos e comprados com preço recalculado de forma persistente nem conceder direitos item a item com segurança; a validação manual não consegue cumprir o padrão operacional de evidência.
+Alternativas: ampliar `ALLOWED_CHANGES` para schema/migrations e carrinho/registro do módulo e autorizar `docs/testing/TASK-018-*.md`; ou aprovar uma arquitetura alternativa que não exija persistência de bundles e definir como será o relatório manual.
+Recomendação: ampliar explicitamente `ALLOWED_CHANGES` para `database/schema.prisma`, `database/migrations/**`, `apps/api/src/modules/cart/**`, `apps/api/src/app.module.ts` (registro mínimo), e `docs/testing/TASK-018-*.md`. Incluir ainda a guarda do lançamento na transição de expedição quando o módulo de logística for introduzido, sem permitir expedição antecipada.
+Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `ALLOWED_CHANGES` acima; a guarda de expedição será implementada na TASK-021 junto ao fluxo logístico, sem permitir expedição antecipada.
 
 ### TASK-019 — Cancelamentos e reembolsos
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH

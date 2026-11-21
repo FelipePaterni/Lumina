@@ -5,11 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { EditionFormat, Prisma } from "@prisma/client";
+import { EditionFormat, OrderStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../../infrastructure/persistence/prisma.service.js";
 import { CouponService } from "../coupons/coupon.service.js";
 import { LibraryOwnershipService } from "../library/ownership/library-ownership.service.js";
 import { ShippingService } from "../shipping/shipping.service.js";
+import { BundleRuleError, calculateBundlePrice } from "../bundles/bundle.rules.js";
+import { preorderAvailability } from "../preorders/preorder.rules.js";
 import { formatBrl } from "./money.js";
 import {
   ShippingAddressInput,
@@ -28,6 +30,28 @@ const cartInclude = {
       },
     },
     orderBy: { createdAt: "asc" },
+  },
+  bundles: {
+    include: {
+      bundle: {
+        include: {
+          items: {
+            orderBy: { workId: "asc" as const },
+            include: {
+              work: {
+                include: {
+                  editions: {
+                    where: { format: EditionFormat.DIGITAL },
+                    include: { inventory: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "asc" as const },
   },
 } satisfies Prisma.CartInclude;
 
@@ -54,7 +78,7 @@ export class CartService {
       where: { id: cart.id },
       include: cartInclude,
     });
-    return this.present(result);
+    return this.present(result, userId);
   }
 
   async add(userId: string, editionId: string, quantity: number) {
@@ -64,6 +88,10 @@ export class CartService {
       if (quantity !== 1) throw new BadRequestException("E-book aceita somente uma unidade");
       if (await this.ownership.ownsEdition(userId, editionId)) {
         throw new ConflictException("Você já possui este e-book");
+      }
+      const currentCart = await this.prisma.cart.findUnique({ where: { id: (await this.ensureCart(userId)).id }, include: cartInclude });
+      if (currentCart?.bundles.some((entry) => entry.bundle.items.some((item) => item.work.editions[0]?.id === editionId))) {
+        throw new ConflictException("Este e-book já está incluído em um bundle do carrinho");
       }
     } else {
       const cart = await this.ensureCart(userId);
@@ -90,6 +118,48 @@ export class CartService {
       }
       throw error;
     }
+    return this.get(userId);
+  }
+
+  async addBundle(userId: string, bundleId: string) {
+    if (!this.isUuid(bundleId)) throw new BadRequestException("Identificador de bundle inválido");
+    const cart = await this.ensureCart(userId);
+    const current = await this.prisma.cart.findUniqueOrThrow({ where: { id: cart.id }, include: cartInclude });
+    const bundle = current.bundles.find((entry) => entry.bundleId === bundleId)?.bundle ??
+      await this.prisma.bundle.findFirst({
+        where: { id: bundleId, isActive: true },
+        include: cartInclude.bundles.include.bundle.include,
+      });
+    if (!bundle || !bundle.isActive || bundle.items.length < 2) throw new NotFoundException("Bundle não encontrado");
+
+    const bundleEditionIds = bundle.items.map((item) => item.work.editions[0]?.id).filter((id): id is string => Boolean(id));
+    if (bundleEditionIds.length !== bundle.items.length || bundle.items.some((item) => !item.work.isVisible || !item.work.editions[0]?.isVisible)) {
+      throw new ConflictException("O bundle não está mais disponível");
+    }
+    if (current.items.some((item) => bundleEditionIds.includes(item.editionId))) {
+      throw new ConflictException("Um e-book do bundle já está no carrinho");
+    }
+    try {
+      await this.bundleQuote(userId, bundle);
+    } catch (error) {
+      if (error instanceof BundleRuleError && error.code === "ALL_ITEMS_OWNED") {
+        throw new ConflictException("Você já possui todos os e-books deste bundle");
+      }
+      throw error;
+    }
+    try {
+      await this.prisma.cartBundle.create({ data: { cartId: cart.id, bundleId } });
+    } catch (error) {
+      if (this.prismaCode(error) === "P2002") throw new ConflictException("Este bundle já está no carrinho");
+      throw error;
+    }
+    return this.get(userId);
+  }
+
+  async removeBundle(userId: string, bundleId: string) {
+    const cart = await this.ensureCart(userId);
+    const result = await this.prisma.cartBundle.deleteMany({ where: { cartId: cart.id, bundleId } });
+    if (result.count === 0) throw new NotFoundException("Bundle não encontrado no carrinho");
     return this.get(userId);
   }
 
@@ -124,7 +194,7 @@ export class CartService {
   async applyCoupon(userId: string, code: string) {
     const cart = await this.ensureCart(userId);
     const current = await this.prisma.cart.findUniqueOrThrow({ where: { id: cart.id }, include: cartInclude });
-    const subtotalCents = this.subtotal(current);
+    const subtotalCents = await this.subtotal(current, userId);
     const preview = await this.coupons.preview(code, subtotalCents);
     await this.prisma.cart.update({ where: { id: cart.id }, data: { couponId: preview.id } });
     return this.get(userId);
@@ -147,9 +217,9 @@ export class CartService {
     const postalCode = validateShippingAddress(address);
     const quote = await this.shipping.quote(postalCode, physicalQuantity);
     const discountCents = cart.coupon
-      ? (await this.coupons.preview(cart.coupon.code, this.subtotal(cart))).discountCents
+      ? (await this.coupons.preview(cart.coupon.code, await this.subtotal(cart, userId))).discountCents
       : 0;
-    const totals = this.totals(cart, quote.priceCents, discountCents);
+    const totals = this.totals(await this.subtotal(cart, userId), quote.priceCents, discountCents);
     return {
       physicalQuantity,
       ...totals,
@@ -161,8 +231,34 @@ export class CartService {
     return this.prisma.cart.findUniqueOrThrow({ where: { id: cart.id }, include: cartInclude });
   }
 
-  private async present(cart: Prisma.CartGetPayload<{ include: typeof cartInclude }>) {
-    const subtotalCents = this.subtotal(cart);
+  private async present(cart: Prisma.CartGetPayload<{ include: typeof cartInclude }>, userId: string) {
+    const bundleLines = await Promise.all(cart.bundles.map(async (entry) => {
+      if (!entry.bundle.isActive || entry.bundle.items.some((item) => !item.work.isVisible || !item.work.editions[0]?.isVisible)) {
+        return { bundleId: entry.bundle.id, name: entry.bundle.name, available: false, items: [], listPriceCents: entry.bundle.priceCents, ownershipAdjustmentCents: 0, priceCents: 0 };
+      }
+      try {
+        const quote = await this.bundleQuote(userId, entry.bundle);
+        return {
+          bundleId: entry.bundle.id,
+          name: entry.bundle.name,
+          available: entry.bundle.isActive,
+          items: entry.bundle.items.map((item) => ({
+            workId: item.workId,
+            title: item.work.title,
+            editionId: item.work.editions[0]?.id ?? null,
+            releaseAt: item.work.releaseDate,
+            preorderStatus: preorderAvailability(item.work.releaseDate),
+          })),
+          listPriceCents: entry.bundle.priceCents,
+          ownershipAdjustmentCents: quote.ownershipAdjustmentCents,
+          priceCents: quote.chargedPriceCents,
+        };
+      } catch (error) {
+        if (!(error instanceof BundleRuleError) || error.code !== "ALL_ITEMS_OWNED") throw error;
+        return { bundleId: entry.bundle.id, name: entry.bundle.name, available: false, items: [], listPriceCents: entry.bundle.priceCents, ownershipAdjustmentCents: 0, priceCents: 0 };
+      }
+    }));
+    const subtotalCents = await this.subtotal(cart, userId);
     let discountCents = 0;
     let coupon: { code: string; discountCents: number } | null = null;
     let couponError: string | null = null;
@@ -184,6 +280,8 @@ export class CartService {
         editionId: edition.id,
         workTitle: available ? edition.work.title : "Edição indisponível",
         format: edition.format,
+        releaseAt: edition.work.releaseDate,
+        preorderStatus: preorderAvailability(edition.work.releaseDate),
         quantity: item.quantity,
         available,
         unitPriceCents,
@@ -192,24 +290,30 @@ export class CartService {
         lineTotalAmount: formatBrl(unitPriceCents * item.quantity),
       };
     });
-    const totals = this.totals(cart, 0, discountCents);
-    return { items, coupon, couponError, ...totals };
+    const totals = this.totals(subtotalCents, 0, discountCents);
+    return { items, bundles: bundleLines, coupon, couponError, ...totals };
   }
 
-  private subtotal(cart: Prisma.CartGetPayload<{ include: typeof cartInclude }>): number {
-    return cart.items.reduce((sum, item) =>
+  private async subtotal(cart: Prisma.CartGetPayload<{ include: typeof cartInclude }>, userId: string): Promise<number> {
+    const itemSubtotal = cart.items.reduce((sum, item) =>
       item.edition.isVisible && item.edition.work.isVisible
         ? sum + item.edition.priceCents * item.quantity
         : sum,
     0);
+    let bundleSubtotal = 0;
+    for (const entry of cart.bundles) {
+      if (!entry.bundle.isActive || entry.bundle.items.some((item) => !item.work.isVisible || !item.work.editions[0]?.isVisible)) continue;
+      try { bundleSubtotal += (await this.bundleQuote(userId, entry.bundle)).chargedPriceCents; }
+      catch (error) { if (!(error instanceof BundleRuleError && error.code === "ALL_ITEMS_OWNED")) throw error; }
+    }
+    return itemSubtotal + bundleSubtotal;
   }
 
   private totals(
-    cart: Prisma.CartGetPayload<{ include: typeof cartInclude }>,
+    subtotalCents: number,
     shippingCents: number,
     knownDiscountCents?: number,
   ) {
-    const subtotalCents = this.subtotal(cart);
     const discountCents = knownDiscountCents ?? 0;
     const totalCents = subtotalCents - discountCents + shippingCents;
     return {
@@ -255,5 +359,32 @@ export class CartService {
     if ((edition.inventory?.physicalStock ?? 0) < requestedQuantity) {
       throw new ConflictException("Quantidade indisponível no estoque físico");
     }
+  }
+
+  private async bundleQuote(userId: string, bundle: Prisma.BundleGetPayload<{ include: typeof cartInclude.bundles.include.bundle.include }>) {
+    const items = bundle.items.map((item) => {
+      const edition = item.work.editions[0];
+      if (!edition || !edition.inventory) throw new ConflictException("Uma edição digital do bundle não está disponível");
+      return { editionId: edition.id, currentPriceCents: edition.priceCents, owned: false };
+    });
+    const ownedLibraryIds = this.prisma.libraryItem.findMany({
+      where: { userId, editionId: { in: items.map((item) => item.editionId) } },
+      select: { editionId: true },
+    });
+    const ownedPurchaseIds = this.prisma.orderItem.findMany({
+      where: { editionId: { in: items.map((item) => item.editionId) }, format: EditionFormat.DIGITAL, order: { userId, status: OrderStatus.CONFIRMED } },
+      select: { editionId: true },
+    });
+    const [libraryItems, purchases] = await Promise.all([ownedLibraryIds, ownedPurchaseIds]);
+    const owned = new Set([...libraryItems.map((item) => item.editionId), ...purchases.map((item) => item.editionId)]);
+    return calculateBundlePrice(bundle.priceCents, items.map((item) => ({ ...item, owned: owned.has(item.editionId) })));
+  }
+
+  private isUuid(value: string) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }
+
+  private prismaCode(error: unknown): string | undefined {
+    return typeof error === "object" && error !== null && "code" in error && typeof error.code === "string" ? error.code : undefined;
   }
 }

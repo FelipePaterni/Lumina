@@ -165,6 +165,7 @@ model Work {
   categories    WorkCategory[]
   editions      Edition[]
   wishlistItems WishlistItem[]
+  bundleItems   BundleItem[]
 
   @@index([title])
   @@index([authorId])
@@ -234,6 +235,7 @@ model Cart {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
   items     CartItem[]
+  bundles   CartBundle[]
 
   @@index([couponId])
   @@map("carts")
@@ -252,6 +254,46 @@ model CartItem {
   @@unique([cartId, editionId])
   @@index([editionId])
   @@map("cart_items")
+}
+
+model Bundle {
+  id             String       @id @default(uuid())
+  name           String       @db.VarChar(120)
+  priceCents     Int          @map("price_cents")
+  compositionKey String       @unique @map("composition_key") @db.VarChar(64)
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  items          BundleItem[]
+  cartItems      CartBundle[]
+  purchases      OrderBundle[]
+
+  @@index([isActive, createdAt])
+  @@map("bundles")
+}
+
+model BundleItem {
+  bundleId String @map("bundle_id")
+  workId   String @map("work_id")
+  bundle   Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  work     Work   @relation(fields: [workId], references: [id], onDelete: Restrict)
+
+  @@id([bundleId, workId])
+  @@index([workId])
+  @@map("bundle_items")
+}
+
+model CartBundle {
+  id        String   @id @default(uuid())
+  cartId    String   @map("cart_id")
+  bundleId  String   @map("bundle_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  bundle    Bundle   @relation(fields: [bundleId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, bundleId])
+  @@index([bundleId])
+  @@map("cart_bundles")
 }
 
 model Coupon {
@@ -329,6 +371,7 @@ model Order {
   createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   user              User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   items             OrderItem[]
+  bundlePurchases   OrderBundle[]
   shippingAddress   ShippingAddress?
   payment           Payment?
 
@@ -340,6 +383,7 @@ model Order {
 model OrderItem {
   id              String       @id @default(uuid())
   orderId         String       @map("order_id")
+  bundlePurchaseId String?      @map("bundle_purchase_id")
   editionId       String       @map("edition_id")
   workTitle       String       @map("work_title")
   format          EditionFormat
@@ -347,11 +391,31 @@ model OrderItem {
   quantity        Int
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bundlePurchase  OrderBundle? @relation(fields: [bundlePurchaseId], references: [id], onDelete: SetNull)
   edition         Edition      @relation(fields: [editionId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([editionId])
+  @@index([bundlePurchaseId])
   @@map("order_items")
+}
+
+model OrderBundle {
+  id                     String      @id @default(uuid())
+  orderId                String      @map("order_id")
+  bundleId               String      @map("bundle_id")
+  bundleName             String      @map("bundle_name") @db.VarChar(120)
+  listPriceCents         Int         @map("list_price_cents")
+  ownershipAdjustmentCents Int       @map("ownership_adjustment_cents")
+  chargedPriceCents      Int         @map("charged_price_cents")
+  createdAt              DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  order                  Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bundle                 Bundle      @relation(fields: [bundleId], references: [id], onDelete: Restrict)
+  items                  OrderItem[]
+
+  @@index([orderId])
+  @@index([bundleId])
+  @@map("order_bundles")
 }
 
 model ShippingAddress {

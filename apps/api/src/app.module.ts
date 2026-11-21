@@ -9,6 +9,7 @@ import { WishlistModule } from "./modules/wishlist/wishlist.module.js";
 import { CartModule } from "./modules/cart/cart.module.js";
 import { OrderModule } from "./modules/orders/order.module.js";
 import { LibraryModule } from "./modules/library/library.module.js";
+import { BundleModule } from "./modules/bundles/bundle.module.js";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LibraryModule } from "./modules/library/library.module.js";
     CartModule,
     OrderModule,
     LibraryModule,
+    BundleModule,
   ],
 })
 export class AppModule {}
