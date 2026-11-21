@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../../infrastructure/persistence/prisma.service.js";
 import { Role } from "../../../identity/domain/role.enum.js";
 import { AuditLogEntity, CreateAuditLogParams } from "../../domain/audit-log.entity.js";
@@ -29,6 +30,24 @@ export class AuditService {
         error instanceof Error ? error.message : "Unknown error",
       );
     }
+  }
+
+  async logActionInTransaction(
+    tx: Prisma.TransactionClient,
+    params: CreateAuditLogParams,
+  ): Promise<void> {
+    const auditEntity = new AuditLogEntity(params);
+    await tx.auditLog.create({
+      data: {
+        actorId: auditEntity.actorId,
+        actorRole: auditEntity.actorRole as Role | null,
+        action: auditEntity.action,
+        targetType: auditEntity.targetType,
+        targetId: auditEntity.targetId,
+        reason: auditEntity.reason,
+        metadata: auditEntity.metadata,
+      },
+    });
   }
 
   async listLogs(params: {

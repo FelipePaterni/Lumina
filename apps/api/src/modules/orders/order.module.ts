@@ -4,10 +4,12 @@ import { PaymentModule } from "../payments/payment.module.js";
 import { NotificationModule } from "../notifications/notification.module.js";
 import { OrderController } from "./order.controller.js";
 import { OrderService } from "./order.service.js";
+import { RefundService } from "../refunds/refund.service.js";
+import { AuditModule } from "../audit/audit.module.js";
 
 @Module({
-  imports: [IdentityModule, PaymentModule, NotificationModule],
+  imports: [IdentityModule, PaymentModule, NotificationModule, AuditModule],
   controllers: [OrderController],
-  providers: [OrderService],
+  providers: [OrderService, RefundService],
 })
 export class OrderModule {}

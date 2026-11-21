@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { EditionFormat, OrderStatus, Prisma } from "@prisma/client";
+import { EditionFormat, OrderStatus, Prisma, RefundStatus } from "@prisma/client";
 import { PrismaService } from "../../infrastructure/persistence/prisma.service.js";
 import { AuditService } from "../audit/application/services/audit.service.js";
 import { Role } from "../identity/domain/role.enum.js";
@@ -95,7 +95,8 @@ export class LibraryService {
     const purchases = await this.prisma.orderItem.findMany({
       where: {
         format: EditionFormat.DIGITAL,
-        order: { userId, status: OrderStatus.CONFIRMED },
+        refunds: { none: { status: RefundStatus.PROCESSED } },
+        order: { userId, status: { in: [OrderStatus.CONFIRMED, OrderStatus.PARTIALLY_REFUNDED] } },
       },
       include: purchaseInclude,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -130,7 +131,8 @@ export class LibraryService {
       where: {
         editionId,
         format: EditionFormat.DIGITAL,
-        order: { userId, status: OrderStatus.CONFIRMED },
+        refunds: { none: { status: RefundStatus.PROCESSED } },
+        order: { userId, status: { in: [OrderStatus.CONFIRMED, OrderStatus.PARTIALLY_REFUNDED] } },
       },
       include: purchaseInclude,
     });
@@ -233,6 +235,19 @@ export class LibraryService {
       }
       throw error;
     }
+
+    const entitlement = await this.prisma.orderItem.findFirst({
+      where: {
+        id: claims.orderItemId,
+        orderId: claims.orderId,
+        editionId: claims.editionId,
+        format: EditionFormat.DIGITAL,
+        refunds: { none: { status: RefundStatus.PROCESSED } },
+        order: { userId: claims.userId, status: { in: [OrderStatus.CONFIRMED, OrderStatus.PARTIALLY_REFUNDED] } },
+      },
+      select: { id: true },
+    });
+    if (!entitlement) throw new NotFoundException("Cópia digital indisponível");
 
     let content: Buffer;
     try {

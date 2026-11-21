@@ -27,7 +27,10 @@ export class AuditLogEntity {
     "USER_STATUS_UPDATED",
     "ACCOUNT_DELETION_REQUESTED",
     "REVIEW_REMOVED",
+    "REFUND_REQUESTED",
+    "REFUND_DECISION",
     "REFUND_PROCESSED",
+    "REFUND_RETURN_CONFIRMED",
   ]);
 
   constructor(params: CreateAuditLogParams, id?: string, createdAt?: Date) {
