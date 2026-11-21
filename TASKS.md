@@ -270,12 +270,12 @@ Decisão: APROVADA pelo responsável em 2026-11-20. Escopo ampliado conforme `AL
 **Dependências:** `DEPENDS_ON: TASK-017, TASK-018`
 **Relacionados:** RF-018; RN-013–015,017.
 **Artefatos esperados:** solicitação, decisão, motivo e reversões transacionais adequadas.
-**ALLOWED_CHANGES:** `modules/refunds/**`; `modules/orders/**`; `modules/library/**`; `modules/audit/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `modules/refunds/**`; `modules/orders/**`; `modules/library/**`; `modules/audit/**`; `database/schema.prisma`; `database/migrations/**`; `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** gateway real; regras legais não aprovadas.
 **Aceitação/testes:** janelas 2h/2 semanas/1 semana; reembolso digital revoga acesso e restaura licença limitada; físico pré-envio e estoque restaurado somente após devolução confirmada; Admin auditado.
 **DoD específico:** exceção não permite violar janela sem Admin.
 **Prontidão:** READY em 2026-11-20 após confirmação de TASK-017 e TASK-018 como DONE, evidências e gates disponíveis, RN/UC/aceitação/Scope Guard definidos e ADR-003/005 aceitos. Sem pendências bloqueantes; o responsável autorizou a promoção para READY e início.
-**Gates:** GATE-001 APROVADO; GATE-002 BLOQUEADO pela lacuna de persistência e estado logístico descrita abaixo. Nenhum código de refund foi implementado.
+**Gates:** GATE-001 e GATE-002 APROVADOS. GATE-003 em planejamento, aguardando a definição do cálculo de reembolso parcial com cupom/frete. Nenhum código de refund foi implementado.
 
 ## SCOPE ESCALATION
 TASK: TASK-019
@@ -288,7 +288,7 @@ Por que não é incidental: altera persistência e contrato de ciclo de vida de 
 Impacto se não realizada: não é possível cumprir com segurança revogação/restauração de direitos, impedir dupla restituição, manter rastreabilidade financeira nem distinguir pedido físico pré-envio de pedido enviado/devolvido.
 Alternativas: (A) ampliar `ALLOWED_CHANGES` para `database/schema.prisma` e `database/migrations/**` e aprovar a definição do estado mínimo de fulfillment/retorno a ser consumido pela TASK-021; (B) implementar somente reembolsos digitais agora e revisar a aceitação/dependências da TASK-019 para mover reembolsos físicos à TASK-021, evitando ciclo no grafo de tarefas.
 Recomendação: alternativa A, com um registro transacional de refund e estado mínimo compatível com a logística futura; manter gateway simulado e sem criar regras legais novas.
-Decisão necessária: aprovar a ampliação do escopo de persistência e decidir se TASK-019 deve introduzir estado mínimo de fulfillment/retorno ou se o fluxo físico será explicitamente adiado/replanejado para TASK-021.
+Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampliado para `database/schema.prisma`, `database/migrations/**` e estado mínimo de fulfillment/retorno compatível com consumo futuro pela TASK-021. Pagamentos permanecem simulados; sem gateway real nem novas regras legais.
 
 ### TASK-020 — Checkpoint PHASE-04
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** CRITICAL
