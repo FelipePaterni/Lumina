@@ -32,6 +32,19 @@ try {
 
   docker compose up -d postgres
   if ($LASTEXITCODE -ne 0) { throw 'Não foi possível iniciar o PostgreSQL local' }
+
+  $databaseExists = $null
+  for ($attempt = 0; $attempt -lt 30; $attempt += 1) {
+    $databaseExists = & docker compose exec -T postgres psql -U $envValues['POSTGRES_USER'] -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'lumina_task009_test'" 2>$null
+    if ($LASTEXITCODE -eq 0) { break }
+    Start-Sleep -Seconds 2
+  }
+  if ($LASTEXITCODE -ne 0) { throw 'PostgreSQL local não ficou disponível' }
+  if (($databaseExists | Out-String).Trim() -ne '1') {
+    docker compose exec -T postgres createdb -U $envValues['POSTGRES_USER'] lumina_task009_test
+    if ($LASTEXITCODE -ne 0) { throw 'Não foi possível criar a base isolada lumina_task009_test' }
+  }
+
   npm run db:migrate
   if ($LASTEXITCODE -ne 0) { throw 'As migrações não foram aplicadas à base isolada' }
   docker compose up -d --build api
