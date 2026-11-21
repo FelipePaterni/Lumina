@@ -24,7 +24,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | DONE |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | DONE |
-| 21 | TASK-021 | PHASE-05 | HIGH | 020 | READY |
+| 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -308,16 +308,17 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão:** DONE em 2026-11-21. Critérios e DoD satisfeitos; originais protegidos, regras temporais e reversões validados; PHASE-05 desbloqueada. Mudanças primárias limitadas a teste/documentação PHASE-04 e `TASKS.md`; nenhuma incidental; nenhuma alteração proibida. Commits exclusivos: `aa6e06a`, `59c78c5`, `1424a2c` e commit final de conclusão.
 
 ### TASK-021 — Estoque e logística física
-**Status:** READY · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Entregar movimentos, alertas e estados/rastreio manuais para o Estoquista.
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-007,017; RN-004,012,015.
 **Artefatos esperados:** transições de expedição, rastreio livre e indicadores físicos.
-**ALLOWED_CHANGES:** `modules/inventory/**`; `modules/logistics/**`; `modules/reporting/warehouse/**`; `features/warehouse/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `modules/inventory/**`; `modules/logistics/**`; `modules/reporting/warehouse/**`; `features/warehouse/**`; `apps/api/src/modules/notifications/notification-event.ts` (extensão mínima para evento de transição logística, aprovada pelo responsável em 2026-11-21); `tests/**`; `TASKS.md`.
 **FORBIDDEN_CHANGES:** transportadoras; preço/catálogo pelo Estoquista.
 **Aceitação/testes:** somente estoquista/Admin altera físico; transições inválidas e pré-venda antecipada falham.
 **DoD específico:** cada status relevante notifica cliente.
-**Prontidão:** READY em 2026-11-21 após TASK-020 DONE, dependência validada, requisitos/aceitação/testes/Scope Guard definidos e ADR-005 aceito. É a próxima TASK elegível; aguarda autorização própria para início.
+**Gates:** GATE-001 a GATE-004 aprovados. GATE-005 aprovado com bloqueio externo documentado: `npm run test:integration` não passou do preflight por ausência de `TASK009_TEST_DATABASE_URL` (nenhuma conexão foi aberta); build API/web, lint, testes unitários (76/76), Prisma validate, sintaxe Node/PowerShell e `git diff --check` passaram. GATE-006 pendente de execução humana no ambiente isolado; GATE-007 pendente.
+**Prontidão:** READY em 2026-11-21 após TASK-020 DONE, dependência validada, requisitos/aceitação/testes/Scope Guard definidos e ADR-005 aceito. Iniciada em branch própria após autorização do responsável. O responsável aprovou em 2026-11-21 a ampliação mínima de ALLOWED_CHANGES para `apps/api/src/modules/notifications/notification-event.ts`, exclusivamente para adicionar evento específico de atualização logística. TASK-021 está BLOCKED aguardando configuração do banco de teste isolado e execução/revisão humana dos cenários manuais.
 
 ### TASK-022 — Avaliações, denúncia e moderação
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH

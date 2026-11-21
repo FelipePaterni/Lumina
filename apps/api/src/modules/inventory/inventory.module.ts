@@ -4,9 +4,11 @@ import { InventoryService } from "./inventory.service.js";
 import { PrismaModule } from "../../infrastructure/persistence/prisma.module.js";
 import { IdentityModule } from "../identity/identity.module.js";
 import { AuditModule } from "../audit/audit.module.js";
+import { LogisticsModule } from "../logistics/logistics.module.js";
+import { WarehouseReportingModule } from "../reporting/warehouse/warehouse-reporting.module.js";
 
 @Module({
-  imports: [PrismaModule, IdentityModule, AuditModule],
+  imports: [PrismaModule, IdentityModule, AuditModule, LogisticsModule, WarehouseReportingModule],
   controllers: [InventoryController],
   providers: [InventoryService],
 })
