@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $envValues = @{}
-$variableNames = @('POSTGRES_DB', 'DATABASE_URL', 'TASK009_TEST_DATABASE_URL', 'TASK019_CUSTOMER_EMAIL')
+$variableNames = @('POSTGRES_DB', 'DATABASE_URL', 'TASK009_TEST_DATABASE_URL', 'TASK019_CUSTOMER_EMAIL', 'BUILDKIT_PROGRESS')
 $previousValues = @{}
 foreach ($name in $variableNames) { $previousValues[$name] = [Environment]::GetEnvironmentVariable($name, 'Process') }
 
@@ -29,6 +29,7 @@ try {
   $env:DATABASE_URL = $testDatabaseUrl
   $env:TASK009_TEST_DATABASE_URL = $testDatabaseUrl
   $env:TASK019_CUSTOMER_EMAIL = $CustomerCredential.UserName
+  $env:BUILDKIT_PROGRESS = 'plain'
 
   docker compose up -d postgres
   if ($LASTEXITCODE -ne 0) { throw 'Não foi possível iniciar o PostgreSQL local' }
@@ -47,7 +48,9 @@ try {
 
   npm run db:migrate
   if ($LASTEXITCODE -ne 0) { throw 'As migrações não foram aplicadas à base isolada' }
-  docker compose up -d --build api
+  docker compose --progress plain build api
+  if ($LASTEXITCODE -ne 0) { throw 'O build da API local falhou; veja a saída acima' }
+  docker compose up -d api
   if ($LASTEXITCODE -ne 0) { throw 'Não foi possível iniciar a API local' }
 
   $loginBody = @{
