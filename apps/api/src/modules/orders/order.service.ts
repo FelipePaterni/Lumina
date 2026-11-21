@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { EditionFormat, OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
+import { EditionFormat, OrderStatus, PaymentMethod, Prisma, RefundStatus } from "@prisma/client";
 import { PrismaService } from "../../infrastructure/persistence/prisma.service.js";
 import { calculateCouponDiscount, validateCouponAvailability } from "../coupons/coupon.rules.js";
 import { ShippingAddressInput, matchesShippingRule, validateShippingAddress } from "../shipping/shipping.rules.js";
@@ -20,7 +20,10 @@ import { preorderAvailability } from "../preorders/preorder.rules.js";
 const orderInclude = {
   items: {
     orderBy: { createdAt: "asc" as const },
-    include: { edition: { select: { work: { select: { releaseDate: true } } } } },
+    include: {
+      edition: { select: { work: { select: { releaseDate: true } } } },
+      refunds: { orderBy: { requestedAt: "asc" as const } },
+    },
   },
   bundlePurchases: {
     orderBy: { createdAt: "asc" as const },
@@ -184,7 +187,12 @@ export class OrderService {
     const [ownedLibraryItems, previousPurchases] = await Promise.all([
       tx.libraryItem.findMany({ where: { userId, editionId: { in: editionIds } }, select: { editionId: true } }),
       tx.orderItem.findMany({
-        where: { editionId: { in: editionIds }, format: EditionFormat.DIGITAL, order: { userId, status: OrderStatus.CONFIRMED } },
+        where: {
+          editionId: { in: editionIds },
+          format: EditionFormat.DIGITAL,
+          refunds: { none: { status: RefundStatus.PROCESSED } },
+          order: { userId, status: { in: [OrderStatus.CONFIRMED, OrderStatus.PARTIALLY_REFUNDED] } },
+        },
         select: { editionId: true },
       }),
     ]);
@@ -316,6 +324,7 @@ export class OrderService {
         userId,
         idempotencyKey,
         status: OrderStatus.CONFIRMED,
+        fulfillmentStatus: physicalQuantity > 0 ? "PENDING" : "NOT_REQUIRED",
         subtotalCents,
         discountCents,
         shippingCents,
@@ -399,6 +408,7 @@ export class OrderService {
     return {
       id: order.id,
       status: order.status,
+      fulfillmentStatus: order.fulfillmentStatus,
       createdAt: order.createdAt,
       subtotalCents: order.subtotalCents,
       subtotalAmount: formatBrl(order.subtotalCents),
@@ -410,6 +420,7 @@ export class OrderService {
       totalAmount: formatBrl(order.totalCents),
       couponCode: order.couponCode,
       items: order.items.map((item) => ({
+        id: item.id,
         editionId: item.editionId,
         bundlePurchaseId: item.bundlePurchaseId,
         workTitle: item.workTitle,
@@ -419,6 +430,18 @@ export class OrderService {
         lineTotalCents: item.unitPriceCents * item.quantity,
         releaseAt: item.edition.work.releaseDate,
         preorderStatus: preorderAvailability(item.edition.work.releaseDate),
+        refunds: item.refunds.map((refund) => ({
+          id: refund.id,
+          status: refund.status,
+          quantity: refund.quantity,
+          amountCents: refund.amountCents,
+          requestReason: refund.requestReason,
+          decisionReason: refund.decisionReason,
+          requestedAt: refund.requestedAt,
+          decidedAt: refund.decidedAt,
+          processedAt: refund.processedAt,
+          returnConfirmedAt: refund.returnConfirmedAt,
+        })),
       })),
       bundles: order.bundlePurchases.map((purchase) => ({
         id: purchase.id,

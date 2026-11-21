@@ -42,6 +42,8 @@ model User {
   cart                    Cart?
   libraryItems            LibraryItem[]
   orders                  Order[]
+  refundRequests          Refund[] @relation("RefundRequester")
+  refundDecisions         Refund[] @relation("RefundDecider")
 
   @@map("users")
 }
@@ -347,6 +349,24 @@ model LibraryItem {
 
 enum OrderStatus {
   CONFIRMED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum FulfillmentStatus {
+  NOT_REQUIRED
+  PENDING
+  PICKING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum RefundStatus {
+  PENDING_REVIEW
+  AWAITING_RETURN
+  REJECTED
+  PROCESSED
 }
 
 enum PaymentMethod {
@@ -356,6 +376,8 @@ enum PaymentMethod {
 enum PaymentStatus {
   APPROVED
   NOT_REQUIRED
+  PARTIALLY_REFUNDED
+  REFUNDED
 }
 
 model Order {
@@ -363,6 +385,7 @@ model Order {
   userId            String      @map("user_id")
   idempotencyKey    String      @map("idempotency_key") @db.VarChar(128)
   status            OrderStatus @default(CONFIRMED)
+  fulfillmentStatus FulfillmentStatus @default(NOT_REQUIRED) @map("fulfillment_status")
   subtotalCents     Int         @map("subtotal_cents")
   discountCents     Int         @default(0) @map("discount_cents")
   shippingCents     Int         @default(0) @map("shipping_cents")
@@ -393,6 +416,7 @@ model OrderItem {
   order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   bundlePurchase  OrderBundle? @relation(fields: [bundlePurchaseId], references: [id], onDelete: SetNull)
   edition         Edition      @relation(fields: [editionId], references: [id], onDelete: Restrict)
+  refunds         Refund[]
 
   @@index([orderId])
   @@index([editionId])
@@ -442,10 +466,35 @@ model Payment {
   method         PaymentMethod @default(SIMULATED)
   status         PaymentStatus
   amountCents    Int           @map("amount_cents")
+  refundedCents  Int           @default(0) @map("refunded_cents")
   processedAt    DateTime      @default(now()) @map("processed_at") @db.Timestamptz(6)
   order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("payments")
+}
+
+model Refund {
+  id              String       @id @default(uuid())
+  orderItemId     String       @map("order_item_id")
+  requesterId     String       @map("requester_id")
+  deciderId       String?      @map("decider_id")
+  idempotencyKey  String       @map("idempotency_key") @db.VarChar(128)
+  status          RefundStatus @default(PENDING_REVIEW)
+  quantity        Int
+  amountCents     Int          @map("amount_cents")
+  requestReason   String       @map("request_reason") @db.VarChar(500)
+  decisionReason  String?      @map("decision_reason") @db.VarChar(500)
+  returnConfirmedAt DateTime?  @map("return_confirmed_at") @db.Timestamptz(6)
+  requestedAt     DateTime     @default(now()) @map("requested_at") @db.Timestamptz(6)
+  decidedAt       DateTime?    @map("decided_at") @db.Timestamptz(6)
+  processedAt     DateTime?    @map("processed_at") @db.Timestamptz(6)
+  orderItem       OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+  requester       User         @relation("RefundRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  decider         User?        @relation("RefundDecider", fields: [deciderId], references: [id], onDelete: SetNull)
+
+  @@unique([requesterId, idempotencyKey])
+  @@index([orderItemId, status, requestedAt])
+  @@map("refunds")
 }
 
 model Inventory {
@@ -465,6 +514,7 @@ model Inventory {
 enum InventoryMovementType {
   PHYSICAL_ADJUSTMENT
   PHYSICAL_SALE
+  PHYSICAL_RESTOCK
   DIGITAL_ALLOCATION
   DIGITAL_RELEASE
 }
