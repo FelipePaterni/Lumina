@@ -8,6 +8,7 @@ import { AssetsModule } from "./modules/catalog/assets/assets.module.js";
 import { WishlistModule } from "./modules/wishlist/wishlist.module.js";
 import { CartModule } from "./modules/cart/cart.module.js";
 import { OrderModule } from "./modules/orders/order.module.js";
+import { LibraryModule } from "./modules/library/library.module.js";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OrderModule } from "./modules/orders/order.module.js";
     WishlistModule,
     CartModule,
     OrderModule,
+    LibraryModule,
   ],
 })
 export class AppModule {}
