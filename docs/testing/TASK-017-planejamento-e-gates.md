@@ -57,7 +57,7 @@ Impacto: API nova; nenhuma migration; nenhuma página web obrigatória nos crit�
 | GATE-003 — Planejamento mínimo | APROVADO | Plano autorizado; dependências delimitadas, rollback e mitigação registrados. |
 | GATE-004 — Implementação controlada | APROVADO | Módulo de biblioteca, processamento PDF/EPUB, token temporário, storage privado e cobertura unitária adicionados; build API e testes unitários aprovados. |
 | GATE-005 — Revisão e gates automatizados | APROVADO | `npm test` 59/59, lint, build geral e integração 8/8 aprovados. Integração usou exclusivamente `lumina_task009_test`; build e integração executados fora do sandbox para acesso local/escrita. |
-| GATE-006 — Testes manuais | PENDENTE | Com contas distintas, MT-017-02 e MT-017-03 passaram. MT-017-01 teve falso negativo porque PowerShell colapsou array JSON de um item; runner corrigido com `ConvertFrom-Json -NoEnumerate`. Repetir execução e inspecionar a cópia para concluir GATE-006. |
+| GATE-006 — Testes manuais | PENDENTE | MT-017-01 a MT-017-03 passaram. MT-017-04 foi bloqueado ao gravar a resposta binária com `Invoke-WebRequest -OutFile`; runner agora usa `HttpClient` e grava bytes após HTTP 200. Repetir e inspecionar a cópia para concluir GATE-006. |
 | GATE-007 — Conclusão e rastreabilidade | PENDENTE | Depende da aprovação humana de GATE-006. |
 
 ## Scope Guard

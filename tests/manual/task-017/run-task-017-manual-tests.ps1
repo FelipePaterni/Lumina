@@ -42,18 +42,37 @@ function Write-SanitizedReport {
 }
 
 function Invoke-Api {
-  param([string]$Method, [string]$Path, [string]$Token, [object]$Body, [string]$OutFile)
+  param([string]$Method, [string]$Path, [string]$Token, [object]$Body)
   $headers = @{}
   if ($Token) { $headers.Authorization = "Bearer $Token" }
   $request = @{ Uri = "$($apiUri.AbsoluteUri.TrimEnd('/'))$Path"; Method = $Method; Headers = $headers; SkipHttpErrorCheck = $true; ErrorAction = 'Stop' }
   if ($null -ne $Body) { $request.ContentType = 'application/json'; $request.Body = $Body | ConvertTo-Json -Compress }
-  if ($OutFile) { $request.OutFile = $OutFile }
   try {
     $response = Invoke-WebRequest @request
     $parsed = $null
-    if (-not $OutFile -and $response.Content) { try { $parsed = ConvertFrom-Json -InputObject $response.Content -NoEnumerate } catch { $parsed = $null } }
+    if ($response.Content) { try { $parsed = ConvertFrom-Json -InputObject $response.Content -NoEnumerate } catch { $parsed = $null } }
     return [pscustomobject]@{ Status = [int]$response.StatusCode; Json = $parsed; ContentType = [string]$response.Headers['Content-Type'] }
   } catch { return [pscustomobject]@{ Status = 0; Json = $null; ContentType = '' } }
+}
+
+function Invoke-Download {
+  param([string]$Path, [string]$OutFile)
+  $client = [System.Net.Http.HttpClient]::new()
+  try {
+    $uri = [uri]::new($apiUri, $Path)
+    $response = $client.GetAsync($uri).GetAwaiter().GetResult()
+    $status = [int]$response.StatusCode
+    $contentType = [string]$response.Content.Headers.ContentType.MediaType
+    if ($status -eq 200) {
+      $bytes = $response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult()
+      [System.IO.File]::WriteAllBytes($OutFile, $bytes)
+    }
+    return [pscustomobject]@{ Status = $status; ContentType = $contentType; ErrorType = '' }
+  } catch {
+    return [pscustomobject]@{ Status = 0; ContentType = ''; ErrorType = $_.Exception.GetType().Name }
+  } finally {
+    $client.Dispose()
+  }
 }
 
 function Get-Token {
@@ -100,14 +119,17 @@ try {
   if ($link2.Status -ne 201 -and $link2.Status -ne 200) { throw "Renovação respondeu $($link2.Status)." }
   if (-not $link1.Json.downloadUrl -or -not $link2.Json.downloadUrl -or $link1.Json.downloadUrl -eq $link2.Json.downloadUrl) { throw 'A renovação não emitiu dois links temporários distintos.' }
   $reviewFile = Join-Path ([System.IO.Path]::GetTempPath()) "lumina-task017-$([guid]::NewGuid().ToString('N')).bin"
-  $download1 = Invoke-Api -Method 'GET' -Path $link1.Json.downloadUrl -Token '' -Body $null -OutFile $reviewFile
+  $download1 = Invoke-Download -Path $link1.Json.downloadUrl -OutFile $reviewFile
   $download2 = Invoke-Api -Method 'GET' -Path $link2.Json.downloadUrl -Token '' -Body $null
-  if ($download1.Status -eq 200 -and $download2.Status -eq 200 -and ($download1.ContentType -match 'application/(pdf|epub\+zip)') -and ($download2.ContentType -match 'application/(pdf|epub\+zip)')) {
-    $extension = if ($download1.ContentType -match 'application/epub\+zip') { 'epub' } else { 'pdf' }
+  if ($download1.Status -eq 200 -and $download2.Status -eq 200 -and ($download1.ContentType -match '^(application/pdf|application/epub\+zip)$') -and ($download2.ContentType -match 'application/(pdf|epub\+zip)')) {
+    $extension = if ($download1.ContentType -eq 'application/epub+zip') { 'epub' } else { 'pdf' }
     $reviewFile = [System.IO.Path]::ChangeExtension($reviewFile, $extension)
     [System.IO.File]::Move([System.IO.Path]::ChangeExtension($reviewFile, 'bin'), $reviewFile)
     Set-Scenario 'MT-017-04' 'BLOQUEADO' 'Dois links baixaram PDF/EPUB; aguarda inspeção humana da cópia.'
     Write-Output "Abra a cópia personalizada temporária para inspeção humana: $reviewFile"
+  } elseif ($download1.Status -eq 0 -or $download2.Status -eq 0) {
+    $errorType = if ($download1.ErrorType) { $download1.ErrorType } else { 'falha de transporte' }
+    Set-Scenario 'MT-017-04' 'BLOQUEADO' "Falha de transporte no download ($errorType); nenhuma resposta foi registrada. Repita após corrigir o ambiente."
   } else { Set-Scenario 'MT-017-04' 'REPROVADO' "Downloads responderam $($download1.Status)/$($download2.Status) ou MIME inesperado." }
 } catch {
   $failure = [regex]::Replace($_.Exception.Message, '[\r\n|]', ' ')
