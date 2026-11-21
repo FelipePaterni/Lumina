@@ -19,13 +19,13 @@ Branch: `feature/TASK-019-cancelamentos-reembolsos`
 | GATE-003 | APROVADO | Plano e decisão de rateio registrados em `TASKS.md`; commits `349a078` e `84e467f`. |
 | GATE-004 | APROVADO | Serviço, regras, rotas, migration e integração da biblioteca implementados; API compila; testes unitários passam. |
 | GATE-005 | BLOQUEADO | `npm test`: 69/69; `npm run lint`: passou; `npx prisma validate`: passou; `npm run build`: passou (API e web); parser PowerShell passou; sintaxe do teste de integração (`node --check`) passou; `git diff --check` passou. Integração tentou executar os 9 testes e falhou antes dos cenários por PostgreSQL indisponível em `localhost:5433`. Docker não está acessível nesta sessão. |
-| GATE-006 | NÃO EXECUTADO | Roteiro em `tests/manual/task-019/`; requer fixture `TASK019` na base isolada, API local e revisão humana. |
+| GATE-006 | BLOQUEADO NA PREPARAÇÃO | Uma tentativa do roteiro com UUIDs placeholder foi rejeitada antes de alterar dados; evidência sanitizada em `docs/testing/TASK-019-testes-manuais-resultado.md`. Preparador e roteiro atualizados para gerar IDs sintéticos na base isolada; falta nova execução e revisão humana. |
 | GATE-007 | PENDENTE | Depende da resolução de GATE-005 e execução/revisão humana de GATE-006. |
 
 ## Pendências
 
 1. Iniciar Postgres na porta local configurada e fornecer `TASK009_TEST_DATABASE_URL` para `lumina_task009_test`; executar `npm run test:integration`.
-2. Preparar pedido/item sintéticos com título `TASK019 `, API local e rodar o roteiro manual PowerShell; revisar o relatório gerado em `docs/testing/TASK-019-testes-manuais-resultado.md`.
+2. Rodar `tests/manual/task-019/README.md`: o preparador cria o pedido físico sintético na base isolada e o roteiro executa cliente/Admin; revisar o relatório gerado em `docs/testing/TASK-019-testes-manuais-resultado.md`.
 3. Somente após esses gates, decidir o estado `DONE`.
 
 O relatório de planejamento em `docs/testing/` e o relatório manual gerado são alterações incidentais e mínimas, exigidas pelo contrato operacional de `AGENTS.md`; não mudam requisitos, arquitetura nem contratos.
