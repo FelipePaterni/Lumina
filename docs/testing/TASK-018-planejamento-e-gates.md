@@ -54,18 +54,18 @@ Não foram implementados descontos fora de RN-007 nem um fluxo de expedição. `
 | Lint | `npm run lint` | APROVADO |
 | Testes unitários/smoke | `npm test` | APROVADO; 64/64 |
 | Integração | `npm run test:integration` | APROVADO; 9/9, somente `lumina_task009_test` |
-| Runner manual | Parser PowerShell 7 (`Parser.ParseFile`) | APROVADO; sintaxe válida, runner não executado |
+| Runner manual | Parser PowerShell 7 (`Parser.ParseFile`) | APROVADO; sintaxe válida |
 | Diff | `git diff --check` | APROVADO |
 
 As integrações aplicaram as migrações repetidamente no banco isolado. A suíte da TASK-018 validou criação e duplicidade de composição, autorização, ajuste de preço até zero, bloqueio com posse total, compra, concessão separada, alocação de licenças e `PREORDER`/`RELEASED`. Uma execução de integração dentro do sandbox não alcançou `localhost:5433`; a rodada final fora do sandbox, autorizada e limitada ao banco isolado, passou integralmente.
 
 ## GATE-006 — Testes manuais
 
-**Estado: BLOQUEADO aguardando execução humana.** `tests/manual/task-018/run-task-018-manual-tests.ps1` e seu README estão prontos. A sintaxe foi validada; o runner ainda não foi executado. Os quatro cenários estão inicialmente `BLOQUEADO` em `docs/testing/TASK-018-testes-manuais-resultado.md`. A execução cria um bundle e um pedido simulado e deve usar somente contas e obras sintéticas no banco isolado.
+**Estado: EXECUTADO; revisão humana pendente.** O runner foi executado em 2026-11-20 (horário local) contra uma instância isolada da API em `localhost:3002`, conectada a `lumina_task009_test`. Foram usadas as contas ADMIN e os dois CUSTOMER do `.env`; nenhuma credencial foi registrada. Três obras de catálogo sintéticas foram preparadas e os quatro cenários MT-018-01 a MT-018-04 passaram. O runner criou bundles e pedidos sintéticos que permanecem apenas na base isolada. Evidência sanitizada: `docs/testing/TASK-018-testes-manuais-resultado.md`. O responsável ainda precisa revisar o resultado antes de aprovar GATE-006.
 
 ## GATE-007 — Conclusão e rastreabilidade
 
-**Estado: PENDENTE.** GATE-001 a GATE-005 estão aprovados e o Scope Guard foi cumprido. Não marco TASK-018 `DONE` antes da execução humana e revisão dos cenários manuais. A tarefa está `IN_REVIEW`; TASK-019 permanece bloqueada pela dependência.
+**Estado: PENDENTE.** GATE-001 a GATE-005 estão aprovados e o Scope Guard foi cumprido. A execução automatizada de GATE-006 passou, mas aguarda revisão humana. TASK-018 permanece `IN_REVIEW` e TASK-019 bloqueada até a revisão e aprovação do responsável.
 
 ## Scope Guard
 

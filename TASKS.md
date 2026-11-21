@@ -246,8 +246,8 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** compra de bundle concede cada item separadamente.
 **Decisão de escopo:** em 2026-11-20, o responsável aprovou ampliar `ALLOWED_CHANGES` para schema/migrations, integração do carrinho, registro mínimo em `app.module.ts` e relatório `docs/testing/TASK-018-*.md`. A guarda concreta de expedição será aplicada quando o fluxo logístico for criado na TASK-021; até lá, o serviço de pré-vendas expõe a regra temporal comum e a biblioteca a aplica aos downloads digitais.
 **Gates:** GATE-001 a GATE-005 APROVADOS. `npm run build`, `npm run lint`, `npm test` (64/64), `npm run test:integration` (9/9), `prisma validate`, sintaxe do runner PowerShell e `git diff --check` passaram. Evidências em `docs/testing/TASK-018-planejamento-e-gates.md`.
-**GATE-006:** BLOQUEADO aguardando execução humana dos cenários MT-018-01 a MT-018-04 com dados sintéticos. Runner e roteiro em `tests/manual/task-018/`; relatório permanece com os quatro cenários `BLOQUEADO` em `docs/testing/TASK-018-testes-manuais-resultado.md`.
-**GATE-007:** PENDENTE da execução e revisão humana do GATE-006. TASK-018 não está DONE.
+**GATE-006:** Executado com as contas ADMIN e os dois CUSTOMER do `.env` contra API isolada em `localhost:3002`/`lumina_task009_test`; MT-018-01 a MT-018-04 APROVADOS pelo runner. Revisão humana pendente; evidências em `docs/testing/TASK-018-testes-manuais-resultado.md` e roteiro em `tests/manual/task-018/`.
+**GATE-007:** PENDENTE da revisão e aprovação humana do GATE-006. TASK-018 não está DONE.
 **Prontidão:** READY em 2026-11-20; dependência TASK-017 verificada como DONE, com gates GATE-001 a GATE-007 aprovados e evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Iniciada após autorização do responsável.
 
 ## SCOPE ESCALATION
