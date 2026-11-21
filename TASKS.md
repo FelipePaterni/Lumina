@@ -244,6 +244,20 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **FORBIDDEN_CHANGES:** descontos não especificados; expedição antes de lançamento.
 **Aceitação/testes:** composição duplicada falha; desconto nunca negativo; todos possuídos bloqueia; liberação só na data.
 **DoD específico:** compra de bundle concede cada item separadamente.
+**Prontidão:** READY em 2026-11-20; dependência TASK-017 verificada como DONE, com gates GATE-001 a GATE-007 aprovados e evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Iniciada após autorização do responsável.
+
+## SCOPE ESCALATION
+TASK: TASK-018
+Necessidade identificada: persistir composição de bundles e ligar a compra do bundle à concessão de cada edição; também documentar o relatório dos testes manuais.
+Motivo: o schema atual não possui entidades de bundle e o checkout aceita somente edições no carrinho. O fluxo de logística física ainda não existe; a liberação antecipada precisa ser impedida quando expedição for implementada. O roteiro operacional exige relatório sanitizado em `docs/testing/`.
+Arquivos/módulos afetados: `database/schema.prisma`, `database/migrations/**`, `apps/api/src/modules/cart/**`, `apps/api/src/app.module.ts`, `apps/api/src/modules/bundles/**`, `apps/api/src/modules/preorders/**`, `apps/api/src/modules/orders/**`, `apps/api/src/modules/library/**`, `tests/**`, `docs/testing/TASK-018-*.md`.
+Allowed Changes atual: `modules/bundles/**`; `modules/preorders/**`; `modules/orders/**`; `modules/library/**`; `tests/**`; `TASKS.md`.
+Forbidden Changes relacionado: expedição antes de lançamento; descontos não especificados.
+Por que não é incidental: schema/migrations e integração do carrinho alteram contratos e persistência, sendo necessárias para a funcionalidade; relatório em `docs/testing/` está fora dos caminhos permitidos.
+Impacto se não realizada: bundles não podem ser compostos e comprados com preço recalculado de forma persistente nem conceder direitos item a item com segurança; a validação manual não consegue cumprir o padrão operacional de evidência.
+Alternativas: ampliar `ALLOWED_CHANGES` para schema/migrations e carrinho/registro do módulo e autorizar `docs/testing/TASK-018-*.md`; ou aprovar uma arquitetura alternativa que não exija persistência de bundles e definir como será o relatório manual.
+Recomendação: ampliar explicitamente `ALLOWED_CHANGES` para `database/schema.prisma`, `database/migrations/**`, `apps/api/src/modules/cart/**`, `apps/api/src/app.module.ts` (registro mínimo), e `docs/testing/TASK-018-*.md`. Incluir ainda a guarda do lançamento na transição de expedição quando o módulo de logística for introduzido, sem permitir expedição antecipada.
+Decisão necessária: autorizar a ampliação acima e esclarecer se a TASK-018 deve incluir uma guarda provisória de expedição apesar de o módulo logístico estar planejado para TASK-021.
 
 ### TASK-019 — Cancelamentos e reembolsos
 **Status:** BLOCKED · **Phase:** PHASE-04 · **Priority:** HIGH
