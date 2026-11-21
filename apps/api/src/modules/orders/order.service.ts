@@ -14,9 +14,23 @@ import { NotificationEventType } from "../notifications/notification-event.js";
 import { NotificationService } from "../notifications/notification.service.js";
 import { formatBrl } from "../cart/money.js";
 import { sumOrderTotals, validateIdempotencyKey } from "./order.rules.js";
+import { allocateBundlePrice, BundleRuleError, calculateBundlePrice } from "../bundles/bundle.rules.js";
+import { preorderAvailability } from "../preorders/preorder.rules.js";
 
 const orderInclude = {
-  items: { orderBy: { createdAt: "asc" as const } },
+  items: {
+    orderBy: { createdAt: "asc" as const },
+    include: { edition: { select: { work: { select: { releaseDate: true } } } } },
+  },
+  bundlePurchases: {
+    orderBy: { createdAt: "asc" as const },
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" as const },
+        include: { edition: { select: { work: { select: { releaseDate: true } } } } },
+      },
+    },
+  },
   shippingAddress: true,
   payment: true,
   user: { select: { email: true } },
@@ -26,6 +40,28 @@ const cartInclude = {
   coupon: true,
   items: {
     include: { edition: { include: { work: true, inventory: true } } },
+    orderBy: { createdAt: "asc" as const },
+  },
+  bundles: {
+    include: {
+      bundle: {
+        include: {
+          items: {
+            orderBy: { workId: "asc" as const },
+            include: {
+              work: {
+                include: {
+                  editions: {
+                    where: { format: EditionFormat.DIGITAL },
+                    include: { inventory: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: "asc" as const },
   },
 } satisfies Prisma.CartInclude;
@@ -108,9 +144,16 @@ export class OrderService {
     if (carts.length === 0) throw new ConflictException("Carrinho vazio");
 
     const cart = await tx.cart.findUnique({ where: { userId }, include: cartInclude });
-    if (!cart || cart.items.length === 0) throw new ConflictException("Carrinho vazio");
-
-    const editionIds = [...new Set(cart.items.map((item) => item.editionId))].sort();
+    if (!cart || (cart.items.length === 0 && cart.bundles.length === 0)) throw new ConflictException("Carrinho vazio");
+    const bundleIds = cart.bundles.map((entry) => entry.bundleId).sort();
+    if (bundleIds.length > 0) {
+      await tx.$queryRaw(Prisma.sql`
+        SELECT id FROM bundles WHERE id IN (${Prisma.join(bundleIds)}) ORDER BY id FOR UPDATE
+      `);
+    }
+    const bundleEditionIds = cart.bundles.flatMap((entry) => entry.bundle.items.map((item) => item.work.editions[0]?.id).filter((id): id is string => Boolean(id)));
+    const editionIds = [...new Set([...cart.items.map((item) => item.editionId), ...bundleEditionIds])].sort();
+    if (editionIds.length === 0) throw new ConflictException("Bundle sem edições digitais disponíveis");
     await tx.$queryRaw(Prisma.sql`
       SELECT edition_id FROM inventories
       WHERE edition_id IN (${Prisma.join(editionIds)})
@@ -122,7 +165,7 @@ export class OrderService {
     }
 
     const lockedCart = await tx.cart.findUnique({ where: { id: cart.id }, include: cartInclude });
-    if (!lockedCart || lockedCart.items.length === 0) throw new ConflictException("Carrinho vazio");
+    if (!lockedCart || (lockedCart.items.length === 0 && lockedCart.bundles.length === 0)) throw new ConflictException("Carrinho vazio");
     const now = new Date();
     const physicalItems = lockedCart.items.filter((item) => item.edition.format === EditionFormat.PHYSICAL);
     const physicalQuantity = physicalItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -136,22 +179,49 @@ export class OrderService {
         throw new ConflictException("A quantidade de uma edição do carrinho é inválida");
       }
       if (!item.edition.inventory) throw new ConflictException("Disponibilidade da edição não configurada");
-      if (item.edition.format === EditionFormat.DIGITAL) {
-        const [ownedLibrary, previousPurchase] = await Promise.all([
-          tx.libraryItem.findFirst({ where: { userId, editionId: item.editionId }, select: { id: true } }),
-          tx.orderItem.findFirst({
-            where: { editionId: item.editionId, format: EditionFormat.DIGITAL, order: { userId, status: OrderStatus.CONFIRMED } },
-            select: { id: true },
-          }),
-        ]);
-        if (ownedLibrary || previousPurchase) throw new ConflictException("Você já possui este e-book");
-      }
     }
 
-    const subtotalCents = lockedCart.items.reduce(
-      (sum, item) => sum + item.edition.priceCents * item.quantity,
-      0,
-    );
+    const [ownedLibraryItems, previousPurchases] = await Promise.all([
+      tx.libraryItem.findMany({ where: { userId, editionId: { in: editionIds } }, select: { editionId: true } }),
+      tx.orderItem.findMany({
+        where: { editionId: { in: editionIds }, format: EditionFormat.DIGITAL, order: { userId, status: OrderStatus.CONFIRMED } },
+        select: { editionId: true },
+      }),
+    ]);
+    const ownedEditionIds = new Set([...ownedLibraryItems, ...previousPurchases].map((item) => item.editionId));
+    const directDigitalIds = lockedCart.items.filter((item) => item.edition.format === EditionFormat.DIGITAL).map((item) => item.editionId);
+    if (directDigitalIds.some((editionId) => ownedEditionIds.has(editionId))) {
+      throw new ConflictException("Você já possui um e-book do carrinho");
+    }
+
+    const bundleQuotes = lockedCart.bundles.map((entry) => {
+      const bundle = entry.bundle;
+      if (!bundle.isActive || bundle.items.length < 2 || bundle.items.some((item) => !item.work.isVisible || !item.work.editions[0]?.isVisible)) {
+        throw new ConflictException("O bundle não está mais disponível");
+      }
+      const items = bundle.items.map((item) => {
+        const edition = item.work.editions[0];
+        if (!edition || !edition.inventory) throw new ConflictException("Disponibilidade digital do bundle não configurada");
+        return { editionId: edition.id, currentPriceCents: edition.priceCents, owned: ownedEditionIds.has(edition.id) };
+      });
+      try {
+        return { bundle, quote: calculateBundlePrice(bundle.priceCents, items) };
+      } catch (error) {
+        if (error instanceof BundleRuleError && error.code === "ALL_ITEMS_OWNED") {
+          throw new ConflictException("Você já possui todos os e-books deste bundle");
+        }
+        throw error;
+      }
+    });
+
+    const grantEditionIds = [...directDigitalIds, ...bundleQuotes.flatMap(({ quote }) => quote.itemsToGrant.map((item) => item.editionId))];
+    if (new Set(grantEditionIds).size !== grantEditionIds.length) {
+      throw new ConflictException("O carrinho contém o mesmo e-book mais de uma vez");
+    }
+
+    const directSubtotalCents = lockedCart.items.reduce((sum, item) => sum + item.edition.priceCents * item.quantity, 0);
+    const bundlesSubtotalCents = bundleQuotes.reduce((sum, entry) => sum + entry.quote.chargedPriceCents, 0);
+    const subtotalCents = directSubtotalCents + bundlesSubtotalCents;
     if (!Number.isSafeInteger(subtotalCents)) throw new ConflictException("Subtotal do pedido inválido");
 
     let discountCents = 0;
@@ -205,24 +275,33 @@ export class OrderService {
     const totalCents = sumOrderTotals(subtotalCents, discountCents, shippingCents);
     const payment = this.payments.confirm(totalCents);
 
-    for (const item of lockedCart.items) {
-      const inventory = item.edition.inventory!;
-      if (item.edition.format === EditionFormat.PHYSICAL) {
-        if (inventory.physicalStock < item.quantity) throw new ConflictException("Estoque físico insuficiente");
+    const allocationLines = [
+      ...lockedCart.items.map((item) => ({ edition: item.edition, editionId: item.editionId, quantity: item.quantity })),
+      ...bundleQuotes.flatMap(({ bundle, quote }) => quote.itemsToGrant.map((item) => {
+        const edition = bundle.items.find((entry) => entry.work.editions[0]?.id === item.editionId)?.work.editions[0];
+        if (!edition) throw new ConflictException("Edição digital do bundle indisponível");
+        return { edition, editionId: item.editionId, quantity: 1 };
+      })),
+    ];
+    for (const line of allocationLines) {
+      const inventory = line.edition.inventory;
+      if (!inventory) throw new ConflictException("Disponibilidade da edição não configurada");
+      if (line.edition.format === EditionFormat.PHYSICAL) {
+        if (inventory.physicalStock < line.quantity) throw new ConflictException("Estoque físico insuficiente");
         const updated = await tx.inventory.updateMany({
-          where: { editionId: item.editionId, physicalStock: { gte: item.quantity } },
-          data: { physicalStock: { decrement: item.quantity } },
+          where: { editionId: line.editionId, physicalStock: { gte: line.quantity } },
+          data: { physicalStock: { decrement: line.quantity } },
         });
         if (updated.count !== 1) throw new ConflictException("Estoque físico insuficiente");
         await tx.inventoryMovement.create({
-          data: { inventoryId: inventory.id, type: "PHYSICAL_SALE", quantity: item.quantity, reason: "Pedido confirmado", actorId: userId },
+          data: { inventoryId: inventory.id, type: "PHYSICAL_SALE", quantity: line.quantity, reason: "Pedido confirmado", actorId: userId },
         });
       } else {
         if (inventory.digitalLicenseLimit !== null && inventory.digitalAllocated >= inventory.digitalLicenseLimit) {
           throw new ConflictException("Licença digital indisponível");
         }
         const updated = await tx.inventory.updateMany({
-          where: { editionId: item.editionId, digitalAllocated: inventory.digitalAllocated },
+          where: { editionId: line.editionId, digitalAllocated: inventory.digitalAllocated },
           data: { digitalAllocated: { increment: 1 } },
         });
         if (updated.count !== 1) throw new ConflictException("Licença digital indisponível");
@@ -273,9 +352,40 @@ export class OrderService {
       include: orderInclude,
     });
 
+    for (const { bundle, quote } of bundleQuotes) {
+      const purchase = await tx.orderBundle.create({
+        data: {
+          orderId: order.id,
+          bundleId: bundle.id,
+          bundleName: bundle.name,
+          listPriceCents: bundle.priceCents,
+          ownershipAdjustmentCents: quote.ownershipAdjustmentCents,
+          chargedPriceCents: quote.chargedPriceCents,
+        },
+      });
+      const allocatedPrices = allocateBundlePrice(quote.chargedPriceCents, quote.itemsToGrant.length);
+      await tx.orderItem.createMany({
+        data: quote.itemsToGrant.map((item, index) => {
+          const source = bundle.items.find((entry) => entry.work.editions[0]?.id === item.editionId);
+          if (!source) throw new ConflictException("Composição do bundle inválida");
+          return {
+            orderId: order.id,
+            bundlePurchaseId: purchase.id,
+            editionId: item.editionId,
+            workTitle: source.work.title,
+            format: EditionFormat.DIGITAL,
+            unitPriceCents: allocatedPrices[index],
+            quantity: 1,
+          };
+        }),
+      });
+    }
+
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+    await tx.cartBundle.deleteMany({ where: { cartId: cart.id } });
     await tx.cart.update({ where: { id: cart.id }, data: { couponId: null } });
-    return { order, created: true };
+    const completedOrder = await tx.order.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
+    return { order: completedOrder, created: true };
   }
 
   private findByKey(userId: string, idempotencyKey: string) {
@@ -301,11 +411,28 @@ export class OrderService {
       couponCode: order.couponCode,
       items: order.items.map((item) => ({
         editionId: item.editionId,
+        bundlePurchaseId: item.bundlePurchaseId,
         workTitle: item.workTitle,
         format: item.format,
         unitPriceCents: item.unitPriceCents,
         quantity: item.quantity,
         lineTotalCents: item.unitPriceCents * item.quantity,
+        releaseAt: item.edition.work.releaseDate,
+        preorderStatus: preorderAvailability(item.edition.work.releaseDate),
+      })),
+      bundles: order.bundlePurchases.map((purchase) => ({
+        id: purchase.id,
+        name: purchase.bundleName,
+        listPriceCents: purchase.listPriceCents,
+        ownershipAdjustmentCents: purchase.ownershipAdjustmentCents,
+        chargedPriceCents: purchase.chargedPriceCents,
+        items: purchase.items.map((item) => ({
+          editionId: item.editionId,
+          workTitle: item.workTitle,
+          unitPriceCents: item.unitPriceCents,
+          releaseAt: item.edition.work.releaseDate,
+          preorderStatus: preorderAvailability(item.edition.work.releaseDate),
+        })),
       })),
       shippingAddress: order.shippingAddress,
       payment: order.payment,

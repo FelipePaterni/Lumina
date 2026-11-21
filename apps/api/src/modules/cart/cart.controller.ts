@@ -40,6 +40,11 @@ export class CartController {
     return this.service.add(this.customerId(request), body.editionId, body.quantity ?? 1);
   }
 
+  @Post("bundles")
+  addBundle(@Body() body: { bundleId: string }, @Req() request: CustomerRequest) {
+    return this.service.addBundle(this.customerId(request), body.bundleId);
+  }
+
   @Patch("items/:editionId")
   setQuantity(@Param("editionId") editionId: string, @Body() body: { quantity: number }, @Req() request: CustomerRequest) {
     return this.service.setQuantity(this.customerId(request), editionId, body.quantity);
@@ -48,6 +53,11 @@ export class CartController {
   @Delete("items/:editionId")
   remove(@Param("editionId") editionId: string, @Req() request: CustomerRequest) {
     return this.service.remove(this.customerId(request), editionId);
+  }
+
+  @Delete("bundles/:bundleId")
+  removeBundle(@Param("bundleId") bundleId: string, @Req() request: CustomerRequest) {
+    return this.service.removeBundle(this.customerId(request), bundleId);
   }
 
   @Post("coupon")

@@ -4,13 +4,13 @@ import { CartService } from "../../../apps/api/dist/modules/cart/cart.service.js
 
 function createHarness({ ownedEditionIds = [] } = {}) {
   const editions = new Map([
-    ["00000000-0000-4000-8000-000000000001", { id: "00000000-0000-4000-8000-000000000001", format: "DIGITAL", isVisible: true, priceCents: 1_590, work: { title: "Synthetic ebook", isVisible: true }, inventory: { digitalLicenseLimit: null, digitalAllocated: 0 } }],
-    ["00000000-0000-4000-8000-000000000002", { id: "00000000-0000-4000-8000-000000000002", format: "PHYSICAL", isVisible: true, priceCents: 4_290, work: { title: "Synthetic print", isVisible: true }, inventory: { physicalStock: 3 } }],
-    ["00000000-0000-4000-8000-000000000003", { id: "00000000-0000-4000-8000-000000000003", format: "PHYSICAL", isVisible: true, priceCents: 1_000, work: { title: "Hidden synthetic", isVisible: false }, inventory: { physicalStock: 3 } }],
+    ["00000000-0000-4000-8000-000000000001", { id: "00000000-0000-4000-8000-000000000001", format: "DIGITAL", isVisible: true, priceCents: 1_590, work: { title: "Synthetic ebook", isVisible: true, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { digitalLicenseLimit: null, digitalAllocated: 0 } }],
+    ["00000000-0000-4000-8000-000000000002", { id: "00000000-0000-4000-8000-000000000002", format: "PHYSICAL", isVisible: true, priceCents: 4_290, work: { title: "Synthetic print", isVisible: true, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { physicalStock: 3 } }],
+    ["00000000-0000-4000-8000-000000000003", { id: "00000000-0000-4000-8000-000000000003", format: "PHYSICAL", isVisible: true, priceCents: 1_000, work: { title: "Hidden synthetic", isVisible: false, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { physicalStock: 3 } }],
   ]);
   let cart = null;
   const items = [];
-  const load = () => ({ id: cart.id, coupon: null, items: items.map((item) => ({ ...item, edition: editions.get(item.editionId) })) });
+  const load = () => ({ id: cart.id, coupon: null, bundles: [], items: items.map((item) => ({ ...item, edition: editions.get(item.editionId) })) });
   const prisma = {
     cart: {
       upsert: async ({ where }) => {
