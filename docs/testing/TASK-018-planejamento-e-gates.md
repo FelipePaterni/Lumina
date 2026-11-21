@@ -61,11 +61,11 @@ As integrações aplicaram as migrações repetidamente no banco isolado. A suí
 
 ## GATE-006 — Testes manuais
 
-**Estado: EXECUTADO; revisão humana pendente.** O runner foi executado em 2026-11-20 (horário local) contra uma instância isolada da API em `localhost:3002`, conectada a `lumina_task009_test`. Foram usadas as contas ADMIN e os dois CUSTOMER do `.env`; nenhuma credencial foi registrada. Três obras de catálogo sintéticas foram preparadas e os quatro cenários MT-018-01 a MT-018-04 passaram. O runner criou bundles e pedidos sintéticos que permanecem apenas na base isolada. Evidência sanitizada: `docs/testing/TASK-018-testes-manuais-resultado.md`. O responsável ainda precisa revisar o resultado antes de aprovar GATE-006.
+**Estado: APROVADO pelo responsável em 2026-11-20.** O runner foi executado em 2026-11-20 (horário local) contra uma instância isolada da API em `localhost:3002`, conectada a `lumina_task009_test`. Foram usadas as contas ADMIN e os dois CUSTOMER do `.env`; nenhuma credencial foi registrada. Três obras de catálogo sintéticas foram preparadas e os quatro cenários MT-018-01 a MT-018-04 passaram. O runner criou bundles e pedidos sintéticos que permanecem apenas na base isolada. Uma repetição posterior foi bloqueada porque as contas já tinham posse sintética e está registrada no relatório. O responsável revisou e aprovou os resultados em 2026-11-20. Evidência sanitizada: `docs/testing/TASK-018-testes-manuais-resultado.md`.
 
 ## GATE-007 — Conclusão e rastreabilidade
 
-**Estado: PENDENTE.** GATE-001 a GATE-005 estão aprovados e o Scope Guard foi cumprido. A execução automatizada de GATE-006 passou, mas aguarda revisão humana. TASK-018 permanece `IN_REVIEW` e TASK-019 bloqueada até a revisão e aprovação do responsável.
+**Estado: APROVADO em 2026-11-20.** GATE-001 a GATE-006 aprovados; DoD e Scope Guard validados; documentação e commits rastreáveis. TASK-018 está `DONE`. TASK-019 é a próxima tarefa por dependências e requer autorização própria antes de iniciar.
 
 ## Scope Guard
 

@@ -21,7 +21,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 15 | TASK-015 | PHASE-03 | HIGH | 014 | DONE |
 | 16 | TASK-016 | PHASE-03 | CRITICAL | 012–015 | DONE |
 | 17 | TASK-017 | PHASE-04 | CRITICAL | 016 | DONE |
-| 18 | TASK-018 | PHASE-04 | HIGH | 017 | IN_REVIEW |
+| 18 | TASK-018 | PHASE-04 | HIGH | 017 | DONE |
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | BLOCKED |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | BLOCKED |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | BLOCKED |
@@ -235,7 +235,7 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **Conclusão:** DONE em 2026-11-21 após aprovação humana dos quatro cenários manuais e inspeção da cópia PDF. GATE-001 a GATE-007 aprovados. Testes 59/59; integração 8/8 no banco isolado; lint, build geral, build API e sintaxe PowerShell passaram. Evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Branch `feature/TASK-017-biblioteca-download-watermark`; commits exclusivos registrados no histórico.
 
 ### TASK-018 — Bundles e pré-vendas
-**Status:** IN_REVIEW · **Phase:** PHASE-04 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-04 · **Priority:** HIGH
 **Objetivo:** Implementar composição, preço proporcional e liberação de pré-vendas físicas/digitais.
 **Dependências:** `DEPENDS_ON: TASK-017`
 **Relacionados:** RF-015,016; RN-006,007,012,013.
@@ -246,9 +246,10 @@ Todo item abaixo herda `INCIDENTAL_CHANGES_POLICY: MINIMAL_DIRECTLY_CAUSED_CHANG
 **DoD específico:** compra de bundle concede cada item separadamente.
 **Decisão de escopo:** em 2026-11-20, o responsável aprovou ampliar `ALLOWED_CHANGES` para schema/migrations, integração do carrinho, registro mínimo em `app.module.ts` e relatório `docs/testing/TASK-018-*.md`. A guarda concreta de expedição será aplicada quando o fluxo logístico for criado na TASK-021; até lá, o serviço de pré-vendas expõe a regra temporal comum e a biblioteca a aplica aos downloads digitais.
 **Gates:** GATE-001 a GATE-005 APROVADOS. `npm run build`, `npm run lint`, `npm test` (64/64), `npm run test:integration` (9/9), `prisma validate`, sintaxe do runner PowerShell e `git diff --check` passaram. Evidências em `docs/testing/TASK-018-planejamento-e-gates.md`.
-**GATE-006:** Executado com as contas ADMIN e os dois CUSTOMER do `.env` contra API isolada em `localhost:3002`/`lumina_task009_test`; MT-018-01 a MT-018-04 APROVADOS pelo runner. Revisão humana pendente; evidências em `docs/testing/TASK-018-testes-manuais-resultado.md` e roteiro em `tests/manual/task-018/`.
-**GATE-007:** PENDENTE da revisão e aprovação humana do GATE-006. TASK-018 não está DONE.
+**GATE-006:** APROVADO pelo responsável em 2026-11-20 após revisar o relatório. Na execução aprovada, MT-018-01 a MT-018-04 passaram usando as contas ADMIN e os dois CUSTOMER do `.env` contra API isolada em `localhost:3002`/`lumina_task009_test`. Uma repetição posterior foi bloqueada porque as compras sintéticas da execução anterior já haviam alterado a posse das contas; o roteiro e o relatório registram essa condição. Evidências em `docs/testing/TASK-018-testes-manuais-resultado.md` e `tests/manual/task-018/`.
+**GATE-007:** APROVADO em 2026-11-20. Definition of Done satisfeita; Scope Guard validado; evidências, gates e commits exclusivos registrados. TASK-018 concluída.
 **Prontidão:** READY em 2026-11-20; dependência TASK-017 verificada como DONE, com gates GATE-001 a GATE-007 aprovados e evidências em `docs/testing/TASK-017-planejamento-e-gates.md` e `docs/testing/TASK-017-testes-manuais-resultado.md`. Iniciada após autorização do responsável.
+**Conclusão:** DONE em 2026-11-20 após aprovação humana dos quatro cenários manuais. GATE-001 a GATE-007 aprovados; build, lint, testes unitários (64/64), integração (9/9), Prisma validate, parser PowerShell e `git diff --check` passaram. Scope Guard cumprido; sem mudanças incidentais. Commits TASK-018: `dd6317b`, `8746e32`, `3275672`, `0d1fa9b`, `ef21cc0`, `57f8f49`.
 
 ## SCOPE ESCALATION
 TASK: TASK-018
