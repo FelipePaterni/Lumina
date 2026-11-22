@@ -1,6 +1,6 @@
 {
   "task": "TASK-025",
-  "date": "2026-11-22T17:12:10Z",
+  "date": "2026-11-22T18:38:11Z",
   "webOrigin": "http://localhost:3000",
   "apiOrigin": "http://localhost:3001",
   "scenarios": [
@@ -76,9 +76,9 @@
     },
     {
       "scenario": "MT-025-02",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
+      "status": "APROVADO",
+      "evidence": "Responsável testou e aprovou visual e responsividade.",
+      "failure": null
     },
     {
       "scenario": "MT-025-03",
@@ -111,6 +111,6 @@
       "failure": "BROWSERS_UNAVAILABLE"
     }
   ],
-  "manualBrowserReview": "BLOQUEADO: aguardando revisão humana; Edge/Firefox indisponíveis no ambiente desta sessão.",
+  "manualBrowserReview": "PARCIALMENTE APROVADO: responsável aprovou visual e responsividade; cenários de papéis/erros e Edge/Firefox permanecem pendentes.",
   "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md."
 }

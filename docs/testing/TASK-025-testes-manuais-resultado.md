@@ -50,7 +50,7 @@ Resultado: 75/75 amostras foram menores ou iguais a 20 s. Essa medição descrev
 | Abertura direta das cinco rotas web | APROVADO | Todas retornaram HTTP 200; três rotas de painéis exibiram o login sem sessão. |
 | Contraste/rótulos/feedback validado por teste automatizado | APROVADO | 3 testes dedicados passaram; conferir GATE-005. |
 | Papéis, sessão, logout, carregamento de dados autenticado e acesso negado | BLOQUEADO | Requer contas sintéticas para Admin/Catálogo/Estoque e execução humana; nenhuma credencial foi colocada no relatório. |
-| Revisão visual humana no Chrome | BLOQUEADO | A evidência técnica foi coletada; aprovação do responsável ainda necessária. |
+| Revisão visual e responsividade | APROVADO | O responsável testou e aprovou o visual e a responsividade da interface. |
 | Compatibilidade nas duas versões recentes de Edge e Firefox | BLOQUEADO | Esses navegadores não estavam disponíveis no ambiente da sessão. |
 | Estados vazio, erro da API e conexão indisponível por interface | NAO EXECUTADO | Cobertos parcialmente pelo código/testes; ainda exigem revisão manual humana em cenários controlados. |
 
