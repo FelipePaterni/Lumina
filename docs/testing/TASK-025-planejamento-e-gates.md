@@ -28,7 +28,7 @@ Data do registro: 2026-11-22. Branch: `chore/TASK-025-readiness`.
 | GATE-004 | Correções controladas | APROVADO: alterações limitadas e revisadas; sem API/schema |
 | GATE-005 | Testes, lint, builds, segurança e diff | APROVADO: ver resultados abaixo |
 | GATE-006 | Rotas HTTP, navegadores, responsividade, teclado e medições manuais | APROVADO: responsável confirmou rotas/navegação, papéis/sessão, teclado, foco, mensagem de erro, estado vazio e feedback durante indisponibilidade da API. Compatibilidade aprovada em Edge 158.0.4370.33 e Firefox 160.0.1. Baseline Chrome 75/75 ≤20 s. |
-| GATE-007 | Revisão, DoD, commits e rastreabilidade | PENDENTE apenas do commit rastreável de encerramento e atualização final do status em `TASKS.md`. |
+| GATE-007 | Revisão, DoD, commits e rastreabilidade | APROVADO: evidências e estado final registrados em `TASKS.md`; commits rastreáveis da tarefa. |
 
 ## Riscos e bloqueios conhecidos
 
@@ -62,6 +62,6 @@ O relatório `TASK-025-testes-manuais-resultado.md` contém 75 medições de tel
 
 Chrome foi revisado em aba temporária: o link “Painéis da equipe” abriu `/dashboard`; em 390×844, o campo de busca ficou dentro do contêiner após a correção. Quinze verificações DOM (cinco rotas × três viewports) não encontraram largura de documento maior que o viewport; o responsável aprovou visual e responsividade. O seeder autenticou papéis sintéticos pela API e validou a role, sem expor tokens. O responsável confirmou navegação por painel, acesso conforme papel, sessão/logout, teclado e estados vazios/falha/conexão. Em 2026-11-22 confirmou também Edge 158.0.4370.33 e Firefox 160.0.1.
 
-A API local em `localhost:3001` foi temporariamente substituída por `lumina-task025-api`, conectada exclusivamente a `lumina_task009_test`, para permitir login a partir do Web em `localhost:3000`. O container original está parado e o banco normal `lumina` não foi alterado. Para restaurar depois do teste: `docker rm -f lumina-task025-api`; `docker compose start api`.
+Durante a revisão, a API temporária ficou conectada exclusivamente a `lumina_task009_test`; o banco normal `lumina` não foi alterado. Após a aprovação manual, a API Compose original foi restaurada. `docker compose ps` confirmou os serviços `api`, `postgres` e `web` em execução; o container `lumina-api-1` estava `Up`.
 
-`GATE-006` está APROVADO conforme confirmação humana registrada no relatório manual. `GATE-007` aguarda o commit rastreável de encerramento e atualização final do estado. PD-001 permanece aberto para escala de produção e não impede a conclusão da validação local desta tarefa.
+`GATE-006` e `GATE-007` estão APROVADOS. TASK-025 concluída; PD-001 permanece aberto para escala de produção e não impede a validação local desta tarefa.
