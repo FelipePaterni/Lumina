@@ -98,7 +98,7 @@ export function WarehousePanel({ token }: WarehousePanelProps): React.ReactEleme
         <h2 id="stock-alerts-heading">Estoque zerado</h2>
         {summary?.alerts.length ? (
           <ul>{summary.alerts.map((alert) => <li key={alert.editionId}>{alert.workTitle} <span>{alert.type === "OUT_OF_STOCK" ? "sem unidades disponíveis" : "estoque não configurado"}</span></li>)}</ul>
-        ) : <p>{summary ? "Nenhuma edição física sem estoque." : "Carregando alertas…"}</p>}
+        ) : <p>{summary ? "Nenhuma edição física sem estoque." : error ? "Alertas de estoque indisponíveis." : "Carregando alertas…"}</p>}
       </section>
 
       <section aria-labelledby="orders-heading">
@@ -121,7 +121,7 @@ export function WarehousePanel({ token }: WarehousePanelProps): React.ReactEleme
               </form>
             </article>;
           })}
-        </div> : <p className={styles.empty}>{orders ? "Não há pedidos físicos pendentes." : "Carregando pedidos…"}</p>}
+        </div> : <p className={styles.empty}>{orders ? "Não há pedidos físicos pendentes." : error ? "Pedidos indisponíveis." : "Carregando pedidos…"}</p>}
         {orders && orders.total > orders.limit && <nav className={styles.pagination} aria-label="Paginação dos pedidos">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>Anterior</button>
           <span>Página {page}</span>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CheckoutPanel } from "../src/features/checkout/CheckoutPanel";
+import { API_URL } from "../src/features/auth/services/auth-api";
 
 type Work = { id: string; title: string; slug: string; synopsis: string; author: { name: string }; categories: { category: { name: string } }[]; editions: { id: string; format: string; priceCents: number; isVisible: boolean }[]; averageRating: number | null; reviewCount: number };
 
@@ -19,7 +20,7 @@ export default function Home(): React.ReactElement {
     if (sort) query.set("sort", sort);
     setLoading(true);
     setLoadError(false);
-    fetch(`http://localhost:3001/works?${query}`)
+    fetch(`${API_URL}/works?${query}`)
       .then((response) => {
         if (!response.ok) throw new Error("Catalog request failed");
         return response.json();

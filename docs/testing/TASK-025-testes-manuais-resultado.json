@@ -1,0 +1,116 @@
+{
+  "task": "TASK-025",
+  "date": "2026-11-22T17:12:10Z",
+  "webOrigin": "http://localhost:3000",
+  "apiOrigin": "http://localhost:3001",
+  "scenarios": [
+    {
+      "scenario": "web-route/",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 57 ms; corpo omitido",
+      "failure": null
+    },
+    {
+      "scenario": "web-route/dashboard",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 7 ms; corpo omitido",
+      "failure": null
+    },
+    {
+      "scenario": "web-route/catalog/dashboard",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 6 ms; corpo omitido",
+      "failure": null
+    },
+    {
+      "scenario": "web-route/warehouse/dashboard",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 5 ms; corpo omitido",
+      "failure": null
+    },
+    {
+      "scenario": "web-route/operations/dashboard",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 5 ms; corpo omitido",
+      "failure": null
+    },
+    {
+      "scenario": "api-catalog-readiness",
+      "status": "APROVADO",
+      "evidence": "HTTP 200; resposta em 75 ms; corpo omitido",
+      "failure": null
+    }
+  ],
+  "automationChecks": [
+    {
+      "scenario": "route-http-checks",
+      "status": "APROVADO",
+      "evidence": "6/6 endpoints HTTP retornaram 200; corpos omitidos.",
+      "failure": null
+    },
+    {
+      "scenario": "chrome-link-and-route-check",
+      "status": "APROVADO",
+      "evidence": "Link Painéis da equipe abriu /dashboard; login visível sem sessão.",
+      "failure": null
+    },
+    {
+      "scenario": "responsive-overflow-check",
+      "status": "APROVADO",
+      "evidence": "15 combinações de rota e viewport; largura de documento <= viewport.",
+      "failure": null
+    },
+    {
+      "scenario": "chrome-performance-baseline",
+      "status": "APROVADO",
+      "evidence": "75/75 medições <=20 s; detalhes em TASK-025-testes-manuais-resultado.md.",
+      "failure": null
+    }
+  ],
+  "manualScenarios": [
+    {
+      "scenario": "MT-025-01",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-02",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-03",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-04",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-05",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-06",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-07",
+      "status": "BLOQUEADO",
+      "evidence": "Edge/Firefox não disponíveis; revisão por navegador não executada.",
+      "failure": "BROWSERS_UNAVAILABLE"
+    }
+  ],
+  "manualBrowserReview": "BLOQUEADO: aguardando revisão humana; Edge/Firefox indisponíveis no ambiente desta sessão.",
+  "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md."
+}

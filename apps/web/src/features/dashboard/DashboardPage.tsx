@@ -143,6 +143,7 @@ export function DashboardPage({
             <input id="dashboard-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
             <button type="submit" disabled={busy}>{busy ? "Entrando…" : "Entrar"}</button>
           </form>
+          {error && <p className={styles.error} role="alert">{error}</p>}
         </section>
       ) : (
         <>
