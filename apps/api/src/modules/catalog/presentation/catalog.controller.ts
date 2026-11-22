@@ -11,7 +11,7 @@ import { CatalogSearchService } from "../search/catalog-search.service.js";
 @Controller("works")
 export class CatalogController {
   constructor(private readonly catalog: CatalogService, private readonly searchService: CatalogSearchService, private readonly audit: AuditService) {}
-  @Get() list(@Query() query: Record<string, string>) { return this.searchService.search({ search: query.search, category: query.category, language: query.language, minPriceCents: query.minPriceCents ? Number(query.minPriceCents) : undefined, maxPriceCents: query.maxPriceCents ? Number(query.maxPriceCents) : undefined, releaseFrom: query.releaseFrom, releaseTo: query.releaseTo, page: query.page ? Number(query.page) : undefined, limit: query.limit ? Number(query.limit) : undefined }); }
+  @Get() list(@Query() query: Record<string, string>) { return this.searchService.search({ search: query.search, category: query.category, language: query.language, minPriceCents: query.minPriceCents ? Number(query.minPriceCents) : undefined, maxPriceCents: query.maxPriceCents ? Number(query.maxPriceCents) : undefined, releaseFrom: query.releaseFrom, releaseTo: query.releaseTo, sort: query.sort, page: query.page ? Number(query.page) : undefined, limit: query.limit ? Number(query.limit) : undefined }); }
   @Get(":slug") get(@Param("slug") slug: string) { return this.catalog.get(slug); }
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
