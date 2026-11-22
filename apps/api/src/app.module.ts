@@ -11,6 +11,7 @@ import { OrderModule } from "./modules/orders/order.module.js";
 import { LibraryModule } from "./modules/library/library.module.js";
 import { BundleModule } from "./modules/bundles/bundle.module.js";
 import { ReviewsModule } from "./modules/reviews/reviews.module.js";
+import { DashboardReportingModule } from "./modules/reporting/dashboard-reporting.module.js";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ReviewsModule } from "./modules/reviews/reviews.module.js";
     LibraryModule,
     BundleModule,
     ReviewsModule,
+    DashboardReportingModule,
   ],
 })
 export class AppModule {}
