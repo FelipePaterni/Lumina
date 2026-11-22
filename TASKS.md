@@ -26,7 +26,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | DONE |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
-| 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
+| 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | READY |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
 | 26 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
@@ -334,15 +334,21 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Progresso:** API, persistência, agregados do catálogo e migração implementados. Auditoria sanitiza PII/credenciais no motivo textual. O responsável autorizou em 2026-11-21 a expansão mínima para corrigir dois erros preexistentes de lint em scripts manuais da TASK-021. Build, lint, Prisma validate, testes automatizados locais (83/83), integração (11/11) e roteiro manual sanitizado (8/8) passaram. A migração foi aplicada somente ao banco isolado `lumina_task009_test`; o responsável revisou e aprovou o relatório manual em 2026-11-22. Relatórios e roteiro: `docs/testing/TASK-022-planejamento-e-gates.md`, `docs/testing/TASK-022-testes-manuais-resultado.md` e `tests/manual/task-022/run-task-022-manual-tests.ps1`. A alteração de uma linha na tabela de APIs do README é incidental, para manter o contrato documentado. Commits da TASK: `3e8fb02`, `e4c5737`, `6e76fdf`.
 
 ### TASK-023 — Painéis e relatórios essenciais
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** READY · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Exibir indicadores confirmados com isolamento por papel.
 **Dependências:** `DEPENDS_ON: TASK-020, TASK-021`
-**Relacionados:** RF-021,023.
-**Artefatos esperados:** painéis global, catálogo e estoque.
-**ALLOWED_CHANGES:** `modules/reporting/**`; `features/dashboard/**`; `tests/**`; `TASKS.md`.
-**FORBIDDEN_CHANGES:** exportação avançada; dados fora do papel.
-**Aceitação/testes:** Admin vê total/clientes/pedidos/mais vendidos; catálogo vê digital/licença/cupom/baixa; Estoquista vê físico/status/baixa.
-**DoD específico:** consultas não expõem PII desnecessária.
+**Relacionados:** RF-021; RF-023 (somente autorização por papel); RN-020,021; UC-021; RNF-002,003; ADR-001,003,007 (`ACCEPTED`).
+**Artefatos esperados:** endpoints e interfaces dos painéis Admin, Catálogo e Estoque; testes de agregação, autorização e estados vazios.
+**ALLOWED_CHANGES:** `apps/api/src/modules/reporting/**`; `apps/web/app/**`; `apps/web/src/features/dashboard/**`; `apps/web/src/features/warehouse/**` (integração mínima do painel existente); `tests/**`; `docs/testing/TASK-023-*` (planejamento e relatório manual sanitizado); `TASKS.md`.
+**FORBIDDEN_CHANGES:** exportação avançada; gestão de usuários; mudança nas regras de pedidos, reembolsos, cupons ou estoque; schema/migrações; dados fora do papel ou PII de clientes nas respostas.
+**Aceitação/testes:**
+- Admin consulta `/admin/dashboard` com indicadores históricos: valor líquido pago (`Payment.amountCents - Payment.refundedCents`), clientes com `role=CUSTOMER` e `isActive=true`, todos os pedidos confirmados registrados e Top 5 obras por unidades líquidas. Pedidos gratuitos contam como pedidos/unidades confirmados; reembolsos processados reduzem valor e unidades sem remover o pedido histórico. Top 5 agrega formatos por obra e desempata por título e ID.
+- Catálogo consulta `/catalog/dashboard`: licenças digitais alocadas/disponíveis; capacidade `null` ou inventário ausente conserva a semântica existente de ilimitado; alertar quando capacidade finita está esgotada. Cupons considerados são ativos, dentro da validade (`validFrom <= agora < validUntil`) e com cota restante; exibir uso/cota acumulados (`usageCount`/`maxUses`).
+- Estoque consulta `/warehouse/dashboard` com o resumo operacional atual: contagens de pedidos físicos por status, unidades em estoque e alertas de estoque zerado/não configurado. Não criar limiar novo de estoque baixo. Preservar `GET /admin/warehouse/summary` para compatibilidade.
+- Acesso: Admin consulta os três painéis; `CATALOG` somente `/catalog/dashboard`; `STOCK` somente `/warehouse/dashboard`; visitante recebe 401 e `CUSTOMER` recebe 403. Respostas contêm somente agregados necessários ao papel, sem dados pessoais de clientes.
+- Testes unitários cobrem fórmulas, reembolsos parciais/totais, pedido gratuito, agregação por obra, Top 5/empate, cupons válidos/inválidos, licenças finitas/ilimitadas/esgotadas, estoque zero/não configurado e dados vazios. Testes de integração cobrem os três endpoints, ausência de PII, autorização por papel e compatibilidade da rota de estoque existente. Aceitação manual cobre painel e estado vazio para cada papel, usando dados sintéticos via `tests/manual/task-023/run-task-023-manual-tests.ps1`; relatório sanitizado em `docs/testing/` deve ser revisado por pessoa.
+**DoD específico:** painéis exibem somente indicadores essenciais autorizados; valores de receita e unidades respeitam pagamentos e reembolsos processados; respostas não expõem PII nem alteram regras de negócio.
+**Prontidão:** READY em 2026-11-22 após TASK-020 e TASK-021 confirmadas `DONE`; relatório de gates e resultado manual de TASK-020 e resultado manual aprovado de TASK-021 verificados; RF-021, RN-020/021, UC-021, RNF-002/003 e ADR-001/003/007 revisados. Fórmulas, papéis, endpoints, Scope Guard e matriz de testes definidos. RF-023 limita-se à autorização dos painéis; gestão de usuários fica fora do escopo. Os campos necessários já existem; nenhuma migração é prevista. Baseline nesta branch: lint aprovado, smoke/unit 83/83 e build aprovado após limpar cache Next.js ignorado; `git diff --check` aprovado. GATE-001, GATE-002 e GATE-003 aprovados.
 
 ### TASK-024 — Privacidade operacional e observabilidade
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
