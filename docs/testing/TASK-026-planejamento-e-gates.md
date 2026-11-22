@@ -103,5 +103,19 @@ Falha em serviço local externo, registro npm ou configuração do ambiente ser�
 | GATE-001 — Recontextualização e prontidão | APROVADO | Dependências, ADRs, escopo e blockers de publicação confirmados; branch própria e prontidão em `TASKS.md`. |
 | GATE-002 — Matriz de evidências | APROVADO | Rastreabilidade de requisitos, DoD, backup/restore, regressão e PDs neste documento. |
 | GATE-003 — Planejamento | APROVADO | Plano local/não destrutivo e comandos reais documentados acima. |
-| GATE-004 — Execução das validações | PENDENTE | Aguardar execução dos gates automatizados, segurança e ensaio backup/restore. |
-| GATE-005 — Testes manuais e conclusão | PENDENTE | Criar roteiro humano final após GATE-004; aprovação manual continua necessária. |
+| GATE-004 — Execução das validações | APROVADO COM BLOQUEIOS REGISTRADOS | Lint, `npm test` (96/96), builds API/Web aprovados. `npm run test:integration` e `docker compose config`/backup-restore bloqueados: Docker engine indisponível e `.env` sem `DATABASE_URL`. `npm audit --omit=dev` bloqueado por DNS (`ENOTFOUND registry.npmjs.org`). Evidências sanitizadas em `TASK-026-backup-restore-result.md`; nenhum banco foi criado ou alterado. |
+| GATE-005 — Testes manuais e conclusão | BLOQUEADO | Roteiro e relatório preparados; os quatro cenários permanecem `NAO EXECUTADO` até revisão humana. TASK não pode ser concluída sem essa revisão e sem resolver os bloqueios de regressão/backup/auditoria. |
+
+## GATE-004 — Execução das validações (2026-11-22)
+
+| Verificação | Resultado | Evidência / código |
+|---|---|---|
+| `npm run lint` | APROVADO | Código 0. |
+| `npm test` | APROVADO | Código 0; 96 testes aprovados, 0 falhas. |
+| `npm run build --workspace @lumina/api` | APROVADO | Código 0. |
+| `npm run build --workspace @lumina/web` | APROVADO | Código 0; compilação, TypeScript e geração das páginas concluídos. |
+| `npm audit --omit=dev` | BLOQUEADO | Código 1; registry indisponível por DNS `ENOTFOUND registry.npmjs.org`; nenhuma dependência alterada. |
+| Banco isolado / integração | BLOQUEADO | Preparador validado sintaticamente; código 1 com `DATABASE_URL_MISSING`. O Docker Compose também informou acesso negado ao engine. A preparação parou antes de criar banco; `npm run test:integration` não foi executado sem banco isolado. |
+| `docker compose config --quiet` / backup-restore | BLOQUEADO | Engine Docker inacessível; tentativa anterior também documenta origem isolada ausente. Nenhum dump, banco ou volume foi criado/alterado pelo ensaio. |
+
+Os gates independentes foram executados integralmente. GATE-004 é aprovado no sentido do critério da etapa (cada verificação tem resultado comprovado ou bloqueio explícito); os bloqueios listados impedem o DoD e a conclusão da TASK. Não se afirma aprovação de integração, auditoria ou backup/restore.
