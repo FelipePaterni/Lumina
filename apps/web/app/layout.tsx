@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { DashboardSessionProvider } from "../src/features/dashboard/DashboardSessionProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>): React.ReactElement {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <DashboardSessionProvider>{children}</DashboardSessionProvider>
+      </body>
     </html>
   );
 }

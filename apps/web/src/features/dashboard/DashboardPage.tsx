@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { loginRequest } from "../auth/services/auth-api";
 import {
   AdminDashboard,
@@ -11,12 +13,13 @@ import {
   OperationsDashboard,
   WarehouseDashboard,
 } from "./dashboard-api";
+import {
+  dashboardSectionRoutes,
+  dashboardSectionsForRole,
+  landingRouteForRole,
+} from "./dashboard-navigation";
+import { DashboardSession, useDashboardSession } from "./DashboardSessionProvider";
 import styles from "./DashboardPage.module.css";
-
-interface DashboardSession {
-  token: string;
-  role: Exclude<DashboardRole, "CUSTOMER">;
-}
 
 interface LoginResponse {
   accessToken?: string;
@@ -33,23 +36,22 @@ const sectionLabels: Record<DashboardSection, string> = {
   operations: "Operação",
 };
 
-const sectionsForRole: Record<Exclude<DashboardRole, "CUSTOMER">, DashboardSection[]> = {
-  ADMIN: ["admin", "catalog", "warehouse", "operations"],
-  CATALOG: ["catalog"],
-  STOCK: ["warehouse"],
-};
-
 const roleLabels: Record<DashboardSession["role"], string> = {
   ADMIN: "Administrador",
   CATALOG: "Catálogo",
   STOCK: "Estoque",
 };
 
-export function DashboardPage(): React.ReactElement {
+export function DashboardPage({
+  initialSection,
+}: {
+  initialSection: Exclude<DashboardSection, "operations">;
+}): React.ReactElement {
+  const router = useRouter();
+  const { session, setSession } = useDashboardSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [session, setSession] = useState<DashboardSession | null>(null);
-  const [section, setSection] = useState<DashboardSection>("admin");
+  const [section, setSection] = useState<DashboardSection>(initialSection);
   const [data, setData] = useState<DashboardData | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -57,12 +59,13 @@ export function DashboardPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
 
   const availableSections = useMemo(
-    () => (session ? sectionsForRole[session.role] : []),
+    () => (session ? dashboardSectionsForRole[session.role] : []),
     [session],
   );
+  const authorized = availableSections.includes(section);
 
   useEffect(() => {
-    if (!session || !availableSections.includes(section)) return;
+    if (!session || !authorized) return;
     let active = true;
     const load = async () => {
       setLoading(true);
@@ -81,7 +84,7 @@ export function DashboardPage(): React.ReactElement {
     };
     void load();
     return () => { active = false; };
-  }, [availableSections, section, session]);
+  }, [authorized, section, session]);
 
   const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,9 +103,12 @@ export function DashboardPage(): React.ReactElement {
         return;
       }
       setSession({ token: result.accessToken, role });
-      setSection(role === "ADMIN" ? "admin" : role === "CATALOG" ? "catalog" : "warehouse");
+      const targetRoute = role === "ADMIN"
+        ? dashboardSectionRoutes[initialSection]
+        : landingRouteForRole(role);
       setPassword("");
       setMessage(null);
+      router.replace(targetRoute);
     } catch {
       setError("Não foi possível conectar à API.");
     } finally {
@@ -114,6 +120,7 @@ export function DashboardPage(): React.ReactElement {
     setSession(null);
     setData(null);
     setError(null);
+    setSection(initialSection);
     setMessage("Sessão encerrada.");
   };
 
@@ -144,10 +151,10 @@ export function DashboardPage(): React.ReactElement {
             <p>Sessão da equipe: <strong>{roleLabels[session.role]}</strong></p>
             <button type="button" className={styles.secondaryButton} onClick={logout}>Sair</button>
           </div>
-          {availableSections.length > 1 && (
+          {session.role === "ADMIN" && (
             <nav className={styles.tabs} aria-label="Painéis disponíveis">
               {availableSections.map((availableSection) => (
-                <button
+                availableSection === "operations" ? <button
                   type="button"
                   key={availableSection}
                   aria-pressed={section === availableSection}
@@ -155,13 +162,26 @@ export function DashboardPage(): React.ReactElement {
                   onClick={() => setSection(availableSection)}
                 >
                   {sectionLabels[availableSection]}
-                </button>
+                </button> : <Link
+                  key={availableSection}
+                  href={dashboardSectionRoutes[availableSection]}
+                  aria-current={section === availableSection ? "page" : undefined}
+                  className={section === availableSection ? styles.activeTab : styles.tab}
+                >
+                  {sectionLabels[availableSection]}
+                </Link>
               ))}
             </nav>
           )}
-          {loading && <p className={styles.status} role="status">Carregando indicadores…</p>}
-          {error && <p className={styles.error} role="alert">{error}</p>}
-          {data && !loading && (
+          {!authorized && (
+            <section className={styles.error} role="alert">
+              <p>Seu perfil não tem acesso a este painel.</p>
+              <Link href={landingRouteForRole(session.role)}>Abrir meu painel</Link>
+            </section>
+          )}
+          {authorized && loading && <p className={styles.status} role="status">Carregando indicadores…</p>}
+          {authorized && error && <p className={styles.error} role="alert">{error}</p>}
+          {authorized && data && !loading && (
             <section className={styles.dashboard} aria-live="polite">
               {section === "admin" && <AdminPanel data={data as AdminDashboard} />}
               {section === "catalog" && <CatalogPanel data={data as CatalogDashboard} />}

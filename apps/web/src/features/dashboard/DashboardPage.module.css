@@ -10,6 +10,7 @@
 .loginForm label { font: 700 .82rem Arial, sans-serif; }
 .loginForm input { box-sizing: border-box; width: 100%; padding: .8rem; border: 1px solid #b8ad9f; border-radius: 4px; background: #fff; font: 1rem Arial, sans-serif; }
 .loginForm button, .secondaryButton, .tab, .activeTab { border: 1px solid #315848; border-radius: 4px; padding: .7rem 1rem; font: 700 .88rem Arial, sans-serif; cursor: pointer; }
+.tab, .activeTab { display: inline-block; text-decoration: none; }
 .loginForm button, .activeTab { background: #315848; color: #fff; }
 .loginForm button:disabled { opacity: .55; cursor: wait; }
 .sessionBar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1.5rem 0; }
