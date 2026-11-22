@@ -25,7 +25,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 19 | TASK-019 | PHASE-04 | HIGH | 017,018 | DONE |
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | DONE |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
-| 22 | TASK-022 | PHASE-05 | HIGH | 020 | IN_REVIEW |
+| 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | BLOCKED |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
@@ -321,7 +321,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Prontidão:** READY em 2026-11-21 após TASK-020 DONE, dependência validada, requisitos/aceitação/testes/Scope Guard definidos e ADR-005 aceito. Iniciada em branch própria após autorização do responsável. O responsável aprovou em 2026-11-21 a ampliação mínima de ALLOWED_CHANGES para `apps/api/src/modules/notifications/notification-event.ts`, exclusivamente para adicionar evento específico de atualização logística. TASK-021 iniciada em branch própria e concluída após revisão humana aprovada em 2026-11-21. Commits exclusivos: `56fec72`, `09bbeb1` e `c91e10d`; relatório manual em `docs/testing/TASK-021-testes-manuais-resultado.md`.
 
 ### TASK-022 — Avaliações, denúncia e moderação
-**Status:** IN_REVIEW · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Disponibilizar avaliação publicada, denúncia e remoção auditada.
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-019,022; RN-016,017.
@@ -331,7 +331,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** só adquirente cria; qualquer usuário denuncia; remoção exige motivo/auditoria.
 **DoD específico:** catálogo calcula média somente de avaliações visíveis.
 **Prontidão:** READY em 2026-11-21 após confirmar TASK-020 DONE e seus gates/relatório, RF-019/RF-022, RN-016/RN-017, aceitação, testes, Scope Guard e ADR-003 aceito. O responsável autorizou ampliar `ALLOWED_CHANGES` para `database/schema.prisma` e `database/migrations/**` em 2026-11-21, pois o schema não possuía persistência de avaliações/denúncias, e para `apps/api/src/modules/catalog/**` para retornar agregados de avaliações visíveis ao catálogo. Iniciada em branch própria após autorização.
-**Progresso:** API, persistência, agregados do catálogo e migração implementados. Auditoria sanitiza PII/credenciais no motivo textual. O responsável autorizou em 2026-11-21 a expansão mínima para corrigir dois erros preexistentes de lint em scripts manuais da TASK-021. Build, lint, Prisma validate, testes automatizados locais (83/83), integração (11/11) e roteiro manual sanitizado (8/8) passaram. A migração foi aplicada somente ao banco isolado `lumina_task009_test`; revisão humana do relatório manual permanece pendente. Relatórios e roteiro: `docs/testing/TASK-022-planejamento-e-gates.md`, `docs/testing/TASK-022-testes-manuais-resultado.md` e `tests/manual/task-022/run-task-022-manual-tests.ps1`. A alteração de uma linha na tabela de APIs do README é incidental, para manter o contrato documentado. Commits de implementação e checkpoints: `3e8fb02`, `e4c5737`.
+**Progresso:** API, persistência, agregados do catálogo e migração implementados. Auditoria sanitiza PII/credenciais no motivo textual. O responsável autorizou em 2026-11-21 a expansão mínima para corrigir dois erros preexistentes de lint em scripts manuais da TASK-021. Build, lint, Prisma validate, testes automatizados locais (83/83), integração (11/11) e roteiro manual sanitizado (8/8) passaram. A migração foi aplicada somente ao banco isolado `lumina_task009_test`; o responsável revisou e aprovou o relatório manual em 2026-11-22. Relatórios e roteiro: `docs/testing/TASK-022-planejamento-e-gates.md`, `docs/testing/TASK-022-testes-manuais-resultado.md` e `tests/manual/task-022/run-task-022-manual-tests.ps1`. A alteração de uma linha na tabela de APIs do README é incidental, para manter o contrato documentado. Commits da TASK: `3e8fb02`, `e4c5737`, `6e76fdf`.
 
 ### TASK-023 — Painéis e relatórios essenciais
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH

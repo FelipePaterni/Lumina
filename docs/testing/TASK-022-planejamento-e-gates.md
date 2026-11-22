@@ -36,7 +36,7 @@ Rollback: reverter o commit exclusivo da TASK-022 antes de aplicar a migração 
 | GATE-004 — Implementação controlada | APROVADO | API, schema, migração e agregados do catálogo implementados; build, validação Prisma, lint e suíte unitária passaram. |
 | GATE-005 — Revisão/gates automatizados | APROVADO | Migração aplicada ao banco isolado `lumina_task009_test`; suíte completa de integração passou, incluindo TASK-022. |
 | GATE-006 — Testes manuais | APROVADO (execução) | Roteiro HTTP sanitizado passou nos oito cenários com fixture sintética; revisão humana do relatório pendente. |
-| GATE-007 — Conclusão/rastreabilidade | IN_REVIEW | Implementação, gates e relatório rastreados; aguardando revisão humana do resultado manual antes de `DONE`. |
+| GATE-007 — Conclusão/rastreabilidade | APROVADO | Relatório manual revisado e aprovado pelo responsável em 2026-11-22; TASK atualizada para `DONE`. |
 
 ### Comandos executados
 
@@ -71,4 +71,4 @@ O roteiro foi executado com contas, pedido, obra e comentários sintéticos; tok
 
 ## Pendência para conclusão
 
-A implementação e os gates técnicos estão concluídos. A TASK permanece `IN_REVIEW` para revisão humana do relatório sanitizado de execução manual antes de atualizar para `DONE`.
+A implementação e todos os gates estão concluídos. O responsável revisou e aprovou o relatório sanitizado em 2026-11-22; a TASK foi atualizada para `DONE`.
