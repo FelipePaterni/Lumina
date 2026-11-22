@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import process from "node:process";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
 
 const taskDirectory = dirname(fileURLToPath(import.meta.url));
 export const repositoryRoot = resolve(taskDirectory, "../../..");

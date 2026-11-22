@@ -49,6 +49,19 @@ export class CatalogSearchService {
       this.prisma.work.findMany({ where, skip, take: query.limit, include: { author: true, publisher: true, categories: { include: { category: true } }, editions: { where: editionFilter } }, orderBy: [{ releaseDate: "desc" }, { title: "asc" }] }),
       this.prisma.work.count({ where }),
     ]);
-    return { items, page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) };
+    const reviews = items.length
+      ? await this.prisma.review.groupBy({
+          by: ["workId"],
+          where: { workId: { in: items.map((item) => item.id) }, isVisible: true },
+          _avg: { rating: true },
+          _count: { _all: true },
+        })
+      : [];
+    const byWorkId = new Map(reviews.map((review) => [review.workId, review]));
+    const itemsWithReviewSummary = items.map((item) => {
+      const summary = byWorkId.get(item.id);
+      return { ...item, averageRating: summary?._avg.rating ?? null, reviewCount: summary?._count._all ?? 0 };
+    });
+    return { items: itemsWithReviewSummary, page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) };
   }
 }

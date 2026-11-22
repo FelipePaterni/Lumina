@@ -10,6 +10,7 @@ import { CartModule } from "./modules/cart/cart.module.js";
 import { OrderModule } from "./modules/orders/order.module.js";
 import { LibraryModule } from "./modules/library/library.module.js";
 import { BundleModule } from "./modules/bundles/bundle.module.js";
+import { ReviewsModule } from "./modules/reviews/reviews.module.js";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BundleModule } from "./modules/bundles/bundle.module.js";
     OrderModule,
     LibraryModule,
     BundleModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}

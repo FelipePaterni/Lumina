@@ -61,13 +61,27 @@ export class AuditLogEntity {
     this.action = params.action.trim();
     this.targetType = params.targetType.trim();
     this.targetId = params.targetId ?? null;
-    this.reason = params.reason ? params.reason.trim() : null;
+    this.reason = params.reason
+      ? AuditLogEntity.sanitizeReason(params.reason.trim())
+      : null;
     this.metadata = sanitizedMetadata ? JSON.stringify(sanitizedMetadata) : null;
     this.createdAt = createdAt ?? new Date();
   }
 
   public static isSensitiveAction(action: string): boolean {
     return this.SENSITIVE_ACTIONS_REQUIRING_REASON.has(action);
+  }
+
+  private static sanitizeReason(reason: string): string {
+    return reason
+      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[REDACTED]")
+      .replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[REDACTED]")
+      .replace(
+        /(?<!\d)(?:\+?55\s*)?\(?\d{2}\)?[\s.-]?9?\d{4}[\s.-]?\d{4}(?!\d)/g,
+        "[REDACTED]",
+      )
+      .replace(/\bBearer\s+\S+/gi, "Bearer [REDACTED]")
+      .replace(/\beyJ[\w-]+\.[\w-]+\.[\w-]+\b/g, "[REDACTED]");
   }
 
   /**
