@@ -63,6 +63,27 @@ try {
     credentials.push({ role: account.role, email: account.email, password });
   }
 
+  if (process.env.TASK025_API_BASE) {
+    for (const account of credentials) {
+      const response = await globalThis.fetch(
+        new URL("/auth/login", process.env.TASK025_API_BASE),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: account.email, password: account.password }),
+        },
+      );
+      const result = await response.json().catch(() => null);
+      if (
+        !response.ok ||
+        !result?.accessToken ||
+        result.user?.role !== account.role
+      ) {
+        throw new Error(`Login sintético não confirmou papel ${account.role}.`);
+      }
+    }
+  }
+
   process.stdout.write(
     `${JSON.stringify({ database: connectedDatabase, credentials }, null, 2)}\n`,
   );
