@@ -27,7 +27,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
-| 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
+| 24 | TASK-024 | PHASE-05 | HIGH | 020 | READY |
 | 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
 | 26 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
 | 27 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
@@ -353,18 +353,19 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 
 **Validação HTTP (2026-11-22):** preparador `tests/manual/task-023/prepare-and-run.mjs` cria quatro contas sintéticas e obtém tokens por login real em memória; banco isolado criado e migrado. Roteiro HTTP aprovado 7/7; relatório em `docs/testing/TASK-023-testes-manuais-resultado.md`. Commits anteriores: `89be98f` e `e4fe1e0`. Estado continua `IN_REVIEW`: revisão humana da UI e do relatório pendente. Mudanças primárias autorizadas em testes, relatório e rastreabilidade; nenhuma incidental.
 
-**Conclusão (2026-11-22):** responsável confirmou nesta conversa a execução e aprovação dos seis cenários visuais MT-023-UI-01 a MT-023-UI-06 e aprovou o relatório HTTP 7/7. TASK-023 DONE; GATE-001 a GATE-007 aprovados, DoD satisfeita. Evidência humana registrada no relatório sanitizado. Commits: `163e69a`, `89be98f`, `e4fe1e0`, `904d8b1`, mais commit de encerramento. Alterações primárias autorizadas; nenhuma incidental ou proibida. TASK-024 permanece BLOCKED e requer resolução das próprias pendências antes de ficar elegível.
+**Conclusão (2026-11-22):** responsável confirmou nesta conversa a execução e aprovação dos seis cenários visuais MT-023-UI-01 a MT-023-UI-06 e aprovou o relatório HTTP 7/7. TASK-023 DONE; GATE-001 a GATE-007 aprovados, DoD satisfeita. Evidência humana registrada no relatório sanitizado. Commits: `163e69a`, `89be98f`, `e4fe1e0`, `904d8b1`, mais commit de encerramento. Alterações primárias autorizadas; nenhuma incidental ou proibida. TASK-024 tornou-se READY após definir indicadores, critérios de alerta e Scope Guard.
 
 ### TASK-024 — Privacidade operacional e observabilidade
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** READY · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Completar solicitação de exclusão, avisos, auditoria e monitoramento técnico.
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-002,020,022; RN-017–019; RNF-003,007,008; PD-002.
 **Artefatos esperados:** fluxo de desativação/reativação durante período configurável, alertas e dashboards técnicos.
-**ALLOWED_CHANGES:** `modules/privacy/**`; `modules/audit/**`; `modules/observability/**`; `modules/notifications/**`; `tests/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/api/src/modules/identity/**` (configuração do prazo e ciclo de reativação); `apps/api/src/modules/audit/**` (sanitização de falhas); `apps/api/src/modules/observability/**` (resumo técnico); `apps/web/src/features/dashboard/**` (seção Admin Operação); `tests/**`; `tests/manual/task-024/**`; `docs/testing/TASK-024-*` (planejamento e relatório sanitizado); `TASKS.md`.
 **FORBIDDEN_CHANGES:** declarar conformidade legal total; eliminação definitiva sem política aprovada.
-**Aceitação/testes:** solicitação desativa, Admin acompanha, cliente recebe aviso; logs não contêm PII.
+**Aceitação/testes:** `ACCOUNT_DELETION_GRACE_PERIOD_DAYS` aceita inteiro positivo e usa 30 dias quando ausente; solicitação desativa e notifica cliente/Admin; reativação funciona dentro do prazo e é recusada após o vencimento sem excluir dados; endpoint `/admin/observability/dashboard` protegido por Admin agrega saúde da API/banco, outbox por estado e solicitações de exclusão pendentes/vencidas/próxima data, sem PII; alerta quando há notificações `FAILED` ou lease `PROCESSING` vencido; demais papéis recebem 403 e visitante 401; logs não contêm PII nem detalhes brutos de exceção. Testes unitários, integração e roteiro manual sintético.
 **DoD específico:** PD-002 permanece visível como limite.
+**Prontidão:** READY em 2026-11-22 após decisão do responsável sobre indicadores do painel Admin (saúde, notificações e solicitações agregadas sem PII), critérios de alerta, configuração do prazo e atualização do Scope Guard para caminhos reais; TASK-020 DONE e ADR-003 ACCEPTED verificados. Sem alteração de schema/migração; PD-002 permanece como limite.
 
 ### TASK-027 — Rankings de descoberta pós-venda
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
