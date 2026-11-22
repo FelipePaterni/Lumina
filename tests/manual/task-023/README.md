@@ -12,6 +12,16 @@ Validar os painéis Admin, Catálogo e Estoque com contas e dados sintéticos, i
 
 ## Preparação e comando executável
 
+### Preparação automática das contas e tokens
+
+Com PostgreSQL local disponível, banco `lumina_task009_test` existente e migrado, build atual da API e Web disponível na porta 3000, execute na raiz do repositório:
+
+```powershell
+node --env-file=.env tests/manual/task-023/prepare-and-run.mjs
+```
+
+Esse comando deriva a conexão local do `.env`, usando exclusivamente `lumina_task009_test` (ou aceita `TASK009_TEST_DATABASE_URL`, validada para esse mesmo banco). Cria quatro contas novas `@example.invalid`, uma por papel, com senhas aleatórias em memória; faz login real para obter os tokens e executa o roteiro HTTP. Uma API temporária usa uma porta livre e é encerrada ao terminar. As contas sintéticas permanecem no banco isolado; cada repetição cria quatro novas contas. Não é necessário preencher variáveis de token. Senhas e tokens não são exibidos nem gravados. Essa execução verifica HTTP; a revisão visual abaixo continua pendente.
+
 Inicie a API e a Web conforme os comandos documentados no projeto. Confirme a conectividade sem enviar credenciais:
 
 ```powershell
