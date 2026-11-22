@@ -29,7 +29,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
 | 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
-| 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | READY |
+| 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | IN_PROGRESS |
 | 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
 
@@ -383,7 +383,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** responsável aprovou MT-024-UI-01 a MT-024-UI-03 nesta conversa; aprovação humana registrada em `docs/testing/TASK-024-testes-manuais-resultado.md`. TASK-024 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: build, lint, `npm test` (93/93), integração (13/13 em `lumina_task009_test`), sintaxe Node/PowerShell e `git diff --check` aprovados. GATE-006: roteiro sintético HTTP/API 7/7 aprovado e revisão visual 3/3 aprovada pelo responsável. Mudança incidental: registro do novo módulo em `apps/api/src/app.module.ts`, necessário para expor o endpoint. Sem migração ou mudança proibida. PD-002 permanece como limite explícito; `npm run format:check` não é gate definido e sua falha basal em 200 arquivos não foi corrigida por formatação global. Commits de implementação: `893ed7b`, `78ec7e0`; commit de encerramento registra aprovação e estado final.
 
 ### TASK-027 — Rankings de descoberta pós-venda
-**Status:** READY · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** IN_PROGRESS · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Entregar os filtros de catálogo que dependem de dados consolidados de pedidos e avaliações.
 **Dependências:** `DEPENDS_ON: TASK-022, TASK-023`
 **Relacionados:** RF-003,019; RN-016; RNF-011.
@@ -393,6 +393,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** `GET /works?sort=BEST_SELLING|TOP_RATED`; omissão mantém a ordenação atual e valor inválido retorna 400. Ordenação compõe com busca, categoria, idioma, faixa de preço e lançamento, e é aplicada antes de paginação; obras ocultas continuam excluídas. Mais vendidos reutiliza a regra TASK-023: pedidos historicamente confirmados (`CONFIRMED`, `PARTIALLY_REFUNDED`, `REFUNDED`) menos unidades de reembolsos `PROCESSED`, com zero unidades no fim; empate por título e ID. Melhor avaliados usa média apenas de avaliações visíveis; sem avaliações fica por último e empates usam título e ID; não criar mínimo de avaliações. Resposta preserva a forma atual de itens/paginação e agregados `averageRating`/`reviewCount`. Testar composição de filtros, paginação, empate, reembolso, avaliação removida, estados vazios, papéis públicos e validação do parâmetro.
 **DoD específico:** ranking estável e paginado; plano de execução analisado em banco isolado e evidência registra os índices efetivamente utilizados. Se for necessário adicionar índice ou migração, pausar e emitir scope escalation antes de editar schema/migrations.
 **Prontidão:** reavaliada em 2026-11-22 após TASK-022 e TASK-023 DONE; seus gates e relatórios foram localizados. Caminhos do código e testes corrigidos para a estrutura real. RF-003, RN-016, RNF-011, UC-003 e ADR-001/003 conferidos. Parâmetros, desempates, refund semantics, filtros, paginação e estados vazios definidos. Sem decisão bloqueante e sem migração prevista; análise do plano de execução faz parte da implementação, e qualquer índice novo exige scope escalation.
+**Execução:** IN_PROGRESS em 2026-11-22 na branch `feature/TASK-027-rankings-descoberta`, iniciada após commit de prontidão `4a1197d`. GATE-001 a GATE-003 aprovados; implementação e gates restantes em andamento.
 
 ### TASK-025 — Acessibilidade, responsividade e desempenho
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
