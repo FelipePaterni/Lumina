@@ -92,7 +92,7 @@ GATE-002 cobre também a lacuna documental: não existe relatório de planejamen
 | Segurança de dependências | `npm audit --omit=dev`. | Se a rede/registro estiver indisponível, registrar `BLOQUEADO`; não atualizar dependências sem scope escalation. |
 | Backup/restore | Roteiro PowerShell valida Docker, usa `pg_dump` do banco sintético, cria banco temporário de nome único apenas se ausente, restaura e compara contagens de tabelas; nunca apaga o banco restaurado nem altera o original. | Dump temporário fica no contêiner PostgreSQL e é removido em `finally`; relatório sanitizado inclui data, status, evidência resumida e falhas, sem URL/credenciais/dados. |
 | Revisão de segurança/documentos | Conferir rastreabilidade RF/RN/RNF/UC/ADR, registros de gates, limites de V1 e PDs. | PII/segredos não são copiados; PDs continuam como blockers de publicação. |
-| Teste manual humano final | Roteiro separado com checklist de elegibilidade de revisão, ambiente isolado, evidência de backup/restore e aceite dos blockers de publicação. | O roteiro começa `NAO EXECUTADO`; aprovação humana não é presumida pelo checkpoint automatizado. |
+| Teste manual humano final | Roteiro separado com checklist de elegibilidade de revisão, ambiente isolado, evidência de backup/restore e confirmação dos blockers de publicação. | Quatro cenários revisados e aprovados pelo responsável em `TASK-026-testes-manuais-resultado.md`; publicação continua condicionada aos PDs. |
 
 Falha em serviço local externo, registro npm ou configuração do ambiente será registrada como `BLOQUEADO`, com impacto e próxima ação. Qualquer falha de teste é `REPROVADO` até análise e correção autorizada. Nenhum rollback de migration, remoção de volume Docker ou escrita no banco normal está planejado.
 
@@ -104,7 +104,7 @@ Falha em serviço local externo, registro npm ou configuração do ambiente ser�
 | GATE-002 — Matriz de evidências | APROVADO | Rastreabilidade de requisitos, DoD, backup/restore, regressão e PDs neste documento. |
 | GATE-003 — Planejamento | APROVADO | Plano local/não destrutivo e comandos reais documentados acima. |
 | GATE-004 — Execução das validações | APROVADO | Lint, `npm test` (96/96), builds API/Web, integração (14/14), Compose config, backup/restore (34 tabelas em origem e destino) e `npm audit --omit=dev` (0 vulnerabilidades) aprovados. Evidências sanitizadas em `TASK-026-backup-restore-result.md`. |
-| GATE-005 — Testes manuais e conclusão | BLOQUEADO | Roteiro e relatório preparados; os quatro cenários permanecem `NAO EXECUTADO` até revisão humana. TASK aguarda execução e aprovação do responsável. |
+| GATE-005 — Testes manuais e conclusão | APROVADO | Responsável aprovou os quatro cenários manuais. V1 elegível para revisão humana; PD-001–003 mantidos como bloqueios de publicação. Evidência em `TASK-026-testes-manuais-resultado.md`. |
 
 ## GATE-004 — Execução das validações (2026-11-22)
 
@@ -118,4 +118,4 @@ Falha em serviço local externo, registro npm ou configuração do ambiente ser�
 | Banco isolado / integração | APROVADO | Banco `lumina_task009_test` existente e migrado (15 migrações); catálogo sintético aplicado; integração 14/14. Relatório sanitizado anexo. |
 | `docker compose config --quiet` / backup-restore | APROVADO | Compose válido; dump e restauração para `lumina_task026_restore_3aef92b5`; 34 tabelas em ambos. Dump temporário removido; banco restaurado preservado. |
 
-Todas as validações automatizadas do GATE-004 foram executadas e aprovadas. A TASK ainda não está concluída: os cenários humanos do GATE-005 continuam pendentes e exigem revisão/aprovação do responsável.
+Todas as validações automatizadas do GATE-004 e os quatro cenários humanos do GATE-005 foram aprovados. A V1 está elegível para revisão humana. PD-001–003 continuam como bloqueios de publicação, conforme a DoD; não houve aceitação implícita dessas decisões.
