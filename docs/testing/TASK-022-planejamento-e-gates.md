@@ -1,6 +1,6 @@
 # TASK-022 — Planejamento e gates
 
-Data: 2026-11-21
+Data: 2026-11-22
 Branch: `feature/TASK-022-avaliacoes-denuncia-moderacao`
 Commit parcial: `3e8fb02` (`feat(reviews): add reviews and moderation [TASK-022]`)
 
@@ -34,9 +34,9 @@ Rollback: reverter o commit exclusivo da TASK-022 antes de aplicar a migração 
 | GATE-002 — Contexto e pré-condições | APROVADO | Relatório TASK-020 localizado; arquitetura modular e padrões existentes de auditoria, RBAC, Prisma e pedidos inspecionados. |
 | GATE-003 — Planejamento mínimo | APROVADO | Mudanças limitadas a Reviews, catálogo autorizado, schema/migração autorizados, testes e `TASKS.md`; rollback listado. |
 | GATE-004 — Implementação controlada | APROVADO | API, schema, migração e agregados do catálogo implementados; build, validação Prisma, lint e suíte unitária passaram. |
-| GATE-005 — Revisão/gates automatizados | BLOQUEADO | Testes automatizados locais passam. Migração, testes de integração e API exigem o banco isolado; serviço local indisponível. |
-| GATE-006 — Testes manuais | BLOQUEADO | Roteiro criado e sintaxe PowerShell validada; execução e revisão humana pendentes pela indisponibilidade da API/banco local. |
-| GATE-007 — Conclusão/rastreabilidade | PENDENTE | Depende da migração, integração/API no banco isolado e revisão manual humana. |
+| GATE-005 — Revisão/gates automatizados | APROVADO | Migração aplicada ao banco isolado `lumina_task009_test`; suíte completa de integração passou, incluindo TASK-022. |
+| GATE-006 — Testes manuais | APROVADO (execução) | Roteiro HTTP sanitizado passou nos oito cenários com fixture sintética; revisão humana do relatório pendente. |
+| GATE-007 — Conclusão/rastreabilidade | IN_REVIEW | Implementação, gates e relatório rastreados; aguardando revisão humana do resultado manual antes de `DONE`. |
 
 ### Comandos executados
 
@@ -46,27 +46,29 @@ Rollback: reverter o commit exclusivo da TASK-022 antes de aplicar a migração 
 - `npm run lint` — APROVADO após importar `URL` de `node:url` e remover hash não utilizado no preparador TASK-021. A ampliação mínima está autorizada e registrada no backlog.
 - `npm run test` — APROVADO, 83/83.
 - `npm run test:unit` — APROVADO, 82/82.
+- `npm run test:integration` — APROVADO, 11/11; executado sequencialmente contra `lumina_task009_test`.
+- `npx prisma migrate deploy --schema=database/schema.prisma` — APROVADO; aplicada a migração `20261121140000_task_022_reviews` somente ao banco de teste isolado.
+- `tests/manual/task-022/run-task-022-manual-tests.ps1` — APROVADO, 8/8; API temporária na porta 3101, dados sintéticos e relatório sanitizado em `docs/testing/TASK-022-testes-manuais-resultado.md`.
 - `node --check` nos testes unitário e de integração TASK-022 — APROVADO.
 - Parser PowerShell no roteiro manual TASK-022 — APROVADO.
 - `git diff --check` — APROVADO.
-- Testes de integração, migração e API — BLOQUEADOS: `TASK009_TEST_DATABASE_URL` não está configurada no ambiente; a porta local 5433 não aceita conexão e `docker compose ps` não alcançou o Docker Engine. A URL configurada em `.env` aponta para o banco local de desenvolvimento `lumina`; não foi usada nem alterada.
-- Cenários manuais — NÃO EXECUTADOS; dependem da API e do banco isolado e de revisão humana.
+- Para a execução, `TASK009_TEST_DATABASE_URL` foi montada apenas em memória a partir da configuração de conexão local, com o nome do banco `lumina_task009_test`; nenhuma credencial foi impressa ou gravada. O container PostgreSQL estava saudável na porta 5433. A API temporária usou a mesma URL de teste e foi encerrada ao final. O banco `lumina` de desenvolvimento não foi usado para migração ou testes.
 
 ## Cenários para revisão manual
 
-Todos começam como `NAO EXECUTADO`; usar somente contas, pedidos e comentários sintéticos. Não gravar tokens nem dados pessoais no relatório.
+O roteiro foi executado com contas, pedido, obra e comentários sintéticos; tokens e IDs foram mantidos em memória e omitidos do relatório.
 
 | ID | Cenário | Resultado esperado | Status |
 |---|---|---|---|
-| MT-022-01 | Visitante consulta a lista pública de avaliações | HTTP 200 para obra visível | NAO EXECUTADO |
-| MT-022-02 | Cliente confirmado com compra elegível avalia obra | Criada e imediatamente visível | NAO EXECUTADO |
-| MT-022-03 | Catálogo retorna média/contagem antes e depois da remoção | Apenas avaliações visíveis entram no agregado | NAO EXECUTADO |
-| MT-022-04 | Não adquirente tenta avaliar | Recusada sem criar avaliação | NAO EXECUTADO |
-| MT-022-05 | Usuário autenticado denuncia avaliação visível | Denúncia criada | NAO EXECUTADO |
-| MT-022-06 | Não Admin consulta denúncias; Admin consulta fila | Não Admin recebe 403; Admin recebe 200 | NAO EXECUTADO |
-| MT-022-07 | Admin tenta remover sem motivo e depois informa motivo | Sem motivo recebe 400; remoção gera auditoria e oculta a avaliação | NAO EXECUTADO |
-| MT-022-08 | Visitante consulta avaliação removida | Avaliação não aparece e não compõe a média | NAO EXECUTADO |
+| MT-022-01 | Visitante consulta a lista pública de avaliações | HTTP 200 para obra visível | APROVADO |
+| MT-022-02 | Cliente confirmado com compra elegível avalia obra | Criada e imediatamente visível | APROVADO |
+| MT-022-03 | Catálogo retorna média/contagem antes e depois da remoção | Apenas avaliações visíveis entram no agregado | APROVADO |
+| MT-022-04 | Não adquirente tenta avaliar | Recusada sem criar avaliação | APROVADO |
+| MT-022-05 | Usuário autenticado denuncia avaliação visível | Denúncia criada | APROVADO |
+| MT-022-06 | Não Admin consulta denúncias; Admin consulta fila | Não Admin recebe 403; Admin recebe 200 | APROVADO |
+| MT-022-07 | Admin tenta remover sem motivo e depois informa motivo | Sem motivo recebe 400; remoção gera auditoria e oculta a avaliação | APROVADO |
+| MT-022-08 | Visitante consulta avaliação removida | Avaliação não aparece e não compõe a média | APROVADO |
 
-## Bloqueio atual
+## Pendência para conclusão
 
-O banco de integração configurado no projeto é estritamente `lumina_task009_test`, mas nenhum serviço responde na porta local 5433 e o Docker Engine não está acessível neste ambiente. A variável `TASK009_TEST_DATABASE_URL` não está no ambiente. A URL `DATABASE_URL` do `.env` foi verificada sem revelar credenciais e aponta para o banco local `lumina`; não foi usada para testes nem migração. Para prosseguir, disponibilizar o serviço de teste local em 5433 e configurar `TASK009_TEST_DATABASE_URL` para `lumina_task009_test`. Nenhuma credencial precisa ser enviada no chat.
+A implementação e os gates técnicos estão concluídos. A TASK permanece `IN_REVIEW` para revisão humana do relatório sanitizado de execução manual antes de atualizar para `DONE`.
