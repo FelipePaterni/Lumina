@@ -82,3 +82,33 @@
 |---|---|---|
 | Dump e restauração do banco sintético isolado | APROVADO | Origem `lumina_task009_test`; destino `lumina_task026_restore_3aef92b5`; Tabelas públicas: origem=34; restauração=34. Falhas: nenhuma. Dump temporário removido; banco restaurado mantido para inspeção. |
 
+## Preparação do banco isolado — 2026-11-22T22:13:18Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Preparação de `lumina_task009_test` com migrações e seed sintético | APROVADO | Banco criado nesta execução: False; migrações aplicadas: True; catálogo sintético aplicado: True. Falhas: nenhuma. Nenhum segredo ou URL registrado. |
+
+## Integração no banco isolado — 2026-11-22T22:15:41Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Suíte de integração em `lumina_task009_test` | BLOQUEADO | Runner finalizado sem resumo estruturado dos testes. Falha: INTEGRATION_SUITE_FAILED. Nenhuma URL ou credencial registrada. |
+
+## Integração no banco isolado — 2026-11-22T22:16:22Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Suíte de integração em `lumina_task009_test` | APROVADO | Runner finalizado sem resumo estruturado dos testes. Falhas: nenhuma. Nenhuma URL ou credencial registrada. |
+
+## Ensaio de backup/restore — 2026-11-22T22:21:11Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Dump e restauração do banco sintético isolado | APROVADO | Origem `lumina_task009_test`; destino `lumina_task026_restore_486cda50`; Tabelas públicas: origem=34; restauração=34. Falhas: nenhuma. Dump temporário removido; banco restaurado mantido para inspeção. |
+
+## Integração no banco isolado — 2026-11-22T22:23:29Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Suíte de integração em `lumina_task009_test` | APROVADO | Testes: 14; aprovados: 14; falhas: 0. Falhas: nenhuma. Nenhuma URL ou credencial registrada. |
+

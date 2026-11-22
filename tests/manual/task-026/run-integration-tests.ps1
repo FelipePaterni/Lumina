@@ -30,13 +30,15 @@ try {
   try {
     $previousErrorActionPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
-    $output = @(& npm run test:integration 2>&1 | ForEach-Object { "$_" })
+    $integrationFiles = @(Get-ChildItem -LiteralPath (Join-Path $root 'tests/integration') -Filter '*.test.mjs' -File -Recurse | Sort-Object FullName | ForEach-Object { $_.FullName })
+    if ($integrationFiles.Count -eq 0) { throw 'INTEGRATION_TEST_FILES_MISSING' }
+    $output = @(& node --test --test-concurrency=1 --test-reporter=tap @integrationFiles 2>&1 | ForEach-Object { "$_" })
     $exitCode = $LASTEXITCODE
     $ErrorActionPreference = $previousErrorActionPreference
   } finally { Pop-Location }
-  $testsMatch = $output | Select-String -Pattern '^(?:#|ℹ) tests (\d+)$' | Select-Object -Last 1
-  $passedMatch = $output | Select-String -Pattern '^(?:#|ℹ) pass (\d+)$' | Select-Object -Last 1
-  $failedMatch = $output | Select-String -Pattern '^(?:#|ℹ) fail (\d+)$' | Select-Object -Last 1
+  $testsMatch = $output | Select-String -Pattern '^# tests (\d+)$' | Select-Object -Last 1
+  $passedMatch = $output | Select-String -Pattern '^# pass (\d+)$' | Select-Object -Last 1
+  $failedMatch = $output | Select-String -Pattern '^# fail (\d+)$' | Select-Object -Last 1
   if ($testsMatch -and $passedMatch -and $failedMatch) {
     $tests = $testsMatch.Matches.Groups[1].Value
     $passed = $passedMatch.Matches.Groups[1].Value
