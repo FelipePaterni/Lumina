@@ -28,7 +28,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
-| 25 | TASK-028 | PHASE-05 | HIGH | 023 | IN_REVIEW |
+| 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
 | 26 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
 | 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
@@ -357,7 +357,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** responsável confirmou nesta conversa a execução e aprovação dos seis cenários visuais MT-023-UI-01 a MT-023-UI-06 e aprovou o relatório HTTP 7/7. TASK-023 DONE; GATE-001 a GATE-007 aprovados, DoD satisfeita. Evidência humana registrada no relatório sanitizado. Commits: `163e69a`, `89be98f`, `e4fe1e0`, `904d8b1`, mais commit de encerramento. Alterações primárias autorizadas; nenhuma incidental ou proibida. TASK-024 tornou-se READY após definir indicadores, critérios de alerta e Scope Guard.
 
 ### TASK-028 — Rotas e navegação dos painéis da equipe
-**Status:** IN_PROGRESS · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Corrigir o 404 web e garantir navegação funcional entre os painéis administrativos, de catálogo e de estoque.
 **Dependências:** `DEPENDS_ON: TASK-023`
 **Relacionados:** RF-021, RF-023; RN-020, RN-021; UC-021; RNF-002,005.
@@ -367,10 +367,10 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** `/dashboard` abre o painel Admin; `/catalog/dashboard`, `/warehouse/dashboard` e `/operations/dashboard` são páginas web e carregam seus indicadores; links do painel atualizam URL e fazem a chamada API esperada; Admin acessa os quatro painéis, CATALOG somente Catálogo, STOCK somente Estoque; acesso incompatível exibe negação sem solicitar endpoint protegido; sessão é preservada entre navegações client-side, encerrada ao sair e não restaurada após reload; estados de loading, vazio, erro HTTP e falha de conexão têm feedback visível. Validar build, lint, testes definidos nos scripts e fluxo manual sintético.
 **DoD específico:** nenhuma rota de painel retorna o 404 web observado; endpoints e payloads da API permanecem inalterados.
 **Prontidão:** TASK-023 DONE e seus endpoints/contratos verificados. O screenshot do responsável comprova 404 em `http://localhost:3000/catalog/dashboard`; inspeção confirmou que o frontend definia somente `/` e `/dashboard`, enquanto os três painéis existiam apenas como endpoints ou seção interna. Após a primeira validação, o responsável solicitou explicitamente rota própria para Operação. Critérios, papéis, limites e Scope Guard definidos. Nenhuma migração necessária.
-**Execução:** IN_REVIEW em 2026-11-22 na branch `fix/TASK-028-rotas-paineis-equipe`, agora baseada na TASK-024 concluída (`b0b0e5a`). Commits de implementação após sincronização: `5b7d815` (rotas Admin/Catálogo/Estoque) e `c813909` (rota de Operação). Quarta página `/operations/dashboard` adicionada; botão Operação navega para ela e carrega `/admin/observability/dashboard`; RBAC frontend limita Operação ao Admin e bloqueia a requisição para outros papéis. Build local/Docker aprovado e lista as quatro rotas. `npm run lint` aprovado; `npm test` aprovado (95/95, teste de navegação 2/2); sintaxe PowerShell e `git diff --check` aprovados. Integração API não executada: backend não foi alterado e `TASK009_TEST_DATABASE_URL` não está configurada. Roteiro HTTP aprovado 8/8 (quatro rotas e 44 assets HTTP 200), relatório em `docs/testing/TASK-028-testes-manuais-resultado.md`. Revisão visual humana de login, clique/URL/chamada API, acesso negado, logout/reload e erro de conexão continua pendente; TASK-028 não é DONE.
+**Conclusão (2026-11-22):** responsável confirmou nesta conversa que todos os fluxos visuais da TASK-028 funcionam corretamente; revisão humana MT-028-UI-01 a MT-028-UI-06 aprovada e registrada no relatório sanitizado. TASK-028 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. Build web local/Docker lista as quatro rotas; `npm run lint` aprovado; `npm test` 95/95 (teste de navegação 2/2); roteiro HTTP 8/8 (quatro páginas e 44 assets HTTP 200). Testes de integração de API não executados porque a TASK não alterou contratos/backend e `TASK009_TEST_DATABASE_URL` não está configurada; cobertura da API já consta na TASK-023. Mudanças primárias dentro de `ALLOWED_CHANGES`; sem mudança incidental ou proibida. Commits: `5b7d815`, `c813909`; rastreabilidade e status atualizados em commits posteriores da tarefa.
 
 ### TASK-024 — Privacidade operacional e observabilidade
-**Status:** IN_REVIEW · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Completar solicitação de exclusão, avisos, auditoria e monitoramento técnico.
 **Dependências:** `DEPENDS_ON: TASK-020`
 **Relacionados:** RF-002,020,022; RN-017–019; RNF-003,007,008; PD-002.
