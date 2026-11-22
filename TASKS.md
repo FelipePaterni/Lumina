@@ -407,6 +407,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **FORBIDDEN_CHANGES:** alteração de regra de negócio; redesign não necessário.
 **Aceitação/testes:** teclado, rótulos, contraste, mobile e navegadores-alvo passam; medição registrada.
 **DoD específico:** qualquer meta não medida é marcada como falha, não presumida.
+**Bloqueio de prontidão (2026-11-22):** as dependências TASK-021, TASK-022, TASK-023, TASK-024 e TASK-027 estão DONE, com gates e artefatos registrados. A Definition of Ready continua incompleta porque RNF-004 estabelece até 20 s, mas remete as condições de referência a PD-001. Escala/carga, dataset, hardware/rede e métrica de desempenho ainda não estão definidos. Não assumir benchmark local como referência aprovada; manter BLOCKED até o responsável fixar essas condições e o critério mensurável. Os demais critérios de acessibilidade e navegadores estão definidos no README.
 
 ### TASK-026 — Checkpoint final V1
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** CRITICAL
