@@ -1,7 +1,7 @@
 import { API_URL } from "../auth/services/auth-api";
 
 export type DashboardRole = "ADMIN" | "CATALOG" | "STOCK" | "CUSTOMER";
-export type DashboardSection = "admin" | "catalog" | "warehouse";
+export type DashboardSection = "admin" | "catalog" | "warehouse" | "operations";
 
 export interface AdminDashboard {
   netSalesCents: number;
@@ -44,10 +44,22 @@ export interface WarehouseDashboard {
   }>;
 }
 
+export interface OperationsDashboard {
+  health: { api: "UP"; database: "UP" | "UNAVAILABLE" };
+  notifications: Record<"PENDING" | "PROCESSING" | "RETRY" | "SENT" | "FAILED", number> | null;
+  accountDeletion: {
+    pendingRequests: number;
+    expiredRequests: number;
+    nextScheduledDeletionAt: string | null;
+  } | null;
+  alerts: { failedNotifications: number | null; expiredProcessingLeases: number | null };
+}
+
 const dashboardPaths: Record<DashboardSection, string> = {
   admin: "/admin/dashboard",
   catalog: "/catalog/dashboard",
   warehouse: "/warehouse/dashboard",
+  operations: "/admin/observability/dashboard",
 };
 
 export async function getDashboard<T>(

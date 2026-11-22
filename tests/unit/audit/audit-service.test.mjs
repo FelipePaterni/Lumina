@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { AuditLogEntity } from "../../../apps/api/dist/modules/audit/domain/audit-log.entity.js";
 import { Role } from "../../../apps/api/dist/modules/identity/domain/role.enum.js";
+import { AuditService } from "../../../apps/api/dist/modules/audit/application/services/audit.service.js";
 
 test("AuditLogEntity - instancia com sucesso ação não-sensível sem motivo", () => {
   const audit = new AuditLogEntity({
@@ -109,4 +110,26 @@ test("AuditLogEntity - remove PII e tokens do motivo textual", () => {
   assert.equal(audit.reason.includes("98765-4321"), false);
   assert.equal(audit.reason.includes("secret-token"), false);
   assert.match(audit.reason, /\[REDACTED\]/);
+});
+
+test("AuditService - sanitiza falhas de persistência sem registrar detalhes da exceção", async () => {
+  const service = new AuditService({
+    auditLog: {
+      create: async () => { throw new Error("private@example.invalid secret-database-detail"); },
+    },
+  });
+  const logged = [];
+  service.logger.error = (message) => logged.push(message);
+
+  await service.logAction({
+    actorId: "synthetic-actor",
+    actorRole: Role.ADMIN,
+    action: "SAFE_ACTION",
+    targetType: "SYNTHETIC",
+    targetId: "synthetic-target",
+  });
+
+  assert.equal(logged.length, 1);
+  assert.match(logged[0], /code=AUDIT_STORAGE_FAILURE/);
+  assert.doesNotMatch(logged[0], /private@example\.invalid|secret-database-detail/);
 });

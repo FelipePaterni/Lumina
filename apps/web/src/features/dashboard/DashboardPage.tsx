@@ -8,6 +8,7 @@ import {
   DashboardRole,
   DashboardSection,
   getDashboard,
+  OperationsDashboard,
   WarehouseDashboard,
 } from "./dashboard-api";
 import styles from "./DashboardPage.module.css";
@@ -23,16 +24,17 @@ interface LoginResponse {
   message?: string;
 }
 
-type DashboardData = AdminDashboard | CatalogDashboard | WarehouseDashboard;
+type DashboardData = AdminDashboard | CatalogDashboard | WarehouseDashboard | OperationsDashboard;
 
 const sectionLabels: Record<DashboardSection, string> = {
   admin: "Visão geral",
   catalog: "Catálogo",
   warehouse: "Estoque",
+  operations: "Operação",
 };
 
 const sectionsForRole: Record<Exclude<DashboardRole, "CUSTOMER">, DashboardSection[]> = {
-  ADMIN: ["admin", "catalog", "warehouse"],
+  ADMIN: ["admin", "catalog", "warehouse", "operations"],
   CATALOG: ["catalog"],
   STOCK: ["warehouse"],
 };
@@ -164,6 +166,7 @@ export function DashboardPage(): React.ReactElement {
               {section === "admin" && <AdminPanel data={data as AdminDashboard} />}
               {section === "catalog" && <CatalogPanel data={data as CatalogDashboard} />}
               {section === "warehouse" && <WarehousePanel data={data as WarehouseDashboard} />}
+              {section === "operations" && <OperationsPanel data={data as OperationsDashboard} />}
             </section>
           )}
         </>
@@ -235,6 +238,42 @@ function WarehousePanel({ data }: { data: WarehouseDashboard }): React.ReactElem
             {data.alerts.map((alert) => <li key={alert.editionId}><span>{alert.workTitle}</span><strong>{alert.type === "OUT_OF_STOCK" ? "Sem unidades" : "Estoque não configurado"}</strong></li>)}
           </ul>
         ) : <p className={styles.empty}>Nenhuma edição física sem estoque.</p>}
+      </section>
+    </>
+  );
+}
+
+function OperationsPanel({ data }: { data: OperationsDashboard }): React.ReactElement {
+  const notificationCounts = data.notifications;
+  const deletions = data.accountDeletion;
+  return (
+    <>
+      <div className={styles.metricGrid}>
+        <Metric label="API" value={data.health.api === "UP" ? "Disponível" : "Indisponível"} />
+        <Metric label="Banco de dados" value={data.health.database === "UP" ? "Disponível" : "Indisponível"} />
+        <Metric label="Notificações pendentes" value={notificationCounts ? formatCount(notificationCounts.PENDING) : "Indisponível"} />
+        <Metric label="Notificações em processamento" value={notificationCounts ? formatCount(notificationCounts.PROCESSING) : "Indisponível"} />
+        <Metric label="Notificações em nova tentativa" value={notificationCounts ? formatCount(notificationCounts.RETRY) : "Indisponível"} />
+        <Metric label="Notificações enviadas" value={notificationCounts ? formatCount(notificationCounts.SENT) : "Indisponível"} />
+        <Metric label="Notificações com falha" value={notificationCounts ? formatCount(notificationCounts.FAILED) : "Indisponível"} />
+        <Metric label="Exclusões no prazo de reativação" value={deletions ? formatCount(deletions.pendingRequests) : "Indisponível"} />
+        <Metric label="Prazos vencidos para revisão" value={deletions ? formatCount(deletions.expiredRequests) : "Indisponível"} />
+      </div>
+      <section className={styles.listCard} aria-labelledby="operations-alerts-heading">
+        <h2 id="operations-alerts-heading">Alertas operacionais</h2>
+        {data.alerts.failedNotifications === null ? <p className={styles.error}>Não foi possível consultar os dados operacionais.</p> : (
+          <ul className={styles.alertList}>
+            {data.health.database !== "UP" && <li key="database"><span>Banco de dados</span><strong>Indisponível</strong></li>}
+            {data.alerts.failedNotifications > 0 && <li key="failed"><span>Notificações com falha terminal</span><strong>{formatCount(data.alerts.failedNotifications)}</strong></li>}
+            {(data.alerts.expiredProcessingLeases ?? 0) > 0 && <li key="lease"><span>Processamentos com lease vencido</span><strong>{formatCount(data.alerts.expiredProcessingLeases ?? 0)}</strong></li>}
+            {deletions && deletions.expiredRequests > 0 && <li key="deletions"><span>Solicitações vencidas aguardando revisão</span><strong>{formatCount(deletions.expiredRequests)}</strong></li>}
+            {!data.alerts.failedNotifications && !(data.alerts.expiredProcessingLeases ?? 0) && data.health.database === "UP" && (!deletions || deletions.expiredRequests === 0) && <li key="none"><span>Nenhum alerta ativo</span></li>}
+          </ul>
+        )}
+        <p className={styles.empty}>
+          Próxima data prevista: {deletions?.nextScheduledDeletionAt ? new Date(deletions.nextScheduledDeletionAt).toLocaleString("pt-BR") : "nenhuma solicitação pendente"}.
+          Solicitações vencidas ficam para revisão; este painel não executa exclusões.
+        </p>
       </section>
     </>
   );

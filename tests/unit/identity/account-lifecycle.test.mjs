@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { Role } from "../../../apps/api/dist/modules/identity/domain/role.enum.js";
 import { AccountService } from "../../../apps/api/dist/modules/identity/application/services/account.service.js";
+import { AccountDeletionGracePeriod } from "../../../apps/api/dist/modules/identity/application/services/account-deletion-grace-period.js";
 
 // Mock minimal do Prisma para testar isoladamente as regras do ciclo de desativação/reativação
 class MockPrisma {
@@ -62,6 +63,39 @@ test("Account Lifecycle - solicitação de desativação define carência de 30 
   assert.equal(emailDispatcher.dispatched[0].eventKey.includes(userId), true);
 });
 
+test("AccountDeletionGracePeriod - usa 30 dias por padrão e aceita dias configurados", () => {
+  assert.equal(AccountDeletionGracePeriod.parseDays(undefined), 30);
+  assert.equal(AccountDeletionGracePeriod.parseDays("45"), 45);
+  assert.equal(AccountDeletionGracePeriod.parseDays("1") * 24 * 60 * 60 * 1000, 24 * 60 * 60 * 1000);
+});
+
+test("AccountDeletionGracePeriod - rejeita configuração que não seja inteiro positivo", () => {
+  for (const value of ["", "0", "-1", "1.5", "abc", "9007199254740992"]) {
+    assert.throws(() => AccountDeletionGracePeriod.parseDays(value), /must be a positive integer/);
+  }
+});
+
+test("Account Lifecycle - usa o prazo configurado ao agendar reativação", async () => {
+  const prisma = new MockPrisma();
+  const notifications = new MockEmailDispatcher();
+  prisma.userDb.set("customer-configured", {
+    id: "customer-configured",
+    email: "cliente-configurado@example.invalid",
+    role: Role.CUSTOMER,
+    isActive: true,
+  });
+  const configuredDays = 45;
+  const accountService = new AccountService(prisma, notifications, {
+    days: configuredDays,
+    milliseconds: configuredDays * 24 * 60 * 60 * 1000,
+  });
+
+  const result = await accountService.requestAccountDeletion("customer-configured");
+  assert.equal(result.scheduledDeletionAt.getTime() - result.deactivatedAt.getTime(), configuredDays * 24 * 60 * 60 * 1000);
+  assert.match(result.message, /45 dias/);
+  assert.match(notifications.dispatched[0].body, /45 dias/);
+});
+
 test("Account Lifecycle - reativação limpa datas e reativa a conta dentro do prazo (RN-018)", async () => {
   const prisma = new MockPrisma();
   const emailDispatcher = new MockEmailDispatcher();
@@ -109,6 +143,6 @@ test("Account Lifecycle - impede reativação após o prazo de 30 dias expirado"
   const accountService = new AccountService(prisma, emailDispatcher);
   await assert.rejects(
     () => accountService.reactivateAccount(userId),
-    /O prazo de 30 dias para reativação expirou/,
+    /O prazo de reativação expirou/,
   );
 });

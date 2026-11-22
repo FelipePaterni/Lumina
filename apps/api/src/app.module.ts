@@ -12,6 +12,7 @@ import { LibraryModule } from "./modules/library/library.module.js";
 import { BundleModule } from "./modules/bundles/bundle.module.js";
 import { ReviewsModule } from "./modules/reviews/reviews.module.js";
 import { DashboardReportingModule } from "./modules/reporting/dashboard-reporting.module.js";
+import { ObservabilityModule } from "./modules/observability/observability.module.js";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { DashboardReportingModule } from "./modules/reporting/dashboard-reportin
     BundleModule,
     ReviewsModule,
     DashboardReportingModule,
+    ObservabilityModule,
   ],
 })
 export class AppModule {}

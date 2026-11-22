@@ -6,6 +6,7 @@ import { AuthService } from "./application/services/auth.service.js";
 import { AdminSeedService } from "./application/services/admin-seed.service.js";
 import { LocalCustomerSeedService } from "./application/services/local-customer-seed.service.js";
 import { AccountService } from "./application/services/account.service.js";
+import { AccountDeletionGracePeriod } from "./application/services/account-deletion-grace-period.js";
 import { AuthController } from "./presentation/auth.controller.js";
 import { AccountController } from "./presentation/account.controller.js";
 import { UserManagementController } from "./presentation/user-management.controller.js";
@@ -25,6 +26,7 @@ import { NotificationModule } from "../notifications/notification.module.js";
     AdminSeedService,
     LocalCustomerSeedService,
     AccountService,
+    AccountDeletionGracePeriod,
     JwtAuthGuard,
     RolesGuard,
   ],
