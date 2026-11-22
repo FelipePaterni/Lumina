@@ -31,7 +31,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
 | 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | DONE |
 | 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | DONE |
-| 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
+| 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | READY |
 
 ## Políticas comuns
 
@@ -423,7 +423,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** TASK-025 DONE; GATE-001 a GATE-007 aprovados e DoD satisfeita. MT-025-01 a MT-025-07 aprovados; no Edge e Firefox, versões registradas e verificadas nas notas oficiais. Alterações PRIMARY autorizadas em `.env.example`, `tests/manual/task-025/**`, `docs/testing/TASK-025-*` e `TASKS.md`; nenhuma incidental ou proibida. PD-001 permanece aberto para avaliação de escala produtiva e não bloqueia a validação local desta tarefa. Commits: `ba79207` e commit de encerramento.
 
 ### TASK-026 — Checkpoint final V1
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** CRITICAL
+**Status:** READY · **Phase:** PHASE-05 · **Priority:** CRITICAL
 **Objetivo:** Validar V1 integralmente contra requisitos, segurança, documentação e Scope Guard.
 **Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-025, TASK-027`
 **Relacionados:** todos RF/RN/RNF/UC/ADR.
@@ -432,4 +432,5 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **FORBIDDEN_CHANGES:** funcionalidades fora de escopo; infraestrutura/integrações reais.
 **Aceitação/testes:** gates completos, rastreabilidade, backup/restore ensaiado e testes de regressão aprovados.
 **DoD específico:** V1 elegível para revisão humana; PD-001–003 explicitamente aceitos ou bloqueiam publicação.
+**Prontidão (2026-11-22):** revisada após atualização da `main` para `f895b1e`. TASK-021, TASK-022, TASK-023, TASK-024, TASK-025 e TASK-027 estão `DONE`; os relatórios documentam seus testes/gates, conforme matriz em `docs/testing/TASK-026-planejamento-e-gates.md`. ADR-001 a ADR-007 estão `ACCEPTED` e ADR-008 está `Aprovado`. Critérios, Scope Guard e validações definidos. PD-001 (escala), PD-002 (política jurídica de retenção/exclusão definitiva) e PD-003 (provedor) continuam sem decisão e serão tratados como bloqueios de publicação, conforme a DoD; não impedem iniciar o checkpoint. GATE-001 aprovado; working tree limpa; branch `feature/TASK-026-checkpoint-v1`.
 `n<!-- TASK-023: atualização de execução em 2026-11-22. Preparador tests/manual/task-023/prepare-and-run.mjs cria quatro contas sintéticas e obtém tokens por login real em memória; banco isolado criado/migrado. Roteiro HTTP aprovado 7/7, relatório docs/testing/TASK-023-testes-manuais-resultado.md. Commits anteriores 89be98f e e4fe1e0. Estado continua IN_REVIEW: revisão humana da UI e do relatório pendente. Mudanças primárias autorizadas em tests/**, docs/testing/TASK-023-* e TASKS.md; nenhuma incidental. -->
