@@ -9,7 +9,7 @@
 
 ## Scope Guard
 
-- Permitido: `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `TASKS.md`.
+- Permitido: `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `tests/manual/task-025/**`; `docs/testing/TASK-025-*`; `prompts/tasks/task-025/**`; `README.md`; `TASKS.md`.
 - Proibido: alteração de regra de negócio; redesign não necessário.
 
 ## Workflow e gates

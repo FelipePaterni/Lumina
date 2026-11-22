@@ -17,7 +17,7 @@ Esta etapa faz parte de um workflow controlado. Não execute etapas posteriores,
 - Branch de trabalho específica da TASK; main não pode receber desenvolvimento direto.
 - Working tree inspecionada e alterações alheias preservadas.
 - Documentos obrigatórios lidos na ordem: AGENTS.md, README.md, TASKS.md, ADRs relacionados, código e testes existentes.
-- Escopo autorizado: `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `TASKS.md`.
+- Escopo autorizado: `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `tests/manual/task-025/**`; `docs/testing/TASK-025-*`; `prompts/tasks/task-025/**`; `README.md`; `TASKS.md`.
 - Escopo proibido: alteração de regra de negócio; redesign não necessário.
 
 ## 4. ENTRADAS NECESSÁRIAS

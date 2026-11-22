@@ -75,8 +75,8 @@ Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para a
 | RNF-001 | Senhas com hash adaptativo; segredos fora do código; TLS obrigatório em produção. |
 | RNF-002 | Autorização por papel e menor privilégio; testes cobrem acesso negado por papel. |
 | RNF-003 | Dados pessoais minimizados, criptografados quando aplicável e não registrados em logs de auditoria. |
-| RNF-004 | Páginas principais carregam em até 20 s em condições de referência a definir em PD-001. |
-| RNF-005 | Interface responsiva em mobile/tablet/desktop e nas duas versões mais recentes de Chrome, Edge, Firefox e Safari. |
+| RNF-004 | Páginas principais carregam em até 20 s na baseline local reproduzível da seção 6.1; a escala de produção continua pendente em PD-001. |
+| RNF-005 | Interface responsiva em mobile/tablet/desktop e nas duas versões mais recentes de Chrome, Edge e Firefox. |
 | RNF-006 | Meta WCAG 2.1 nível A: teclado, contraste, rótulos, mensagens de erro e texto alternativo. |
 | RNF-007 | Backups semanais criptografados; restauração testada periodicamente; indisponibilidade planejada inferior a 4 h/mês. |
 | RNF-008 | Auditoria e monitoramento de erros sem conteúdo de credenciais, arquivos ou PII. |
@@ -85,6 +85,12 @@ Todos os perfis usam e-mail e senha; e-mail confirmado é pré-condição para a
 | RNF-011 | APIs usam validação de entrada, respostas de erro consistentes, paginação e proteção contra abuso. |
 | RNF-012 | Módulos em camadas, contratos testáveis e cobertura de testes proporcional a risco. |
 | RNF-013 | Web, API e dependências locais são executáveis em contêineres Docker; a configuração reproduzível não incorpora segredos ou dados reais. |
+
+### 6.1 Baseline local de desempenho (TASK-025)
+
+A validação local usa Windows x64, Intel Core i5-13450HX, 16 processadores lógicos e 15,7 GiB de memória, com Web/API/PostgreSQL locais via Docker Compose. Use somente o banco isolado `lumina_task009_test`, dados sintéticos do seed do catálogo (três obras visíveis), um único navegador e nenhuma carga concorrente. Registre versões de Node.js, npm, Docker, PostgreSQL e navegador no resultado. Esta baseline não representa capacidade de produção e não resolve PD-001.
+
+Meça `/`, `/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` e `/operations/dashboard` no Chrome estável atual. Faça uma navegação de aquecimento e cinco medições independentes por rota. O cronômetro começa na navegação e termina quando o conteúdo principal está visível e a solicitação de dados da API terminou; em rota protegida sem sessão, a tela de login visível é o conteúdo principal. Cada uma das cinco medições deve ser menor ou igual a 20 segundos; registre os cinco valores, mediana e máximo. Viewports responsivos de referência: 390×844, 768×1024 e 1366×768.
 
 ## 7. Regras de negócio
 
