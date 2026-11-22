@@ -18,10 +18,11 @@
 
 ## Ensaio técnico de backup/restore
 
-Se o banco isolado ainda não existir, configure `DATABASE_URL` localmente e execute o preparador abaixo. Ele aceita somente host loopback, troca o caminho da URL em memória para `lumina_task009_test`, cria o banco apenas se ausente e aplica migrações e catálogo sintético idempotente. Não registra URL ou credenciais.
+Se o banco isolado ainda não existir, configure `TASK009_TEST_DATABASE_URL` conforme `.env.example`. O preparador aceita somente host loopback e o nome `lumina_task009_test`; cria o banco apenas se ausente e aplica migrações e catálogo sintético idempotente. A URL fica somente em memória e não é registrada.
 
 ```powershell
 ./tests/manual/task-026/prepare-isolated-db.ps1
+./tests/manual/task-026/run-integration-tests.ps1
 ```
 
 O roteiro executável faz o ensaio local com PostgreSQL da Compose e gera relatório sanitizado:

@@ -9,6 +9,9 @@ $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $composeFile = Join-Path $repositoryRoot 'docker-compose.yml'
 $reportPath = Join-Path $repositoryRoot 'docs/testing/TASK-026-backup-restore-result.md'
 $sourceDatabase = 'lumina_task009_test'
+$envFile = Join-Path $repositoryRoot '.env'
+$envExampleFile = Join-Path $repositoryRoot '.env.example'
+$postgresUser = 'lumina'
 $dumpPath = "/tmp/task026-$([Guid]::NewGuid().ToString('N')).dump"
 $status = 'BLOQUEADO'
 $stage = 'PREFLIGHT'
@@ -30,18 +33,19 @@ function Invoke-DockerCompose {
   return (($output | ForEach-Object { "$($_)" }) -join "`n").Trim()
 }
 
-function Invoke-PostgresShell {
-  param([string]$Command)
+function Invoke-PostgresCommand {
+  param([string[]]$Arguments)
 
-  return Invoke-DockerCompose -Arguments @('exec', '-T', 'postgres', 'sh', '-c', $Command)
+  return Invoke-DockerCompose -Arguments (@('exec', '-T', 'postgres') + $Arguments)
 }
 
 function Get-DatabaseTableCount {
   param([string]$DatabaseName)
 
-  $query = "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'"
-  $command = 'set -eu; psql -U "$POSTGRES_USER" -d "' + $DatabaseName + '" -Atc "' + $query + '"'
-  $result = Invoke-PostgresShell -Command $command
+  $schemaExpression = 'chr(' + ([int][char]'p') + ')||chr(' + ([int][char]'u') + ')||chr(' + ([int][char]'b') + ')||chr(' + ([int][char]'l') + ')||chr(' + ([int][char]'i') + ')||chr(' + ([int][char]'c') + ')'
+  $typeExpression = 'chr(' + ([int][char]'B') + ')||chr(' + ([int][char]'A') + ')||chr(' + ([int][char]'S') + ')||chr(' + ([int][char]'E') + ')||chr(' + ([int][char]' ' ) + ')||chr(' + ([int][char]'T') + ')||chr(' + ([int][char]'A') + ')||chr(' + ([int][char]'B') + ')||chr(' + ([int][char]'L') + ')||chr(' + ([int][char]'E') + ')'
+  $query = "SELECT count(*) FROM information_schema.tables WHERE table_schema=$schemaExpression AND table_type=$typeExpression"
+  $result = Invoke-PostgresCommand -Arguments @('psql', '-U', $postgresUser, '-d', $DatabaseName, '-Atc', $query)
   return [int]$result
 }
 
@@ -54,37 +58,47 @@ try {
     throw 'DOCKER_CLI_UNAVAILABLE'
   }
 
+  $userLine = if (Test-Path -LiteralPath $envFile -PathType Leaf) {
+    Get-Content -LiteralPath $envFile | Where-Object { $_ -match '^POSTGRES_USER=' } | Select-Object -First 1
+  }
+  if (-not $userLine -and (Test-Path -LiteralPath $envExampleFile -PathType Leaf)) {
+    $userLine = Get-Content -LiteralPath $envExampleFile | Where-Object { $_ -match '^POSTGRES_USER=' } | Select-Object -First 1
+  }
+  if ($userLine) { $postgresUser = ($userLine -split '=', 2)[1].Trim().Trim('"').Trim("'") }
+  if ($postgresUser -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') { throw 'POSTGRES_USER_INVALID' }
+
   Invoke-DockerCompose -Arguments @('config', '--quiet') | Out-Null
-  $ready = Invoke-PostgresShell -Command 'pg_isready -U "$POSTGRES_USER" -d postgres'
+  $ready = Invoke-PostgresCommand -Arguments @('pg_isready', '-U', $postgresUser, '-d', 'postgres')
   if ($ready -notmatch 'accepting connections') {
     throw 'POSTGRES_NOT_READY'
   }
 
-  $sourceExistsSql = "SELECT count(*) FROM pg_catalog.pg_database WHERE datname='$sourceDatabase'"
-  $sourceExistsCommand = 'set -eu; psql -U "$POSTGRES_USER" -d postgres -Atc "' + $sourceExistsSql + '"'
-  if ((Invoke-PostgresShell -Command $sourceExistsCommand) -ne '1') {
-    throw 'ISOLATED_SOURCE_DATABASE_MISSING'
+  $sourceNameExpression = ($sourceDatabase.ToCharArray() | ForEach-Object { 'chr(' + ([int][char]$_) + ')' }) -join '||'
+  $sourceExistsSql = "SELECT count(*) FROM pg_catalog.pg_database WHERE datname=$sourceNameExpression"
+  $sourceExistsCount = Invoke-PostgresCommand -Arguments @('psql', '-U', $postgresUser, '-d', 'postgres', '-Atc', $sourceExistsSql)
+  if ($sourceExistsCount -ne '1') {
+    throw "ISOLATED_SOURCE_DATABASE_PREFLIGHT_$sourceExistsCount"
   }
 
-  $targetExistsSql = "SELECT count(*) FROM pg_catalog.pg_database WHERE datname='$RestoreDatabaseName'"
-  $targetExistsCommand = 'set -eu; psql -U "$POSTGRES_USER" -d postgres -Atc "' + $targetExistsSql + '"'
-  if ((Invoke-PostgresShell -Command $targetExistsCommand) -ne '0') {
+  $targetNameExpression = ($RestoreDatabaseName.ToCharArray() | ForEach-Object { 'chr(' + ([int][char]$_) + ')' }) -join '||'
+  $targetExistsSql = "SELECT count(*) FROM pg_catalog.pg_database WHERE datname=$targetNameExpression"
+  $targetExistsCount = Invoke-PostgresCommand -Arguments @('psql', '-U', $postgresUser, '-d', 'postgres', '-Atc', $targetExistsSql)
+  if ($targetExistsCount -ne '0') {
     throw 'RESTORE_DATABASE_ALREADY_EXISTS'
   }
   $preflightComplete = $true
 
   $stage = 'BACKUP'
-  $backupCommand = 'set -eu; test ! -e "' + $dumpPath + '"; pg_dump -Fc -U "$POSTGRES_USER" -d "' + $sourceDatabase + '" -f "' + $dumpPath + '"; test -s "' + $dumpPath + '"; pg_restore --list "' + $dumpPath + '" >/dev/null'
-  Invoke-PostgresShell -Command $backupCommand | Out-Null
+  Invoke-PostgresCommand -Arguments @('pg_dump', '-Fc', '-U', $postgresUser, '-d', $sourceDatabase, '-f', $dumpPath) | Out-Null
+  $dumpCheck = Invoke-PostgresCommand -Arguments @('pg_restore', '--list', $dumpPath)
+  if (-not $dumpCheck) { throw 'BACKUP_DUMP_EMPTY' }
   $dumpCreated = $true
 
   $stage = 'CREATE_RESTORE_DATABASE'
-  $createCommand = 'set -eu; createdb -U "$POSTGRES_USER" "' + $RestoreDatabaseName + '"'
-  Invoke-PostgresShell -Command $createCommand | Out-Null
+  Invoke-PostgresCommand -Arguments @('createdb', '-U', $postgresUser, $RestoreDatabaseName) | Out-Null
 
   $stage = 'RESTORE'
-  $restoreCommand = 'set -eu; pg_restore --no-owner --no-privileges -U "$POSTGRES_USER" -d "' + $RestoreDatabaseName + '" "' + $dumpPath + '"'
-  Invoke-PostgresShell -Command $restoreCommand | Out-Null
+  Invoke-PostgresCommand -Arguments @('pg_restore', '--no-owner', '--no-privileges', '-U', $postgresUser, '-d', $RestoreDatabaseName, $dumpPath) | Out-Null
 
   $stage = 'VERIFY'
   $sourceTableCount = Get-DatabaseTableCount -DatabaseName $sourceDatabase
@@ -104,8 +118,7 @@ try {
 } finally {
   if ($dumpCreated) {
     try {
-      $cleanupCommand = 'rm -f "' + $dumpPath + '"'
-      Invoke-PostgresShell -Command $cleanupCommand | Out-Null
+      Invoke-PostgresCommand -Arguments @('rm', '-f', $dumpPath) | Out-Null
     } catch {
       $cleanupFailed = $true
     }

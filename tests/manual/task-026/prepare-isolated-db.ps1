@@ -1,9 +1,10 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param()
 
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $envFile = Join-Path $root '.env'
+$envExampleFile = Join-Path $root '.env.example'
 $reportPath = Join-Path $root 'docs/testing/TASK-026-backup-restore-result.md'
 $databaseName = 'lumina_task009_test'
 $status = 'BLOQUEADO'
@@ -13,14 +14,18 @@ $migrated = $false
 $seeded = $false
 
 try {
-  if (-not (Test-Path -LiteralPath $envFile -PathType Leaf)) { throw 'ENV_FILE_MISSING' }
-  $line = Get-Content -LiteralPath $envFile | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
-  if (-not $line) { throw 'DATABASE_URL_MISSING' }
+  $line = if (Test-Path -LiteralPath $envFile -PathType Leaf) {
+    Get-Content -LiteralPath $envFile | Where-Object { $_ -match '^TASK009_TEST_DATABASE_URL=' } | Select-Object -First 1
+  }
+  if (-not $line -and (Test-Path -LiteralPath $envExampleFile -PathType Leaf)) {
+    $line = Get-Content -LiteralPath $envExampleFile | Where-Object { $_ -match '^TASK009_TEST_DATABASE_URL=' } | Select-Object -First 1
+  }
+  if (-not $line) { throw 'TASK009_TEST_DATABASE_URL_MISSING' }
   $base = ($line -split '=', 2)[1].Trim().Trim('"').Trim("'")
-  $uri = [System.UriBuilder]$base
-  if ($uri.Scheme -notmatch '^postgres(ql)?$' -or $uri.Host -notin @('localhost', '127.0.0.1', '::1')) { throw 'DATABASE_HOST_NOT_LOOPBACK' }
-  $uri.Path = "/$databaseName"
-  $isolatedUrl = $uri.Uri.AbsoluteUri
+  $uri = [System.Uri]::new($base)
+  if ($uri.Scheme -notmatch '^postgres(ql)?$' -or -not $uri.IsLoopback) { throw 'DATABASE_HOST_NOT_LOOPBACK' }
+  if ($uri.AbsolutePath.Trim('/') -ne $databaseName) { throw 'DATABASE_NAME_NOT_ISOLATED' }
+  $isolatedUrl = $uri.AbsoluteUri
   $env:DATABASE_URL = $isolatedUrl
   $env:TASK009_TEST_DATABASE_URL = $isolatedUrl
 
