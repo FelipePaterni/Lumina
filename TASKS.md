@@ -26,7 +26,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 20 | TASK-020 | PHASE-04 | CRITICAL | 017–019 | DONE |
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
-| 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | IN_REVIEW |
+| 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | BLOCKED |
 | 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
 | 26 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
@@ -334,7 +334,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Progresso:** API, persistência, agregados do catálogo e migração implementados. Auditoria sanitiza PII/credenciais no motivo textual. O responsável autorizou em 2026-11-21 a expansão mínima para corrigir dois erros preexistentes de lint em scripts manuais da TASK-021. Build, lint, Prisma validate, testes automatizados locais (83/83), integração (11/11) e roteiro manual sanitizado (8/8) passaram. A migração foi aplicada somente ao banco isolado `lumina_task009_test`; o responsável revisou e aprovou o relatório manual em 2026-11-22. Relatórios e roteiro: `docs/testing/TASK-022-planejamento-e-gates.md`, `docs/testing/TASK-022-testes-manuais-resultado.md` e `tests/manual/task-022/run-task-022-manual-tests.ps1`. A alteração de uma linha na tabela de APIs do README é incidental, para manter o contrato documentado. Commits da TASK: `3e8fb02`, `e4c5737`, `6e76fdf`.
 
 ### TASK-023 — Painéis e relatórios essenciais
-**Status:** IN_REVIEW · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Exibir indicadores confirmados com isolamento por papel.
 **Dependências:** `DEPENDS_ON: TASK-020, TASK-021`
 **Relacionados:** RF-021; RF-023 (somente autorização por papel); RN-020,021; UC-021; RNF-002,003; ADR-001,003,007 (`ACCEPTED`).
@@ -352,6 +352,8 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Execução:** IN_REVIEW em 2026-11-22 na branch `feature/TASK-023-paineis-relatorios`. Implementação concluída e revisada dentro de `ALLOWED_CHANGES`; nenhum schema/migration alterado. GATE-004 aprovado. GATE-005 aprovado: lint, build, testes unitários (87/87), integração (12/12), `node --check` do teste de integração, validação sintática PowerShell e `prisma validate`; `git diff --check` aprovado. Integração executada no banco isolado `lumina_task009_test`. GATE-006 aprovado quanto ao roteiro completo em `tests/manual/task-023/README.md` e script validado sintaticamente; cenários permanecem `NAO EXECUTADO`, conforme requerido pela etapa, sem execução humana presumida. GATE-007 registra a conclusão rastreável; TASK permanece `IN_REVIEW` aguardando execução HTTP com credenciais sintéticas e revisão humana dos cenários UI, além do relatório sanitizado em `docs/testing/TASK-023-testes-manuais-resultado.md`. Sem commits de implementação ainda nesta atualização.
 
 **Validação HTTP (2026-11-22):** preparador `tests/manual/task-023/prepare-and-run.mjs` cria quatro contas sintéticas e obtém tokens por login real em memória; banco isolado criado e migrado. Roteiro HTTP aprovado 7/7; relatório em `docs/testing/TASK-023-testes-manuais-resultado.md`. Commits anteriores: `89be98f` e `e4fe1e0`. Estado continua `IN_REVIEW`: revisão humana da UI e do relatório pendente. Mudanças primárias autorizadas em testes, relatório e rastreabilidade; nenhuma incidental.
+
+**Conclusão (2026-11-22):** responsável confirmou nesta conversa a execução e aprovação dos seis cenários visuais MT-023-UI-01 a MT-023-UI-06 e aprovou o relatório HTTP 7/7. TASK-023 DONE; GATE-001 a GATE-007 aprovados, DoD satisfeita. Evidência humana registrada no relatório sanitizado. Commits: `163e69a`, `89be98f`, `e4fe1e0`, `904d8b1`, mais commit de encerramento. Alterações primárias autorizadas; nenhuma incidental ou proibida. TASK-024 permanece BLOCKED e requer resolução das próprias pendências antes de ficar elegível.
 
 ### TASK-024 — Privacidade operacional e observabilidade
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
