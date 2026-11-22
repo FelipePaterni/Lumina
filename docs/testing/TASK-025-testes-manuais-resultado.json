@@ -1,92 +1,46 @@
 {
   "task": "TASK-025",
-  "date": "2026-11-22T18:54:34Z",
+  "date": "2026-11-22T20:42:14Z",
   "webOrigin": "http://localhost:3000",
   "apiOrigin": "http://localhost:3001",
   "scenarios": [
     {
       "scenario": "web-route/",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 57 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 25 ms; corpo omitido",
       "failure": null
     },
     {
       "scenario": "web-route/dashboard",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 7 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 8 ms; corpo omitido",
       "failure": null
     },
     {
       "scenario": "web-route/catalog/dashboard",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 6 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 3 ms; corpo omitido",
       "failure": null
     },
     {
       "scenario": "web-route/warehouse/dashboard",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 5 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 3 ms; corpo omitido",
       "failure": null
     },
     {
       "scenario": "web-route/operations/dashboard",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 5 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 4 ms; corpo omitido",
       "failure": null
     },
     {
       "scenario": "api-catalog-readiness",
       "status": "APROVADO",
-      "evidence": "HTTP 200; resposta em 75 ms; corpo omitido",
+      "evidence": "HTTP 200; resposta em 44 ms; corpo omitido",
       "failure": null
     }
   ],
-  "manualScenarios": [
-    {
-      "scenario": "MT-025-01",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-02",
-      "status": "APROVADO",
-      "evidence": "Responsável testou e aprovou visual e responsividade.",
-      "failure": null
-    },
-    {
-      "scenario": "MT-025-03",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-04",
-      "status": "BLOQUEADO",
-      "evidence": "Contas sintéticas provisionadas; API confirmou login 3/3 nos papéis ADMIN, CATALOG e STOCK. Navegação por rota, sessão, logout e negação de acesso aguardam revisão manual.",
-      "failure": "MANUAL_UI_FLOW_PENDING"
-    },
-    {
-      "scenario": "MT-025-05",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-06",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-07",
-      "status": "BLOQUEADO",
-      "evidence": "Edge/Firefox não disponíveis; revisão por navegador não executada.",
-      "failure": "BROWSERS_UNAVAILABLE"
-    }
-  ],
-  "manualBrowserReview": "PARCIALMENTE APROVADO: responsável aprovou visual e responsividade; cenários de papéis/erros e Edge/Firefox permanecem pendentes.",
-  "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md.",
   "automationChecks": [
     {
       "scenario": "route-http-checks",
@@ -117,6 +71,63 @@
       "status": "APROVADO",
       "evidence": "3/3 logins sintéticos confirmaram o papel esperado pela API; tokens omitidos.",
       "failure": null
+    },
+    {
+      "scenario": "role-login-ui",
+      "status": "APROVADO",
+      "evidence": "Login Web confirmado em 3/3 papéis; painéis correspondentes renderizados; sem dados de credencial no relatório.",
+      "failure": null
     }
-  ]
+  ],
+  "manualScenarios": [
+    {
+      "scenario": "MT-025-01",
+      "status": "APROVADO",
+      "evidence": "Responsável confirmou abertura das rotas e navegação entre painéis.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-02",
+      "status": "APROVADO",
+      "evidence": "Responsável testou e aprovou visual e responsividade.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-03",
+      "status": "APROVADO",
+      "evidence": "Responsável confirmou navegação e funcionamento pelo teclado, além de foco visível e mensagem de erro.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-04",
+      "status": "APROVADO",
+      "evidence": "Responsável confirmou sessão e restrição dos painéis conforme o papel da conta; sem credenciais ou dados de resposta registrados.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-05",
+      "status": "APROVADO",
+      "evidence": "Busca sem resultados exibe o estado vazio; quando a API fica indisponível, a interface apresenta 'Não foi possível carregar o catálogo. Tente novamente.'",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-06",
+      "status": "APROVADO",
+      "evidence": "75/75 medições no Chrome ficaram dentro do limite de 20 s; valores detalhados no relatório.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-07",
+      "status": "APROVADO",
+      "evidence": "Responsável confirmou funcionamento no Edge 158.0.4370.33 e Firefox 160.0.1; versões estáveis atuais conferidas nas notas oficiais em 2026-11-22.",
+      "failure": null
+    }
+  ],
+  "manualBrowserReview": "APROVADO: visual/responsividade, navegação, papéis/sessão, teclado, estado vazio e feedback quando a API fica indisponível confirmados pelo responsável. Compatibilidade confirmada em Edge 158.0.4370.33 e Firefox 160.0.1.",
+  "accountProvisioningConfirmation": {
+    "status": "APROVADO",
+    "evidence": "Responsável confirmou que as contas sintéticas CATALOG e STOCK funcionam corretamente; isso não aprova os guards entre rotas ou a sessão.",
+    "failure": null
+  },
+  "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md."
 }

@@ -1,0 +1,5 @@
+services:
+  api:
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-lumina}:${POSTGRES_PASSWORD:-local-development-only}@postgres:5432/lumina_task009_test
+      LOCAL_TEST_ACCOUNTS_ENABLED: "false"

@@ -27,14 +27,14 @@ Data do registro: 2026-11-22. Branch: `chore/TASK-025-readiness`.
 | GATE-003 | Plano e riscos | APROVADO: este documento e decisões do responsável |
 | GATE-004 | Correções controladas | APROVADO: alterações limitadas e revisadas; sem API/schema |
 | GATE-005 | Testes, lint, builds, segurança e diff | APROVADO: ver resultados abaixo |
-| GATE-006 | Rotas HTTP, navegadores, responsividade, teclado e medições manuais | Parcial: visual/responsividade aprovadas pelo responsável; contas sintéticas prontas e login API 3/3. Fluxos UI, teclado/estados e Edge/Firefox ainda pendentes. |
-| GATE-007 | Revisão, DoD, commits e rastreabilidade | PENDENTE dos cenários UI restantes e fechamento pelo responsável |
+| GATE-006 | Rotas HTTP, navegadores, responsividade, teclado e medições manuais | APROVADO: responsável confirmou rotas/navegação, papéis/sessão, teclado, foco, mensagem de erro, estado vazio e feedback durante indisponibilidade da API. Compatibilidade aprovada em Edge 158.0.4370.33 e Firefox 160.0.1. Baseline Chrome 75/75 ≤20 s. |
+| GATE-007 | Revisão, DoD, commits e rastreabilidade | PENDENTE apenas do commit rastreável de encerramento e atualização final do status em `TASKS.md`. |
 
 ## Riscos e bloqueios conhecidos
 
-- Edge e Firefox não estavam disponíveis no inventário do ambiente de navegador usado na inspeção preliminar; não registrar esses navegadores como aprovados sem evidência. A validação das versões-alvo requer ambiente com ambos.
+- O responsável confirmou compatibilidade em Edge 158.0.4370.33 e Firefox 160.0.1; as notas oficiais identificam essas versões como estáveis atuais em 2026-11-22.
 - Chrome medirá renderização real; o script HTTP fornece apenas evidência de disponibilidade e latência de resposta, não substituindo tempos até tela pronta.
-- O responsável aprovou visual e responsividade. Contas sintéticas ADMIN/CATALOG/STOCK foram semeadas no banco isolado; a API confirmou 3/3 logins, mas navegação, guards, sessão, logout e negação por UI ainda aguardam teste do responsável.
+- O responsável aprovou visual, responsividade, navegação, guards, sessão, logout, teclado e estados vazio/falha. Contas sintéticas de equipe foram verificadas sem registrar credenciais.
 - Não executar seed que remova/recrie registros. O banco dedicado deve ser apenas consultado, e qualquer fixture deve ser não destrutiva.
 
 ## Resultados automatizados
@@ -60,8 +60,8 @@ Comandos executados; todos os resultados abaixo são observados:
 
 O relatório `TASK-025-testes-manuais-resultado.md` contém 75 medições de tela pronta, com cinco amostras para cada rota em cada viewport; 75/75 ficaram abaixo de 20 s. As rotas protegidas foram medidas sem sessão, mostrando o formulário de login, conforme a definição de pronto do README. O teste HTTP forneceu apenas disponibilidade e latência de rede.
 
-Chrome foi revisado em aba temporária: o link “Painéis da equipe” abriu `/dashboard`; em 390×844, o campo de busca ficou dentro do contêiner após a correção. Quinze verificações DOM (cinco rotas × três viewports) não encontraram largura de documento maior que o viewport; o responsável aprovou visual e responsividade. O seeder autenticou cada papel pela API e validou a role, sem expor tokens. Navegação por painel, acesso negado sem chamada API, sessão, logout, estados vazios/erro/conexão e teclado ainda precisam de execução/revisão humana. Edge e Firefox não estavam disponíveis.
+Chrome foi revisado em aba temporária: o link “Painéis da equipe” abriu `/dashboard`; em 390×844, o campo de busca ficou dentro do contêiner após a correção. Quinze verificações DOM (cinco rotas × três viewports) não encontraram largura de documento maior que o viewport; o responsável aprovou visual e responsividade. O seeder autenticou papéis sintéticos pela API e validou a role, sem expor tokens. O responsável confirmou navegação por painel, acesso conforme papel, sessão/logout, teclado e estados vazios/falha/conexão. Em 2026-11-22 confirmou também Edge 158.0.4370.33 e Firefox 160.0.1.
 
 A API local em `localhost:3001` foi temporariamente substituída por `lumina-task025-api`, conectada exclusivamente a `lumina_task009_test`, para permitir login a partir do Web em `localhost:3000`. O container original está parado e o banco normal `lumina` não foi alterado. Para restaurar depois do teste: `docker rm -f lumina-task025-api`; `docker compose start api`.
 
-`GATE-006` e `GATE-007` permanecem pendentes. A tarefa não está concluída; PD-001 também permanece aberto para escala de produção.
+`GATE-006` está APROVADO conforme confirmação humana registrada no relatório manual. `GATE-007` aguarda o commit rastreável de encerramento e atualização final do estado. PD-001 permanece aberto para escala de produção e não impede a conclusão da validação local desta tarefa.

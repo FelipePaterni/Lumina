@@ -18,7 +18,6 @@ if (
 }
 
 const accounts = [
-  { email: "task025-admin@example.invalid", role: "ADMIN" },
   { email: "task025-catalog@example.invalid", role: "CATALOG" },
   { email: "task025-stock@example.invalid", role: "STOCK" },
 ];
@@ -67,6 +66,10 @@ try {
     credentials.push({ role: account.role, email: account.email, password });
   }
 
+  process.stdout.write(
+    `${JSON.stringify({ database: connectedDatabase, credentials }, null, 2)}\n`,
+  );
+
   if (process.env.TASK025_API_BASE) {
     for (const account of credentials) {
       const response = await globalThis.fetch(
@@ -91,9 +94,6 @@ try {
     }
   }
 
-  process.stdout.write(
-    `${JSON.stringify({ database: connectedDatabase, credentials }, null, 2)}\n`,
-  );
 } finally {
   await prisma.$disconnect();
 }
