@@ -30,7 +30,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
 | 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
 | 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | DONE |
-| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | READY |
+| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | IN_PROGRESS |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
 
 ## Políticas comuns
@@ -398,7 +398,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** responsável aprovou MT-027-UI-01 e os demais testes manuais da tarefa. TASK-027 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: unitários 96/96, lint, build API/Web, integração 1/1 em `lumina_task009_test`, sintaxe e diff check aprovados. GATE-006: roteiro HTTP 5/5 aprovado e interface revisada pelo responsável; evidência em `docs/testing/TASK-027-testes-manuais-resultado.md`. Planos EXPLAIN registrados; índice existente de reembolsos usado, sem necessidade de migração. Escopo integralmente PRIMARY autorizado; sem alterações incidentais ou proibidas. Commits: `c9571d1`, `617a699`, `1f6bd53` e commit de encerramento. Detalhes em `docs/testing/TASK-027-planejamento-e-gates.md`.
 
 ### TASK-025 — Acessibilidade, responsividade e desempenho
-**Status:** READY · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** IN_PROGRESS · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Validar meta WCAG A, navegadores Chrome/Edge/Firefox, layouts de referência e baseline local reproduzível de carregamento; produção permanece sujeita a PD-001.
 **Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-027`
 **Relacionados:** RNF-004–006.
@@ -420,3 +420,5 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** gates completos, rastreabilidade, backup/restore ensaiado e testes de regressão aprovados.
 **DoD específico:** V1 elegível para revisão humana; PD-001–003 explicitamente aceitos ou bloqueiam publicação.
 `n<!-- TASK-023: atualização de execução em 2026-11-22. Preparador tests/manual/task-023/prepare-and-run.mjs cria quatro contas sintéticas e obtém tokens por login real em memória; banco isolado criado/migrado. Roteiro HTTP aprovado 7/7, relatório docs/testing/TASK-023-testes-manuais-resultado.md. Commits anteriores 89be98f e e4fe1e0. Estado continua IN_REVIEW: revisão humana da UI e do relatório pendente. Mudanças primárias autorizadas em tests/**, docs/testing/TASK-023-* e TASKS.md; nenhuma incidental. -->
+
+**Execução:** IN_PROGRESS em 2026-11-22 na branch `chore/TASK-025-readiness`, após commit de prontidão `a90e02d`. Implementação, medição local, correções e gates automatizados em andamento; cobertura de Edge/Firefox e aprovação manual visual dependem de revisão humana.
