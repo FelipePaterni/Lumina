@@ -1,7 +1,7 @@
 # TASK-027 — Resultado dos testes manuais
 
-Data: 2026-11-22T16:16:26.702Z
-API: http://127.0.0.1:3101
+Data: 2026-11-22T16:19:08.014Z
+API: http://localhost:3001
 Dados: somente leitura de catálogo; nenhum dado sintético ou credencial é criado ou exibido.
 
 | Cenário | Descrição | Status | Evidência sanitizada |
