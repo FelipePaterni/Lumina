@@ -32,6 +32,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | DONE |
 | 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | DONE |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | DONE |
+| 29 | TASK-029 | PHASE-06 | CRITICAL | 026 | IN_REVIEW |
 
 ## Políticas comuns
 
@@ -435,4 +436,16 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Prontidão (2026-11-22):** revisada após atualização da `main` para `f895b1e`. TASK-021, TASK-022, TASK-023, TASK-024, TASK-025 e TASK-027 estão `DONE`; os relatórios documentam seus testes/gates, conforme matriz em `docs/testing/TASK-026-planejamento-e-gates.md`. ADR-001 a ADR-007 estão `ACCEPTED` e ADR-008 está `Aprovado`. Critérios, Scope Guard e validações definidos. PD-001 (escala), PD-002 (política jurídica de retenção/exclusão definitiva) e PD-003 (provedor) continuam sem decisão e serão tratados como bloqueios de publicação, conforme a DoD; não impedem iniciar o checkpoint. GATE-001 aprovado; working tree limpa; branch `feature/TASK-026-checkpoint-v1`.
 **Execução:** concluída em 2026-11-22 na branch `feature/TASK-026-checkpoint-v1`, iniciada após o commit de prontidão `4a61e38`.
 **Gates:** GATE-001 a GATE-005 APROVADOS. GATE-004: lint, 96 testes smoke/unitários, builds API/Web, integração 14/14, auditoria de produção com 0 vulnerabilidades, Compose config e backup/restore com 34 tabelas conferidas. GATE-005: responsável aprovou os quatro cenários manuais; evidência em `docs/testing/TASK-026-testes-manuais-resultado.md`. V1 elegível para revisão humana. PD-001–003 continuam bloqueando publicação; não foram implicitamente aceitos. Matriz e evidências em `docs/testing/TASK-026-planejamento-e-gates.md` e `docs/testing/TASK-026-backup-restore-result.md`. Fechamento da revisão humana registrado no commit `87fc341`.
-`n<!-- TASK-023: atualização de execução em 2026-11-22. Preparador tests/manual/task-023/prepare-and-run.mjs cria quatro contas sintéticas e obtém tokens por login real em memória; banco isolado criado/migrado. Roteiro HTTP aprovado 7/7, relatório docs/testing/TASK-023-testes-manuais-resultado.md. Commits anteriores 89be98f e e4fe1e0. Estado continua IN_REVIEW: revisão humana da UI e do relatório pendente. Mudanças primárias autorizadas em tests/**, docs/testing/TASK-023-* e TASKS.md; nenhuma incidental. -->
+
+### TASK-029 — Cobertura Web V1.1 com contratos atuais
+**Status:** IN_REVIEW · **Phase:** PHASE-06 · **Priority:** CRITICAL
+**Objetivo:** Expandir a Web para oferecer rotas próprias aos fluxos de cliente e de equipe mapeados para a V1.1, sem alterar contratos, endpoints ou comportamento da API.
+**Dependências:** `DEPENDS_ON: TASK-026`
+**Relacionados:** RF-001–023; RN-001–021; RNF-002,004–006,010–013; ADR-001,002,003,005,007.
+**Artefatos esperados:** rotas públicas/cliente e equipe descritas no mapa V1.1, navegação contextual, estados de carregamento/vazio/erro, documentação das limitações da API e cobertura automatizada.
+**ALLOWED_CHANGES:** `apps/web/**`; `tests/**`; `docs/testing/TASK-029-*`; `docs/architecture/**`; `TASKS.md`.
+**FORBIDDEN_CHANGES:** `apps/api/**`; `database/**`; alterar contratos/payloads da API; gateway, provedores externos ou funcionalidades fora do escopo V1.
+**Aceitação/testes:** implementar rotas de catálogo, detalhes, autenticação, carrinho/checkout, pedido, biblioteca, wishlist, conta, avaliações e áreas administrativas (catálogo/estoque/arquivos, bundles, cupons, frete, usuários, reembolsos, moderação e auditoria); reutilizar os quatro painéis já existentes; respeitar papéis e proteger mutações administrativas; usar somente os endpoints atuais; exibir limitações sem simular funcionalidades ausentes (histórico de pedidos, edição de perfil, listagem de obras ocultas e edição/exclusão de bundle); build, lint, testes, fluxos responsivos e estados vazio/erro.
+**DoD específico:** nenhuma mudança em API ou schema; todas as rotas listadas no mapa respondem e possuem navegação; lacunas de API não são mascaradas; testes/gates e documentação atualizados; execução manual autenticada depende de aprovação humana e será registrada sem credenciais ou PII.
+**Prontidão (2026-11-22):** TASK-026 DONE; ADRs relacionados aceitos; inventário dos controllers, guards e componentes Web confirmou os contratos e as lacunas documentadas no mapa. Scope Guard e critérios definidos. Execução contínua explicitamente autorizada pelo responsável nesta conversa. Branch `feature/TASK-029-web-v11-pages`.
+**Execução (2026-11-22):** páginas públicas/cliente e administrativas implementadas em `apps/web/**`; contratos API e banco sem alteração. `npm run lint`, `npm test` (98/98), build Web e sintaxe do roteiro manual aprovados. Smoke HTTP das 31 rotas bloqueado: o servidor local em 3002 não foi alcançável pelo processo Node nem pelo Chrome; relatório em `docs/testing/TASK-029-testes-manuais-resultado.md`. Revisão visual/autenticada pendente. TASK permanece `IN_REVIEW`; plano e mapa em `docs/testing/TASK-029-planejamento-e-gates.md` e `docs/architecture/v11-web-route-map.md`.

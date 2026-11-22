@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { wishlistApi, type WishlistEntry } from "./wishlist-api.js";
+import { wishlistApi, type WishlistEntry } from "./wishlist-api";
 
 export function WishlistPanel({
   token,
