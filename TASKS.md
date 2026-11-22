@@ -30,7 +30,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
 | 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
 | 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | DONE |
-| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | IN_PROGRESS |
+| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | IN_REVIEW |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
 
 ## Políticas comuns
@@ -398,7 +398,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** responsável aprovou MT-027-UI-01 e os demais testes manuais da tarefa. TASK-027 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: unitários 96/96, lint, build API/Web, integração 1/1 em `lumina_task009_test`, sintaxe e diff check aprovados. GATE-006: roteiro HTTP 5/5 aprovado e interface revisada pelo responsável; evidência em `docs/testing/TASK-027-testes-manuais-resultado.md`. Planos EXPLAIN registrados; índice existente de reembolsos usado, sem necessidade de migração. Escopo integralmente PRIMARY autorizado; sem alterações incidentais ou proibidas. Commits: `c9571d1`, `617a699`, `1f6bd53` e commit de encerramento. Detalhes em `docs/testing/TASK-027-planejamento-e-gates.md`.
 
 ### TASK-025 — Acessibilidade, responsividade e desempenho
-**Status:** IN_PROGRESS · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** IN_REVIEW · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Validar meta WCAG A, navegadores Chrome/Edge/Firefox, layouts de referência e baseline local reproduzível de carregamento; produção permanece sujeita a PD-001.
 **Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-027`
 **Relacionados:** RNF-004–006.
@@ -408,7 +408,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** teclado, rótulos, contraste, mobile/tablet/desktop e Chrome/Edge/Firefox nas duas versões mais recentes; páginas principais avaliadas por baseline local reproduzível. Uma navegação de aquecimento seguida de cinco medições por página, cada uma ≤20 s, com mediana e máximo registrados; condições em README §6.1. Incluir estados sem sessão, vazio, falha e conexão indisponível quando aplicável.
 **DoD específico:** toda meta não medida fica explícita como falha ou pendência; não alegar capacidade de produção. Revisão manual humana obrigatória para cenários visuais/navegadores.
 **Prontidão (2026-11-22):** dependências TASK-021, TASK-022, TASK-023, TASK-024 e TASK-027 estão DONE, com gates e artefatos registrados. O responsável fixou baseline local (hardware, serviços/banco isolado, dataset, navegador, rotas, viewports, aquecimento, amostras e limite mensurável); isso resolve a aceitação local de RNF-004 sem encerrar PD-001, que continua pendente antes de produção. RNF-005 foi atualizado para Chrome/Edge/Firefox, removendo Safari do objetivo. Critérios, testes e Scope Guard alinhados; sem migrações ou dependências externas previstas.
-**Execução:** IN_PROGRESS retomada em 2026-11-22 após aprovação humana de visual e responsividade. Autorização temporária do responsável: semear somente contas sintéticas ADMIN/CATALOG/STOCK no banco isolado `lumina_task009_test`, aplicar migrations nesse banco e usar a API local apontada temporariamente para ele; credenciais não serão persistidas em arquivos ou relatórios. Alteração contida em `tests/manual/task-025/**`, já autorizada. Gates prévios: 75/75 medições Chrome ≤20 s, 15 verificações de viewport sem overflow, 6/6 respostas HTTP 200, lint, testes e builds aprovados. Evidências anteriores em `docs/testing/TASK-025-testes-manuais-resultado.md` e `.json`. Ainda faltam papéis/sessão/estados de erro, Edge/Firefox e aprovação final desses cenários; não marcar DONE enquanto pendentes.
+**Execução:** IN_REVIEW retomada em 2026-11-22 após aprovação humana de visual e responsividade. Autorização temporária do responsável: semear somente contas sintéticas ADMIN/CATALOG/STOCK no banco isolado `lumina_task009_test`, aplicar migrations nesse banco e usar a API local apontada temporariamente para ele; credenciais não serão persistidas em arquivos ou relatórios. Alteração contida em `tests/manual/task-025/**`, já autorizada. Migrations aplicadas: nenhuma pendente (15 encontradas). Seeder criou/atualizou as três contas; login API 3/3 confirmou o papel correto, sem tokens nos registros. O container `lumina-api-1` está parado e `lumina-task025-api` serve temporariamente `localhost:3001` ligado somente ao banco de teste; `lumina` permanece intacto. Credenciais entregues ao responsável nesta conversa. Gates anteriores aprovados: 75/75 medições Chrome ≤20 s, 15 verificações de viewport sem overflow, 6/6 respostas HTTP 200, lint, testes e builds. Evidências em `docs/testing/TASK-025-testes-manuais-resultado.md` e `.json`. Aguardar revisão na UI de papéis/sessão/negação de acesso/estados de erro; Edge/Firefox seguem indisponíveis. Commits da retomada: `028158f` e `7c5defa`. Não marcar DONE enquanto pendente.
 
 ### TASK-026 — Checkpoint final V1
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** CRITICAL

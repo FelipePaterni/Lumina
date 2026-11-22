@@ -27,14 +27,14 @@ Data do registro: 2026-11-22. Branch: `chore/TASK-025-readiness`.
 | GATE-003 | Plano e riscos | APROVADO: este documento e decisões do responsável |
 | GATE-004 | Correções controladas | APROVADO: alterações limitadas e revisadas; sem API/schema |
 | GATE-005 | Testes, lint, builds, segurança e diff | APROVADO: ver resultados abaixo |
-| GATE-006 | Rotas HTTP, navegadores, responsividade, teclado e medições manuais | BLOQUEADO para revisão humana, papéis/estados autenticados e Edge/Firefox |
-| GATE-007 | Revisão, DoD, commits e rastreabilidade | PENDENTE da aprovação/decisão do responsável e encerramento |
+| GATE-006 | Rotas HTTP, navegadores, responsividade, teclado e medições manuais | Parcial: visual/responsividade aprovadas pelo responsável; contas sintéticas prontas e login API 3/3. Fluxos UI, teclado/estados e Edge/Firefox ainda pendentes. |
+| GATE-007 | Revisão, DoD, commits e rastreabilidade | PENDENTE dos cenários UI restantes e fechamento pelo responsável |
 
 ## Riscos e bloqueios conhecidos
 
 - Edge e Firefox não estavam disponíveis no inventário do ambiente de navegador usado na inspeção preliminar; não registrar esses navegadores como aprovados sem evidência. A validação das versões-alvo requer ambiente com ambos.
 - Chrome medirá renderização real; o script HTTP fornece apenas evidência de disponibilidade e latência de resposta, não substituindo tempos até tela pronta.
-- Cenários visuais e leitura humana permanecem pendentes de aprovação do responsável. Estados de sessão/contas dependem de dados sintéticos locais.
+- O responsável aprovou visual e responsividade. Contas sintéticas ADMIN/CATALOG/STOCK foram semeadas no banco isolado; a API confirmou 3/3 logins, mas navegação, guards, sessão, logout e negação por UI ainda aguardam teste do responsável.
 - Não executar seed que remova/recrie registros. O banco dedicado deve ser apenas consultado, e qualquer fixture deve ser não destrutiva.
 
 ## Resultados automatizados
@@ -50,6 +50,8 @@ Comandos executados; todos os resultados abaixo são observados:
 | `npm run build --workspace @lumina/web` | Código 0 após repetir com permissão de gravação em `.next`; todas as seis rotas web geradas. A primeira execução encontrou erro JSX corrigido e a seguinte EPERM do sandbox, sem falha de código na compilação final. |
 | Parser PowerShell para `run-task-025.ps1` | Sem erros sintáticos. |
 | `tests/manual/task-025/run-task-025.ps1` | Rotas Web/API responderam 200; corpos e exceções omitidos do relatório. |
+| `npm run db:migrate` com URL validada para `lumina_task009_test` | Código 0; 15 migrations encontradas, nenhuma pendente. Banco `lumina` não alterado. |
+| `node tests/manual/task-025/seed-role-accounts.mjs` com URL de teste e `TASK025_API_BASE` | Código 0; semeou três papéis sintéticos e confirmou 3/3 logins/papéis. Credenciais não foram persistidas em arquivos ou relatórios. |
 | `npx prettier --check` nos novos testes/roteiros/relatórios TASK-025 | Código 0; arquivos novos formatados. |
 | `git diff --check` | Código 0. |
 | Integração de API/banco | Não executada: esta tarefa não alterou API/persistência; dependências de API/banco já aprovadas em TASK-024/027. |
@@ -58,6 +60,8 @@ Comandos executados; todos os resultados abaixo são observados:
 
 O relatório `TASK-025-testes-manuais-resultado.md` contém 75 medições de tela pronta, com cinco amostras para cada rota em cada viewport; 75/75 ficaram abaixo de 20 s. As rotas protegidas foram medidas sem sessão, mostrando o formulário de login, conforme a definição de pronto do README. O teste HTTP forneceu apenas disponibilidade e latência de rede.
 
-Chrome foi revisado em aba temporária: o link “Painéis da equipe” abriu `/dashboard`; em 390×844, o campo de busca ficou dentro do contêiner após a correção. Quinze verificações DOM (cinco rotas × três viewports) não encontraram largura de documento maior que o viewport. Isso é evidência automatizada/browser-assisted; não constitui aprovação visual humana. Nenhuma conta foi autenticada. Papéis, logout, acesso negado sem chamada API, estados vazios/erro/conexão e teclado ainda precisam de execução/revisão humana. Edge e Firefox não estavam disponíveis.
+Chrome foi revisado em aba temporária: o link “Painéis da equipe” abriu `/dashboard`; em 390×844, o campo de busca ficou dentro do contêiner após a correção. Quinze verificações DOM (cinco rotas × três viewports) não encontraram largura de documento maior que o viewport; o responsável aprovou visual e responsividade. O seeder autenticou cada papel pela API e validou a role, sem expor tokens. Navegação por painel, acesso negado sem chamada API, sessão, logout, estados vazios/erro/conexão e teclado ainda precisam de execução/revisão humana. Edge e Firefox não estavam disponíveis.
+
+A API local em `localhost:3001` foi temporariamente substituída por `lumina-task025-api`, conectada exclusivamente a `lumina_task009_test`, para permitir login a partir do Web em `localhost:3000`. O container original está parado e o banco normal `lumina` não foi alterado. Para restaurar depois do teste: `docker rm -f lumina-task025-api`; `docker compose start api`.
 
 `GATE-006` e `GATE-007` permanecem pendentes. A tarefa não está concluída; PD-001 também permanece aberto para escala de produção.

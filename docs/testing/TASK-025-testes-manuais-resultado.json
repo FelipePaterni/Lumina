@@ -1,6 +1,6 @@
 {
   "task": "TASK-025",
-  "date": "2026-11-22T18:38:11Z",
+  "date": "2026-11-22T18:54:34Z",
   "webOrigin": "http://localhost:3000",
   "apiOrigin": "http://localhost:3001",
   "scenarios": [
@@ -41,6 +41,52 @@
       "failure": null
     }
   ],
+  "manualScenarios": [
+    {
+      "scenario": "MT-025-01",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-02",
+      "status": "APROVADO",
+      "evidence": "Responsável testou e aprovou visual e responsividade.",
+      "failure": null
+    },
+    {
+      "scenario": "MT-025-03",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-04",
+      "status": "BLOQUEADO",
+      "evidence": "Contas sintéticas provisionadas; API confirmou login 3/3 nos papéis ADMIN, CATALOG e STOCK. Navegação por rota, sessão, logout e negação de acesso aguardam revisão manual.",
+      "failure": "MANUAL_UI_FLOW_PENDING"
+    },
+    {
+      "scenario": "MT-025-05",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-06",
+      "status": "BLOQUEADO",
+      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
+      "failure": "HUMAN_REVIEW_PENDING"
+    },
+    {
+      "scenario": "MT-025-07",
+      "status": "BLOQUEADO",
+      "evidence": "Edge/Firefox não disponíveis; revisão por navegador não executada.",
+      "failure": "BROWSERS_UNAVAILABLE"
+    }
+  ],
+  "manualBrowserReview": "PARCIALMENTE APROVADO: responsável aprovou visual e responsividade; cenários de papéis/erros e Edge/Firefox permanecem pendentes.",
+  "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md.",
   "automationChecks": [
     {
       "scenario": "route-http-checks",
@@ -65,52 +111,12 @@
       "status": "APROVADO",
       "evidence": "75/75 medições <=20 s; detalhes em TASK-025-testes-manuais-resultado.md.",
       "failure": null
-    }
-  ],
-  "manualScenarios": [
-    {
-      "scenario": "MT-025-01",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
     },
     {
-      "scenario": "MT-025-02",
+      "scenario": "role-login-smoke",
       "status": "APROVADO",
-      "evidence": "Responsável testou e aprovou visual e responsividade.",
+      "evidence": "3/3 logins sintéticos confirmaram o papel esperado pela API; tokens omitidos.",
       "failure": null
-    },
-    {
-      "scenario": "MT-025-03",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-04",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-05",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-06",
-      "status": "BLOQUEADO",
-      "evidence": "Aguardando execução ou aprovação manual do responsável; evidência automatizada separada.",
-      "failure": "HUMAN_REVIEW_PENDING"
-    },
-    {
-      "scenario": "MT-025-07",
-      "status": "BLOQUEADO",
-      "evidence": "Edge/Firefox não disponíveis; revisão por navegador não executada.",
-      "failure": "BROWSERS_UNAVAILABLE"
     }
-  ],
-  "manualBrowserReview": "PARCIALMENTE APROVADO: responsável aprovou visual e responsividade; cenários de papéis/erros e Edge/Firefox permanecem pendentes.",
-  "performanceMeasurements": "APROVADO: 75/75 amostras <=20 s em Chrome; cinco rotas, três viewports, aquecimento descartado; detalhamento e valores em TASK-025-testes-manuais-resultado.md."
+  ]
 }

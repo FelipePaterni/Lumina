@@ -1,4 +1,6 @@
 import { randomBytes } from "node:crypto";
+import process from "node:process";
+import { URL } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -38,7 +40,9 @@ try {
       select: { role: true },
     });
     if (existing && existing.role !== account.role) {
-      throw new Error("Uma conta sintética reservada já possui papel diferente.");
+      throw new Error(
+        "Uma conta sintética reservada já possui papel diferente.",
+      );
     }
 
     const password = randomBytes(24).toString("base64url");
@@ -70,7 +74,10 @@ try {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: account.email, password: account.password }),
+          body: JSON.stringify({
+            email: account.email,
+            password: account.password,
+          }),
         },
       );
       const result = await response.json().catch(() => null);

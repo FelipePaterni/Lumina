@@ -1,6 +1,12 @@
 # TASK-025 — resultado de testes manuais
 
-Data: 2026-11-22. Ambiente: Web `http://localhost:3000`, API `http://localhost:3001`, Google Chrome via navegador in-app; versão exata do navegador não exposta pela integração. Banco isolado não foi consultado ou alterado neste roteiro. Navegação autenticada não foi executada por falta de credenciais sintéticas fornecidas para esta sessão.
+Data: 2026-11-22. Ambiente: Web `http://localhost:3000`, API `http://localhost:3001`, Google Chrome via navegador in-app; versão exata do navegador não exposta pela integração.
+
+## Contas sintéticas e migrations
+
+O comando `npm run db:migrate` executou em `lumina_task009_test` e terminou com “No pending migrations to apply” (15 migrations encontradas). O banco normal `lumina` não foi alterado. O seeder `tests/manual/task-025/seed-role-accounts.mjs` criou/atualizou três contas (`ADMIN`, `CATALOG`, `STOCK`) com endereços sintéticos e senhas aleatórias. Smoke login pela API confirmou 3/3 papéis. Senhas foram entregues diretamente ao responsável nesta conversa e não foram incluídas em relatório, arquivo ou logs de aplicação.
+
+Para permitir o login pela Web existente, o container original `lumina-api-1` está parado e a API temporária `lumina-task025-api` serve `localhost:3001`, conectada apenas ao banco isolado. Após os testes, remova a API temporária e reative a original com `docker rm -f lumina-task025-api` seguido de `docker compose start api`.
 
 ## Disponibilidade HTTP
 
@@ -49,7 +55,7 @@ Resultado: 75/75 amostras foram menores ou iguais a 20 s. Essa medição descrev
 | Link “Painéis da equipe” | APROVADO | Clique em `/` abriu `/dashboard`; conteúdo de login ficou visível. |
 | Abertura direta das cinco rotas web | APROVADO | Todas retornaram HTTP 200; três rotas de painéis exibiram o login sem sessão. |
 | Contraste/rótulos/feedback validado por teste automatizado | APROVADO | 3 testes dedicados passaram; conferir GATE-005. |
-| Papéis, sessão, logout, carregamento de dados autenticado e acesso negado | BLOQUEADO | Requer contas sintéticas para Admin/Catálogo/Estoque e execução humana; nenhuma credencial foi colocada no relatório. |
+| Papéis, sessão, logout, carregamento de dados autenticado e acesso negado | BLOQUEADO | Credenciais sintéticas foram criadas e login API 3/3 confirmado. Navegação por papel, persistência em troca de rota, logout e ausência de chamada ao endpoint negado ainda precisam de revisão no navegador. |
 | Revisão visual e responsividade | APROVADO | O responsável testou e aprovou o visual e a responsividade da interface. |
 | Compatibilidade nas duas versões recentes de Edge e Firefox | BLOQUEADO | Esses navegadores não estavam disponíveis no ambiente da sessão. |
 | Estados vazio, erro da API e conexão indisponível por interface | NAO EXECUTADO | Cobertos parcialmente pelo código/testes; ainda exigem revisão manual humana em cenários controlados. |
