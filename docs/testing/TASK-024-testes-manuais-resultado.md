@@ -14,4 +14,8 @@ Credenciais, tokens, e-mails, IDs e respostas brutas foram omitidos.
 | MT-024-API-04 | APROVADO | Reativação: HTTP 201; solicitações agregadas e total de eventos de notificação conferidos. |  |
 | MT-024-WEB-01 | APROVADO | Rota web /dashboard: HTTP 200. |  |
 
-| MT-024-UI-01 a MT-024-UI-03 | BLOQUEADO | Revisão visual não executada; requer navegador e aprovação do responsável. | Evidência humana pendente. |
+| MT-024-UI-01 | APROVADO | Responsável aprovou a revisão visual da seção Operação como Admin nesta conversa em 2026-11-22. | Nenhuma relatada. |
+| MT-024-UI-02 | APROVADO | Responsável aprovou a revisão visual do isolamento por papel nesta conversa em 2026-11-22. | Nenhuma relatada. |
+| MT-024-UI-03 | APROVADO | Responsável aprovou a revisão visual dos estados vazio/indisponível nesta conversa em 2026-11-22. | Nenhuma relatada. |
+
+Resultado final: HTTP/API 7/7 aprovado; revisão visual humana MT-024-UI-01 a MT-024-UI-03 aprovada pelo responsável nesta conversa. Evidência da aprovação: confirmação explícita do responsável em 2026-11-22; a observação visual não foi realizada pelo agente.

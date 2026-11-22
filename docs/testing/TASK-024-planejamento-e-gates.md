@@ -22,8 +22,8 @@ Branch: `feature/TASK-024-privacidade-observabilidade`
 | GATE-003 — Planejamento mínimo | APROVADO | Plano abaixo limita implementação a identidade, auditoria, novo módulo observability, feature do dashboard, testes, roteiro/relatório manual e TASKS. Sem schema/migration; rollback por reversão dos commits exclusivos. |
 | GATE-004 — Implementação controlada | APROVADO | Configuração do prazo, endpoint Admin agregado, seção Operação e sanitização implementados dentro do Scope Guard; sem schema/migração. |
 | GATE-005 — Revisão e gates automatizados | APROVADO | Build, lint, smoke/unit (93/93), integração (13/13 no banco isolado), parser Node/PowerShell e `git diff --check` passaram. `npm run format:check` reporta baseline de 200 arquivos; não é gate operacional definido e não foi aplicada formatação em massa. |
-| GATE-006 — Testes manuais | AGUARDANDO REVISÃO HUMANA | Roteiro executado com dados sintéticos; HTTP/API 7/7 aprovados e relatório sanitizado existente. MT-024-UI-01 a MT-024-UI-03 aguardam observação/aprovação do responsável. |
-| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Aguardar GATE-006 e revisão do relatório manual pelo responsável. |
+| GATE-006 — Testes manuais | APROVADO | Roteiro executado com dados sintéticos; HTTP/API 7/7 aprovados e MT-024-UI-01 a MT-024-UI-03 aprovados explicitamente pelo responsável em 2026-11-22. Aprovação registrada no relatório manual sanitizado. |
+| GATE-007 — Conclusão e rastreabilidade | APROVADO | Relatório e `TASKS.md` atualizados; Scope Guard, gates, limites PD-002 e DoD conferidos. |
 
 ## Plano mínimo
 
@@ -53,4 +53,4 @@ Após resolver a lacuna de indicadores e alinhar o Scope Guard com os caminhos r
 - Mudança incidental: registro de `ObservabilityModule` em `apps/api/src/app.module.ts`, necessário para a montagem NestJS; uma importação e uma entrada na lista de módulos, sem alterar contrato de outros módulos.
 - Build e lint: aprovados. `npm test`: 93/93. `npm run test:integration`: 13/13 no banco isolado `lumina_task009_test`. Roteiro HTTP manual: 7/7 aprovados. Build Next requer elevação para gravação do cache `.next`; sem elevação, prerender retorna `EPERM`.
 - `npm run format:check` falha em 200 arquivos do repositório; não estava definido como gate operacional e não foi aplicada formatação global. `git diff --check` passa.
-- Estado atual: `IN_REVIEW`; cenários visuais humanos continuam aguardando revisão do responsável.
+- Encerramento: responsável aprovou explicitamente MT-024-UI-01 a MT-024-UI-03 em 2026-11-22. GATE-006 e GATE-007 aprovados; TASK-024 DONE. Sem mudanças proibidas; PD-002 permanece como limite.

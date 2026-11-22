@@ -27,7 +27,7 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 21 | TASK-021 | PHASE-05 | HIGH | 020 | DONE |
 | 22 | TASK-022 | PHASE-05 | HIGH | 020 | DONE |
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
-| 24 | TASK-024 | PHASE-05 | HIGH | 020 | IN_REVIEW |
+| 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
 | 25 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
 | 26 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
 | 27 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
@@ -366,7 +366,7 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Aceitação/testes:** `ACCOUNT_DELETION_GRACE_PERIOD_DAYS` aceita inteiro positivo e usa 30 dias quando ausente; solicitação desativa e notifica cliente/Admin; reativação funciona dentro do prazo e é recusada após o vencimento sem excluir dados; endpoint `/admin/observability/dashboard` protegido por Admin agrega saúde da API/banco, outbox por estado e solicitações de exclusão pendentes/vencidas/próxima data, sem PII; alerta quando há notificações `FAILED` ou lease `PROCESSING` vencido; demais papéis recebem 403 e visitante 401; logs não contêm PII nem detalhes brutos de exceção. Testes unitários, integração e roteiro manual sintético.
 **DoD específico:** PD-002 permanece visível como limite.
 **Prontidão:** READY em 2026-11-22 após decisão do responsável sobre indicadores do painel Admin (saúde, notificações e solicitações agregadas sem PII), critérios de alerta, configuração do prazo e atualização do Scope Guard para caminhos reais; TASK-020 DONE e ADR-003 ACCEPTED verificados. Sem alteração de schema/migração; PD-002 permanece como limite.
-**Execução:** IN_REVIEW em 2026-11-22. GATE-004 aprovado. GATE-005 aprovado: build completa, lint, `npm test` (93/93), integração (13/13 em `lumina_task009_test`), sintaxe Node/PowerShell e `git diff --check`. GATE-006: roteiro em `tests/manual/task-024/` executado com dados sintéticos; HTTP/API 7/7 aprovado e relatório sanitizado em `docs/testing/TASK-024-testes-manuais-resultado.md`. Revisão visual humana MT-024-UI-01 a MT-024-UI-03 ainda pendente; GATE-006/GATE-007 e `DONE` aguardam o responsável. Mudança incidental: registro do novo módulo em `apps/api/src/app.module.ts`, necessário para expor o endpoint. Sem migração e sem mudança proibida. `npm run format:check` falhou em 200 arquivos do repositório; gate não definido, nenhum arquivo foi formatado em massa.
+**Conclusão (2026-11-22):** responsável aprovou MT-024-UI-01 a MT-024-UI-03 nesta conversa; aprovação humana registrada em `docs/testing/TASK-024-testes-manuais-resultado.md`. TASK-024 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: build, lint, `npm test` (93/93), integração (13/13 em `lumina_task009_test`), sintaxe Node/PowerShell e `git diff --check` aprovados. GATE-006: roteiro sintético HTTP/API 7/7 aprovado e revisão visual 3/3 aprovada pelo responsável. Mudança incidental: registro do novo módulo em `apps/api/src/app.module.ts`, necessário para expor o endpoint. Sem migração ou mudança proibida. PD-002 permanece como limite explícito; `npm run format:check` não é gate definido e sua falha basal em 200 arquivos não foi corrigida por formatação global. Commits de implementação: `893ed7b`, `78ec7e0`; commit de encerramento registra aprovação e estado final.
 
 ### TASK-027 — Rankings de descoberta pós-venda
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
