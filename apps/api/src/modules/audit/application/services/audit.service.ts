@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../../../infrastructure/persistence/prisma.service.js";
 import { Role } from "../../../identity/domain/role.enum.js";
@@ -6,6 +6,8 @@ import { AuditLogEntity, CreateAuditLogParams } from "../../domain/audit-log.ent
 
 @Injectable()
 export class AuditService {
+  private readonly logger = new Logger(AuditService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async logAction(params: CreateAuditLogParams): Promise<void> {
@@ -23,12 +25,8 @@ export class AuditService {
           metadata: auditEntity.metadata,
         },
       });
-    } catch (error) {
-      // Auditoria nunca deve quebrar silenciosamente, mas erro de log não deve expor PII
-      console.error(
-        `[AUDIT_ERROR] Failed to record audit log for action: ${params.action}`,
-        error instanceof Error ? error.message : "Unknown error",
-      );
+    } catch {
+      this.logger.error(`audit persistence failed action=${params.action} code=AUDIT_STORAGE_FAILURE`);
     }
   }
 

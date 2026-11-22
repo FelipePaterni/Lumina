@@ -217,6 +217,7 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 | `POST /orders/{id}/cancel`, `/refund` | Cancelamento e reembolso | RF-018 |
 | `GET/POST /works/{id}/reviews`, `POST /reviews/{id}/reports`, `GET /admin/review-reports`, `DELETE /admin/reviews/{id}` | Avaliação/moderação | RF-019,022 |
 | `GET /admin/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` | Indicadores por papel | RF-021 |
+| `GET /admin/observability/dashboard` | Saúde operacional, outbox simulada e solicitações agregadas; somente Admin | RF-002,020,022 |
 
 Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
 
@@ -242,7 +243,7 @@ Para interromper os serviços, execute `docker compose down`. Não use remoção
 
 ## 14. Estratégia de segurança e privacidade
 
-Aplicar OWASP ASVS proporcionalmente: hash de senha, JWTs assinados, com expiração e validação de emissor/audiência, expiração e uso único de tokens de ação, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta por 30 dias, prazo configurável, e permite reativação nesse intervalo; a política jurídica definitiva permanece pendente.
+Aplicar OWASP ASVS proporcionalmente: hash de senha, JWTs assinados, com expiração e validação de emissor/audiência, expiração e uso único de tokens de ação, RBAC, rate limiting, CSRF conforme arquitetura, validação/sanitização, proteção contra enumeração, logs estruturados e controle de segredo. CPF/endereço são acessíveis apenas quando necessários. Solicitação de exclusão desativa a conta por 30 dias por padrão, prazo configurável por `ACCOUNT_DELETION_GRACE_PERIOD_DAYS` com inteiro positivo; a conta pode ser reativada durante esse intervalo. O vencimento não executa exclusão definitiva, cuja política jurídica permanece pendente em PD-002.
 
 ## 15. Estratégia de testes
 

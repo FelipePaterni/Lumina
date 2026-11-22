@@ -8,6 +8,7 @@ import { PrismaService } from "../../../../infrastructure/persistence/prisma.ser
 import { Role } from "../../domain/role.enum.js";
 import { NotificationEventType } from "../../../notifications/notification-event.js";
 import { NotificationService } from "../../../notifications/notification.service.js";
+import { AccountDeletionGracePeriod } from "./account-deletion-grace-period.js";
 
 type PrismaRole = import("@prisma/client").$Enums.Role;
 
@@ -16,11 +17,12 @@ export class AccountService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationService,
+    private readonly gracePeriod: AccountDeletionGracePeriod = new AccountDeletionGracePeriod(),
   ) {}
 
   /**
    * Solicitação de exclusão/desativação pelo próprio cliente (RF-002 / RN-018)
-   * Desativa a conta e agenda exclusão para daqui a 30 dias.
+   * Desativa a conta e registra o fim da janela configurável de reativação.
    */
   async requestAccountDeletion(
     userId: string,
@@ -56,7 +58,7 @@ export class AccountService {
 
     const now = new Date();
     // Prazo de carência configurável (30 dias padrão conforme RN-018)
-    const scheduledDeletionAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const scheduledDeletionAt = new Date(now.getTime() + this.gracePeriod.milliseconds);
 
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
@@ -75,7 +77,7 @@ export class AccountService {
       eventType: NotificationEventType.ACCOUNT_DELETION_REQUESTED,
       toEmail: updatedUser.email,
       subject: "Lumina Livros - Solicitação de exclusão de conta",
-      body: `Sua conta foi desativada em ${now.toISOString()}. Você tem até ${scheduledDeletionAt.toISOString()} (30 dias) para reativá-la antes da exclusão definitiva.`,
+      body: `Sua conta foi desativada em ${now.toISOString()}. Você tem até ${scheduledDeletionAt.toISOString()} (${this.gracePeriod.days} dias) para reativá-la.`,
     });
     await this.notifications.dispatchSimulatedEmail({
       eventKey: `${eventKey}:admin`,
@@ -86,15 +88,14 @@ export class AccountService {
     });
 
     return {
-      message:
-        "Sua conta foi desativada. Você possui 30 dias para reativá-la antes da exclusão permanente.",
+      message: `Sua conta foi desativada. Você possui ${this.gracePeriod.days} dias para reativá-la antes do fim do período de carência.`,
       deactivatedAt: now,
       scheduledDeletionAt,
     };
   }
 
   /**
-   * Reativação de conta dentro da janela de 30 dias (RN-018)
+   * Reativação de conta dentro da janela configurada (RN-018)
    */
   async reactivateAccount(
     userId: string,
@@ -112,9 +113,9 @@ export class AccountService {
     }
 
     const now = new Date();
-    if (user.scheduledDeletionAt && now > user.scheduledDeletionAt) {
+    if (user.scheduledDeletionAt && now >= user.scheduledDeletionAt) {
       throw new BadRequestException(
-        "O prazo de 30 dias para reativação expirou. Entre em contato com o suporte.",
+        "O prazo de reativação expirou. Entre em contato com o suporte.",
       );
     }
 

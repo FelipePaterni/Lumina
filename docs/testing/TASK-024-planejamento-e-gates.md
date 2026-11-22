@@ -20,10 +20,10 @@ Branch: `feature/TASK-024-privacidade-observabilidade`
 | GATE-001 — Recontextualização e prontidão | APROVADO | Task, branch, working tree, dependência, critérios e Scope Guard confirmados; alterações anteriores preservadas. |
 | GATE-002 — Contexto e pré-condições | APROVADO | ADR-003, relatórios das dependências, schema, módulos de identidade/auditoria/notificações e painel existente inspecionados. Build/lint/testes serão executados no GATE-005 conforme scripts do repositório. |
 | GATE-003 — Planejamento mínimo | APROVADO | Plano abaixo limita implementação a identidade, auditoria, novo módulo observability, feature do dashboard, testes, roteiro/relatório manual e TASKS. Sem schema/migration; rollback por reversão dos commits exclusivos. |
-| GATE-004 — Implementação controlada | PENDENTE | Implementação ainda não iniciada. |
-| GATE-005 — Revisão e gates automatizados | PENDENTE | Executar build, lint, unitários, integração, checagens sintáticas e diff check conforme scripts reais. |
-| GATE-006 — Testes manuais | PENDENTE | Criar roteiro PowerShell executável, validar parser, executar contra ambiente isolado e aguardar revisão humana exigida. |
-| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Só após gates e revisão humana aprovados. |
+| GATE-004 — Implementação controlada | APROVADO | Configuração do prazo, endpoint Admin agregado, seção Operação e sanitização implementados dentro do Scope Guard; sem schema/migração. |
+| GATE-005 — Revisão e gates automatizados | APROVADO | Build, lint, smoke/unit (93/93), integração (13/13 no banco isolado), parser Node/PowerShell e `git diff --check` passaram. `npm run format:check` reporta baseline de 200 arquivos; não é gate operacional definido e não foi aplicada formatação em massa. |
+| GATE-006 — Testes manuais | AGUARDANDO REVISÃO HUMANA | Roteiro executado com dados sintéticos; HTTP/API 7/7 aprovados e relatório sanitizado existente. MT-024-UI-01 a MT-024-UI-03 aguardam observação/aprovação do responsável. |
+| GATE-007 — Conclusão e rastreabilidade | PENDENTE | Aguardar GATE-006 e revisão do relatório manual pelo responsável. |
 
 ## Plano mínimo
 
@@ -36,10 +36,21 @@ Branch: `feature/TASK-024-privacidade-observabilidade`
 
 ## Arquivos e rollback
 
-- Primários previstos: `apps/api/src/modules/identity/**`, `apps/api/src/modules/audit/**`, `apps/api/src/modules/observability/**`, `apps/web/src/features/dashboard/**`, `tests/**`, `tests/manual/task-024/**`, `docs/testing/TASK-024-*` e `TASKS.md`.
+- Primários previstos: `apps/api/src/modules/identity/**`, `apps/api/src/modules/audit/**`, `apps/api/src/modules/observability/**`, `apps/web/src/features/dashboard/**`, `tests/**`, `tests/manual/task-024/**`, `docs/testing/TASK-024-*`, `README.md` (contrato HTTP e variável de configuração) e `TASKS.md`.
 - Não tocar: schema/migrações, política legal definitiva, gateways/serviços externos, arquivos originais ou outros módulos de negócio.
 - Rollback: reverter commits da TASK-024; sem migração ou mudança de dados necessária.
 
 ## Registro de prontidão
 
-Após resolver a lacuna de indicadores e alinhar o Scope Guard com os caminhos reais, a tarefa passou de `BLOCKED` para `READY` em 2026-11-22. GATE-001 a GATE-003 aprovados. A implementação pode iniciar.
+Após resolver a lacuna de indicadores e alinhar o Scope Guard com os caminhos reais, a tarefa passou de `BLOCKED` para `READY` em 2026-11-22. GATE-001 a GATE-003 aprovados. Em seguida, mudou para `IN_PROGRESS` na branch própria. Commits: `893ed7b` (prontidão e plano).
+
+## Implementação e evidências
+
+- `GET /admin/observability/dashboard` restringe acesso a `ADMIN`; retorna somente status da API/banco, contagens de estados da outbox, contagens de solicitações futuras/vencidas e próxima data. Indica falhas terminais e leases expirados. Banco indisponível resulta em `UNAVAILABLE` e métricas `null`, nunca zeros presumidos.
+- Painel `/dashboard` ganhou seção Operação disponível apenas para Admin. Dados pessoais e payloads não entram no contrato do painel.
+- `ACCOUNT_DELETION_GRACE_PERIOD_DAYS` usa padrão 30, valida inteiro positivo na inicialização e afeta data/mensagem da janela; vencimento não dispara exclusão.
+- Auditoria não registra mensagem bruta de erro de persistência.
+- Mudança incidental: registro de `ObservabilityModule` em `apps/api/src/app.module.ts`, necessário para a montagem NestJS; uma importação e uma entrada na lista de módulos, sem alterar contrato de outros módulos.
+- Build e lint: aprovados. `npm test`: 93/93. `npm run test:integration`: 13/13 no banco isolado `lumina_task009_test`. Roteiro HTTP manual: 7/7 aprovados. Build Next requer elevação para gravação do cache `.next`; sem elevação, prerender retorna `EPERM`.
+- `npm run format:check` falha em 200 arquivos do repositório; não estava definido como gate operacional e não foi aplicada formatação global. `git diff --check` passa.
+- Estado atual: `IN_REVIEW`; cenários visuais humanos continuam aguardando revisão do responsável.
