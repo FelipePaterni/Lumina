@@ -45,13 +45,13 @@ const roleLabels: Record<DashboardSession["role"], string> = {
 export function DashboardPage({
   initialSection,
 }: {
-  initialSection: Exclude<DashboardSection, "operations">;
+  initialSection: DashboardSection;
 }): React.ReactElement {
   const router = useRouter();
   const { session, setSession } = useDashboardSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [section, setSection] = useState<DashboardSection>(initialSection);
+  const section = initialSection;
   const [data, setData] = useState<DashboardData | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -120,7 +120,6 @@ export function DashboardPage({
     setSession(null);
     setData(null);
     setError(null);
-    setSection(initialSection);
     setMessage("Sessão encerrada.");
   };
 
@@ -154,15 +153,7 @@ export function DashboardPage({
           {session.role === "ADMIN" && (
             <nav className={styles.tabs} aria-label="Painéis disponíveis">
               {availableSections.map((availableSection) => (
-                availableSection === "operations" ? <button
-                  type="button"
-                  key={availableSection}
-                  aria-pressed={section === availableSection}
-                  className={section === availableSection ? styles.activeTab : styles.tab}
-                  onClick={() => setSection(availableSection)}
-                >
-                  {sectionLabels[availableSection]}
-                </button> : <Link
+                <Link
                   key={availableSection}
                   href={dashboardSectionRoutes[availableSection]}
                   aria-current={section === availableSection ? "page" : undefined}

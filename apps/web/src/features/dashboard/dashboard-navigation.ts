@@ -4,7 +4,7 @@ export const dashboardSectionRoutes: Record<DashboardSection, string> = {
   admin: "/dashboard",
   catalog: "/catalog/dashboard",
   warehouse: "/warehouse/dashboard",
-  operations: "/dashboard",
+  operations: "/operations/dashboard",
 };
 
 export const dashboardSectionsForRole: Record<Exclude<DashboardRole, "CUSTOMER">, DashboardSection[]> = {

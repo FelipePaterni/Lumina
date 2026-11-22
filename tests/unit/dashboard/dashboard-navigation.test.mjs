@@ -11,7 +11,7 @@ test("team dashboard sections map to registered web routes", () => {
     admin: "/dashboard",
     catalog: "/catalog/dashboard",
     warehouse: "/warehouse/dashboard",
-    operations: "/dashboard",
+    operations: "/operations/dashboard",
   });
 });
 

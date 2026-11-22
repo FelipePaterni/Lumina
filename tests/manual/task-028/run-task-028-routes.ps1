@@ -5,7 +5,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $baseUrl = $WebBaseUrl.TrimEnd("/")
-$routes = @("/dashboard", "/catalog/dashboard", "/warehouse/dashboard")
+$routes = @("/dashboard", "/catalog/dashboard", "/warehouse/dashboard", "/operations/dashboard")
 $results = @()
 
 foreach ($route in $routes) {
