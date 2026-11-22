@@ -219,6 +219,8 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 | `GET /admin/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` | Indicadores por papel | RF-021 |
 | `GET /admin/observability/dashboard` | Saúde operacional, outbox simulada e solicitações agregadas; somente Admin | RF-002,020,022 |
 
+`GET /works` aceita `search`, `category`, `language`, `minPriceCents`, `maxPriceCents`, `releaseFrom`, `releaseTo`, `page` e `limit`. O parâmetro opcional `sort` aceita `BEST_SELLING` (pedidos confirmados menos quantidades com reembolso processado) ou `TOP_RATED` (média das avaliações visíveis); sem `sort`, mantém a ordenação por lançamento mais recente. Ordenações são aplicadas antes da paginação, obras ocultas não aparecem e valor inválido de `sort` retorna HTTP 400. A resposta mantém os agregados `averageRating` e `reviewCount` calculados com avaliações visíveis.
+
 Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
 
 ## 13. Tecnologias sugeridas
