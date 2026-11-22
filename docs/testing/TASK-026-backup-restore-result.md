@@ -112,3 +112,15 @@
 |---|---|---|
 | Suíte de integração em `lumina_task009_test` | APROVADO | Testes: 14; aprovados: 14; falhas: 0. Falhas: nenhuma. Nenhuma URL ou credencial registrada. |
 
+## Integração no banco isolado — 2026-11-22T22:39:53Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Suíte de integração em `lumina_task009_test` | APROVADO | Testes: 14; aprovados: 14; falhas: 0. Falhas: nenhuma. Nenhuma URL ou credencial registrada. |
+
+## Ensaio de backup/restore — 2026-11-22T22:40:22Z
+
+| Cenário | Status | Evidência resumida |
+|---|---|---|
+| Dump e restauração do banco sintético isolado | APROVADO | Origem `lumina_task009_test`; destino `lumina_task026_restore_2486fdd8`; Tabelas públicas: origem=34; restauração=34. Falhas: nenhuma. Dump temporário removido; banco restaurado mantido para inspeção. |
+
