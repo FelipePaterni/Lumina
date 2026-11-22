@@ -20,11 +20,11 @@ h1 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: .95; margin: .5rem 0 1rem
 h2 { margin: .4rem 0; font-size: 1.5rem; }
 p { line-height: 1.5; }
 .eyebrow { color: #a65334; letter-spacing: .14em; font: 700 .72rem Arial, sans-serif; text-transform: uppercase; }
-input { width: min(100%, 520px); padding: 1rem; border: 1px solid #b8ad9f; border-radius: 4px; background: #fffdf9; font: 1rem Arial, sans-serif; }
+input { box-sizing: border-box; width: min(100%, 520px); padding: 1rem; border: 1px solid #b8ad9f; border-radius: 4px; background: #fffdf9; font: 1rem Arial, sans-serif; }
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
 article { background: #fffdf9; padding: 1.25rem; border: 1px solid #e5ddd2; }
 .cover { height: 150px; display: grid; place-items: center; background: #315848; color: #f7f3ec; font-size: 4rem; }
-.author { color: #6d746e; font: .9rem Arial, sans-serif; }
+.author { color: #646b65; font: .9rem Arial, sans-serif; }
 .editions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
 .editions span { background: #eee6da; padding: .4rem .55rem; font: .78rem Arial, sans-serif; }
 .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0; }

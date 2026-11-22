@@ -20,14 +20,14 @@
 .dashboard { display: grid; gap: 1.25rem; }
 .metricGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; }
 .metric { display: grid; align-content: space-between; gap: 1.25rem; min-height: 96px; padding: 1rem; background: #fffdf9; border: 1px solid #e5ddd2; }
-.metric span { color: #6d746e; font: .82rem Arial, sans-serif; }
+.metric span { color: #646b65; font: .82rem Arial, sans-serif; }
 .metric strong { color: #315848; font: 600 clamp(1.35rem, 3vw, 2rem) Arial, sans-serif; overflow-wrap: anywhere; }
 .ranking, .alertList { display: grid; gap: .6rem; margin: 1rem 0 0; padding: 0; list-style: none; }
 .ranking li, .alertList li { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid #eee6da; }
 .ranking li:last-child, .alertList li:last-child { border-bottom: 0; }
 .ranking strong, .alertList strong { color: #315848; white-space: nowrap; font: 700 .86rem Arial, sans-serif; }
 .alertList strong { color: #a65334; }
-.empty, .status { color: #6d746e; }
+.empty, .status { color: #646b65; }
 .error { padding: .8rem 1rem; background: #fff0ed; color: #8e3025; border-radius: 4px; }
-.sessionNote { margin-top: 2rem; color: #6d746e; font: .8rem Arial, sans-serif; }
+.sessionNote { margin-top: 2rem; color: #646b65; font: .8rem Arial, sans-serif; }
 @media (max-width: 600px) { .page { padding: 2rem 1rem 3rem; } .sessionBar { align-items: flex-start; flex-direction: column; } .ranking li, .alertList li { align-items: flex-start; flex-direction: column; } }

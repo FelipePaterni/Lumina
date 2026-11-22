@@ -29,8 +29,8 @@ Estados: `BLOCKED | READY | IN_PROGRESS | IN_REVIEW | DONE | FAILED | CANCELLED`
 | 23 | TASK-023 | PHASE-05 | HIGH | 020,021 | DONE |
 | 24 | TASK-024 | PHASE-05 | HIGH | 020 | DONE |
 | 25 | TASK-028 | PHASE-05 | HIGH | 023 | DONE |
-| 26 | TASK-027 | PHASE-05 | HIGH | 022 | BLOCKED |
-| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | BLOCKED |
+| 26 | TASK-027 | PHASE-05 | HIGH | 022,023 | DONE |
+| 27 | TASK-025 | PHASE-05 | HIGH | 021–024,027 | DONE |
 | 28 | TASK-026 | PHASE-05 | CRITICAL | 021–025,027 | BLOCKED |
 
 ## Políticas comuns
@@ -383,26 +383,44 @@ Decisão: APROVADA pelo responsável (alternativa A) em 2026-11-20. Escopo ampli
 **Conclusão (2026-11-22):** responsável aprovou MT-024-UI-01 a MT-024-UI-03 nesta conversa; aprovação humana registrada em `docs/testing/TASK-024-testes-manuais-resultado.md`. TASK-024 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: build, lint, `npm test` (93/93), integração (13/13 em `lumina_task009_test`), sintaxe Node/PowerShell e `git diff --check` aprovados. GATE-006: roteiro sintético HTTP/API 7/7 aprovado e revisão visual 3/3 aprovada pelo responsável. Mudança incidental: registro do novo módulo em `apps/api/src/app.module.ts`, necessário para expor o endpoint. Sem migração ou mudança proibida. PD-002 permanece como limite explícito; `npm run format:check` não é gate definido e sua falha basal em 200 arquivos não foi corrigida por formatação global. Commits de implementação: `893ed7b`, `78ec7e0`; commit de encerramento registra aprovação e estado final.
 
 ### TASK-027 — Rankings de descoberta pós-venda
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
 **Objetivo:** Entregar os filtros de catálogo que dependem de dados consolidados de pedidos e avaliações.
-**Dependências:** `DEPENDS_ON: TASK-022`
+**Dependências:** `DEPENDS_ON: TASK-022, TASK-023`
 **Relacionados:** RF-003,019; RN-016; RNF-011.
 **Artefatos esperados:** ordenação/filtro por mais vendidos e bem avaliados, integrados à busca de catálogo existente.
-**ALLOWED_CHANGES:** `modules/catalog/search/**`; `features/catalog/**`; `tests/**catalog/**`; `TASKS.md`.
-**FORBIDDEN_CHANGES:** alterar regras de pedido, avaliação, cálculo de média ou visibilidade; criar métricas administrativas novas.
-**Aceitação/testes:** mais vendidos usa apenas pedidos confirmados; bem avaliados usa apenas avaliações visíveis; filtros combinam, respeitam ocultação e paginação.
-**DoD específico:** consultas de ranking possuem índices/revisão de plano e testes de dados vazios.
+**ALLOWED_CHANGES:** `apps/api/src/modules/catalog/search/**`; `apps/api/src/modules/catalog/presentation/**` (parâmetros de consulta de `GET /works`); `apps/web/app/page.tsx` (controles mínimos de ordenação); `tests/unit/catalog/**`; `tests/integration/catalog/**`; `tests/manual/task-027/**`; `docs/testing/TASK-027-*`; `README.md` (contrato de consulta de `GET /works`); `TASKS.md`.
+**FORBIDDEN_CHANGES:** alterar regras de pedidos/reembolsos ou avaliações, fórmulas/visibilidade de avaliações; criar métricas administrativas; `database/schema.prisma` e `database/migrations/**` sem scope escalation e autorização explícita.
+**Aceitação/testes:** `GET /works?sort=BEST_SELLING|TOP_RATED`; omissão mantém a ordenação atual e valor inválido retorna 400. Ordenação compõe com busca, categoria, idioma, faixa de preço e lançamento, e é aplicada antes de paginação; obras ocultas continuam excluídas. Mais vendidos reutiliza a regra TASK-023: pedidos historicamente confirmados (`CONFIRMED`, `PARTIALLY_REFUNDED`, `REFUNDED`) menos unidades de reembolsos `PROCESSED`, com zero unidades no fim; empate por título e ID. Melhor avaliados usa média apenas de avaliações visíveis; sem avaliações fica por último e empates usam título e ID; não criar mínimo de avaliações. Resposta preserva a forma atual de itens/paginação e agregados `averageRating`/`reviewCount`. Testar composição de filtros, paginação, empate, reembolso, avaliação removida, estados vazios, papéis públicos e validação do parâmetro.
+**DoD específico:** ranking estável e paginado; plano de execução analisado em banco isolado e evidência registra os índices efetivamente utilizados. Se for necessário adicionar índice ou migração, pausar e emitir scope escalation antes de editar schema/migrations.
+**Prontidão:** reavaliada em 2026-11-22 após TASK-022 e TASK-023 DONE; seus gates e relatórios foram localizados. Caminhos do código e testes corrigidos para a estrutura real. RF-003, RN-016, RNF-011, UC-003 e ADR-001/003 conferidos. Parâmetros, desempates, refund semantics, filtros, paginação e estados vazios definidos. Sem decisão bloqueante e sem migração prevista; análise do plano de execução faz parte da implementação, e qualquer índice novo exige scope escalation.
+**Execução:** IN_PROGRESS em 2026-11-22 na branch `feature/TASK-027-rankings-descoberta`, iniciada após commit de prontidão `4a1197d`. GATE-001 a GATE-003 aprovados; implementação e gates restantes em andamento.
+
+**Conclusão (2026-11-22):** responsável aprovou MT-027-UI-01 e os demais testes manuais da tarefa. TASK-027 DONE; GATE-001 a GATE-007 aprovados; DoD satisfeita. GATE-005: unitários 96/96, lint, build API/Web, integração 1/1 em `lumina_task009_test`, sintaxe e diff check aprovados. GATE-006: roteiro HTTP 5/5 aprovado e interface revisada pelo responsável; evidência em `docs/testing/TASK-027-testes-manuais-resultado.md`. Planos EXPLAIN registrados; índice existente de reembolsos usado, sem necessidade de migração. Escopo integralmente PRIMARY autorizado; sem alterações incidentais ou proibidas. Commits: `c9571d1`, `617a699`, `1f6bd53` e commit de encerramento. Detalhes em `docs/testing/TASK-027-planejamento-e-gates.md`.
 
 ### TASK-025 — Acessibilidade, responsividade e desempenho
-**Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** HIGH
-**Objetivo:** Validar meta WCAG A, navegadores, layouts e tempo de carregamento.
+**Status:** DONE · **Phase:** PHASE-05 · **Priority:** HIGH
+**Objetivo:** Validar meta WCAG A, navegadores Chrome/Edge/Firefox, layouts de referência e baseline local reproduzível de carregamento; produção permanece sujeita a PD-001.
 **Dependências:** `DEPENDS_ON: TASK-021, TASK-022, TASK-023, TASK-024, TASK-027`
 **Relacionados:** RNF-004–006.
 **Artefatos esperados:** testes automatizados/manuais e correções localizadas.
-**ALLOWED_CHANGES:** `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `TASKS.md`.
+**ALLOWED_CHANGES:** `apps/web/**`; `tests/e2e/**`; `tests/accessibility/**`; `docs/architecture/**`; `tests/manual/task-025/**`; `docs/testing/TASK-025-*`; `prompts/tasks/task-025/**`; `README.md`; `.env.example` (inclusão solicitada pelo responsável em 2026-11-22 para configurar o banco isolado de testes); `TASKS.md`.
 **FORBIDDEN_CHANGES:** alteração de regra de negócio; redesign não necessário.
-**Aceitação/testes:** teclado, rótulos, contraste, mobile e navegadores-alvo passam; medição registrada.
-**DoD específico:** qualquer meta não medida é marcada como falha, não presumida.
+**Aceitação/testes:** teclado, rótulos, contraste, mobile/tablet/desktop e Chrome/Edge/Firefox nas duas versões mais recentes; páginas principais avaliadas por baseline local reproduzível. Uma navegação de aquecimento seguida de cinco medições por página, cada uma ≤20 s, com mediana e máximo registrados; condições em README §6.1. Incluir estados sem sessão, vazio, falha e conexão indisponível quando aplicável.
+**DoD específico:** toda meta não medida fica explícita como falha ou pendência; não alegar capacidade de produção. Revisão manual humana obrigatória para cenários visuais/navegadores.
+**Prontidão (2026-11-22):** dependências TASK-021, TASK-022, TASK-023, TASK-024 e TASK-027 estão DONE, com gates e artefatos registrados. O responsável fixou baseline local (hardware, serviços/banco isolado, dataset, navegador, rotas, viewports, aquecimento, amostras e limite mensurável); isso resolve a aceitação local de RNF-004 sem encerrar PD-001, que continua pendente antes de produção. RNF-005 foi atualizado para Chrome/Edge/Firefox, removendo Safari do objetivo. Critérios, testes e Scope Guard alinhados; sem migrações ou dependências externas previstas.
+**Execução:** tarefa iniciada em branch própria e mantida em `IN_REVIEW` até revisão humana. Migrations locais confirmadas sem pendências no banco isolado `lumina_task009_test`; nenhuma alteração no banco normal. Dados de login sintéticos foram usados sem persistir credenciais em relatórios. Gates automatizados GATE-001 a GATE-005 aprovados: 75/75 medições Chrome ≤20 s, 15 verificações de viewport sem overflow, 6/6 respostas HTTP 200, lint, testes unitários, builds e validações documentadas em `docs/testing/TASK-025-planejamento-e-gates.md`. GATE-006 aprovado após o responsável confirmar rotas, papéis, sessão, teclado, estados vazio/falha, e navegadores Edge 158.0.4370.33 e Firefox 160.0.1. API Compose original restaurada após a revisão; serviços `api`, `postgres` e `web` estão em execução. Evidências em `docs/testing/TASK-025-testes-manuais-resultado.md` e `.json`.
+
+**Atualização (2026-11-22):** responsável confirmou que as contas sintéticas CATALOG e STOCK funcionam corretamente; evidência registrada em `docs/testing/TASK-025-testes-manuais-resultado.md` e `.json`. Essa aprovação não cobre autorização entre rotas, sessão/logout/reload nem estados de erro.
+
+**Atualização (2026-11-22):** responsável confirmou navegação entre painéis, restrições por papel e funcionamento em Edge 158.0.4370.33/Firefox 160.0.1. MT-025-01, MT-025-04 e MT-025-07 registrados como APROVADO; versões confirmadas nas notas oficiais como estáveis atuais na data. MT-025-03 (teclado/foco/feedback) e MT-025-05 (estados vazio/erro/conexão) permanecem pendentes.
+
+**Atualização (2026-11-22):** responsável confirmou o estado vazio do catálogo; evidência registrada no relatório. MT-025-05 segue pendente apenas para erro da API e conexão indisponível. MT-025-03 (teclado/foco/feedback) também permanece pendente.
+
+**Atualização (2026-11-22):** responsável aprovou foco visível e mensagem de erro. MT-025-03 segue pendente somente para navegação e ativação de controles usando teclado, sem mouse.
+
+**Atualização (2026-11-22):** responsável confirmou funcionamento da navegação por teclado; MT-025-03 APROVADO. Em seguida, confirmou o feedback “Não foi possível carregar o catálogo. Tente novamente.” quando a API está indisponível; MT-025-05 APROVADO junto ao estado vazio já registrado.
+
+**Conclusão (2026-11-22):** TASK-025 DONE; GATE-001 a GATE-007 aprovados e DoD satisfeita. MT-025-01 a MT-025-07 aprovados; no Edge e Firefox, versões registradas e verificadas nas notas oficiais. Alterações PRIMARY autorizadas em `.env.example`, `tests/manual/task-025/**`, `docs/testing/TASK-025-*` e `TASKS.md`; nenhuma incidental ou proibida. PD-001 permanece aberto para avaliação de escala produtiva e não bloqueia a validação local desta tarefa. Commits: `ba79207` e commit de encerramento.
 
 ### TASK-026 — Checkpoint final V1
 **Status:** BLOCKED · **Phase:** PHASE-05 · **Priority:** CRITICAL
