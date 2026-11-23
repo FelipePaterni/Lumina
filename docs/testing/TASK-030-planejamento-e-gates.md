@@ -37,6 +37,6 @@ Entregar gestão administrativa utilizável para convites de equipe, usuários, 
 | Migration/schema | APROVADO | `npx prisma validate`; migration aplicada somente no banco isolado `lumina_task009_test`. |
 | Build/lint/testes | APROVADO | `npm run lint`, `npm test` (116/116), builds API/Web (33 rotas), integração TASK-030 (1/1) e TASK-013 (1/1). |
 | Roteiro manual autenticado | BLOQUEADO | Executado sem `API_BASE_URL` e `ADMIN_TOKEN`; 4 cenários bloqueados por ausência de credencial/endereço do ambiente. Relatório em `docs/testing/TASK-030-testes-manuais-resultado.md`. |
-| Revisão visual autenticada da Web | PENDENTE | Falta percorrer convite, catálogo e estoque em sessão Web autenticada em desktop/mobile/tablet. |
+| Revisão visual autenticada da Web | ACEITO PELO RESPONSÁVEL | Em 2026-11-22, o responsável confirmou que os fluxos estão funcionando e autorizou encerrar a TASK-030. |
 | Extensão de disponibilidade e sessão | APROVADO | Teste HTTP de checkout de e-book grátis sem Inventory e bundle sem Inventory; alocação criada para cada edição. Testes unitários cobrem criação/backfill digital e recuperação, role, expiração e limpeza de sessão. |
 | Documentação/Scope Guard | APROVADO | README, mapa de rotas, relatório sanitizado e `git diff --check`; diff restrito às mudanças autorizadas, sem ações proibidas. |
