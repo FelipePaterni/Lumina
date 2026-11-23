@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { DashboardSessionProvider } from "../src/features/dashboard/DashboardSessionProvider";
-import { CustomerSessionProvider } from "../src/features/v11/CustomerSession";
 import { SiteNavigation } from "../src/features/v11/SiteNavigation";
 import "./globals.css";
 
@@ -18,10 +17,8 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <DashboardSessionProvider>
-          <CustomerSessionProvider>
-            <SiteNavigation />
-            {children}
-          </CustomerSessionProvider>
+          <SiteNavigation />
+          {children}
         </DashboardSessionProvider>
       </body>
     </html>

@@ -50,7 +50,7 @@ export function DashboardPage({
   initialSection: DashboardSection;
 }): React.ReactElement {
   const router = useRouter();
-  const { session, setSession } = useDashboardSession();
+  const { session, setSession, hydrated } = useDashboardSession();
   const { setToken } = useCustomerSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -141,7 +141,9 @@ export function DashboardPage({
         <p>Indicadores operacionais separados por função.</p>
       </header>
 
-      {!session ? (
+      {!hydrated ? (
+        <p className={styles.status} role="status">Restaurando sessão…</p>
+      ) : !session ? (
         <section className={styles.loginCard} aria-labelledby="dashboard-login-heading">
           <h2 id="dashboard-login-heading">Entrar para continuar</h2>
           <p>Use uma conta administrativa, de catálogo ou de estoque.</p>

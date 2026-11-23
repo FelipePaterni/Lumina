@@ -364,7 +364,13 @@ export class CartService {
   private async bundleQuote(userId: string, bundle: Prisma.BundleGetPayload<{ include: typeof cartInclude.bundles.include.bundle.include }>) {
     const items = bundle.items.map((item) => {
       const edition = item.work.editions[0];
-      if (!edition || !edition.inventory) throw new ConflictException("Uma edição digital do bundle não está disponível");
+      if (!edition) throw new ConflictException("Uma edição digital do bundle não está disponível");
+      if (
+        edition.inventory?.digitalLicenseLimit != null &&
+        edition.inventory.digitalAllocated >= edition.inventory.digitalLicenseLimit
+      ) {
+        throw new ConflictException("Licença digital do bundle indisponível");
+      }
       return { editionId: edition.id, currentPriceCents: edition.priceCents, owned: false };
     });
     const ownedLibraryIds = this.prisma.libraryItem.findMany({

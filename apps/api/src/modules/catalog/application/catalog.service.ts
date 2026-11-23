@@ -290,6 +290,13 @@ export class CatalogService {
                 isVisible: editionInput.isVisible !== false,
               },
             });
+            if (editionInput.format === "DIGITAL") {
+              await tx.inventory.upsert({
+                where: { editionId: existingEdition.id },
+                update: {},
+                create: { editionId: existingEdition.id, digitalLicenseLimit: null },
+              });
+            }
           } else {
             await tx.edition.create({
               data: {
@@ -298,6 +305,9 @@ export class CatalogService {
                 isbn: editionInput.isbn,
                 priceCents: editionInput.priceCents,
                 isVisible: editionInput.isVisible !== false,
+                ...(editionInput.format === "DIGITAL"
+                  ? { inventory: { create: { digitalLicenseLimit: null } } }
+                  : {}),
               },
             });
           }

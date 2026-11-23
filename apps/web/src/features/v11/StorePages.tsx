@@ -770,7 +770,7 @@ const emptyAddress = {
   state: "",
 };
 export function CartPage({ checkout = false }: { checkout?: boolean }) {
-  const { token } = useCustomerSession();
+  const { token, hydrated } = useCustomerSession();
   const router = useRouter();
   const [cart, setCart] = useState<CartView | null>(null);
   const [coupon, setCoupon] = useState("");
@@ -853,7 +853,9 @@ export function CartPage({ checkout = false }: { checkout?: boolean }) {
   }
   return (
     <Page title={checkout ? "Finalizar pedido" : "Seu carrinho"}>
-      {!token ? (
+      {!hydrated ? (
+        <p role="status">Restaurando sua sessão…</p>
+      ) : !token ? (
         <>
           <p>Entre para acessar seu carrinho.</p>
           <CustomerLogin />
@@ -1024,7 +1026,7 @@ export function CartPage({ checkout = false }: { checkout?: boolean }) {
 
 export function OrderPage({ tracking = false }: { tracking?: boolean }) {
   const { id } = useParams<{ id: string }>();
-  const { token } = useCustomerSession();
+  const { token, hydrated } = useCustomerSession();
   const [data, setData] = useState<OrderDetails | null>(null);
   const [error, setError] = useState("");
   const [reason, setReason] = useState("");
@@ -1069,7 +1071,9 @@ export function OrderPage({ tracking = false }: { tracking?: boolean }) {
   }
   return (
     <Page title={tracking ? "Rastreamento do pedido" : "Pedido"}>
-      {!token ? (
+      {!hydrated ? (
+        <p role="status">Restaurando sua sessão…</p>
+      ) : !token ? (
         <CustomerLogin />
       ) : (
         <>
@@ -1134,7 +1138,7 @@ export function OrderPage({ tracking = false }: { tracking?: boolean }) {
 }
 
 export function LibraryPage() {
-  const { token } = useCustomerSession();
+  const { token, hydrated } = useCustomerSession();
   const [items, setItems] = useState<LibraryEntry[]>([]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -1168,7 +1172,9 @@ export function LibraryPage() {
   }
   return (
     <Page title="Minha biblioteca">
-      {!token ? (
+      {!hydrated ? (
+        <p role="status">Restaurando sua sessão…</p>
+      ) : !token ? (
         <CustomerLogin />
       ) : (
         <>
@@ -1217,16 +1223,16 @@ export function LibraryPage() {
 }
 
 export function WishlistPage() {
-  const { token } = useCustomerSession();
+  const { token, hydrated } = useCustomerSession();
   return (
     <Page title="Minha wishlist">
-      {token ? <WishlistPanel token={token} /> : <CustomerLogin />}
+      {!hydrated ? <p role="status">Restaurando sua sessão…</p> : token ? <WishlistPanel token={token} /> : <CustomerLogin />}
     </Page>
   );
 }
 
 export function AccountPage() {
-  const { token, setToken } = useCustomerSession();
+  const { token, setToken, hydrated } = useCustomerSession();
   const { setSession } = useDashboardSession();
   const [user, setUser] = useState<Profile | null>(null);
   const [reason, setReason] = useState("");
@@ -1271,7 +1277,9 @@ export function AccountPage() {
   }
   return (
     <Page title="Minha conta">
-      {!token ? (
+      {!hydrated ? (
+        <p role="status">Restaurando sua sessão…</p>
+      ) : !token ? (
         <>
           {message && <p role="status">{message}</p>}
           <CustomerLogin />

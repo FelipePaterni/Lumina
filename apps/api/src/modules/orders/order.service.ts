@@ -181,7 +181,9 @@ export class OrderService {
           (item.edition.format === EditionFormat.DIGITAL && item.quantity !== 1)) {
         throw new ConflictException("A quantidade de uma edição do carrinho é inválida");
       }
-      if (!item.edition.inventory) throw new ConflictException("Disponibilidade da edição não configurada");
+      if (item.edition.format === EditionFormat.PHYSICAL && !item.edition.inventory) {
+        throw new ConflictException("Disponibilidade da edição não configurada");
+      }
     }
 
     const [ownedLibraryItems, previousPurchases] = await Promise.all([
@@ -209,7 +211,13 @@ export class OrderService {
       }
       const items = bundle.items.map((item) => {
         const edition = item.work.editions[0];
-        if (!edition || !edition.inventory) throw new ConflictException("Disponibilidade digital do bundle não configurada");
+        if (!edition) throw new ConflictException("Edição digital do bundle indisponível");
+        if (
+          edition.inventory?.digitalLicenseLimit != null &&
+          edition.inventory.digitalAllocated >= edition.inventory.digitalLicenseLimit
+        ) {
+          throw new ConflictException("Licença digital indisponível");
+        }
         return { editionId: edition.id, currentPriceCents: edition.priceCents, owned: ownedEditionIds.has(edition.id) };
       });
       try {
@@ -292,9 +300,9 @@ export class OrderService {
       })),
     ];
     for (const line of allocationLines) {
-      const inventory = line.edition.inventory;
-      if (!inventory) throw new ConflictException("Disponibilidade da edição não configurada");
       if (line.edition.format === EditionFormat.PHYSICAL) {
+        const inventory = line.edition.inventory;
+        if (!inventory) throw new ConflictException("Disponibilidade da edição não configurada");
         if (inventory.physicalStock < line.quantity) throw new ConflictException("Estoque físico insuficiente");
         const updated = await tx.inventory.updateMany({
           where: { editionId: line.editionId, physicalStock: { gte: line.quantity } },
@@ -305,6 +313,11 @@ export class OrderService {
           data: { inventoryId: inventory.id, type: "PHYSICAL_SALE", quantity: line.quantity, reason: "Pedido confirmado", actorId: userId },
         });
       } else {
+        const inventory = line.edition.inventory ?? await tx.inventory.upsert({
+          where: { editionId: line.editionId },
+          update: {},
+          create: { editionId: line.editionId, digitalLicenseLimit: null },
+        });
         if (inventory.digitalLicenseLimit !== null && inventory.digitalAllocated >= inventory.digitalLicenseLimit) {
           throw new ConflictException("Licença digital indisponível");
         }

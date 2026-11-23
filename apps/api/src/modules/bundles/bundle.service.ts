@@ -64,12 +64,12 @@ export class BundleService {
       where: {
         id: { in: workIds },
         isVisible: true,
-        editions: { some: { format: EditionFormat.DIGITAL, isVisible: true, inventory: { isNot: null } } },
+        editions: { some: { format: EditionFormat.DIGITAL, isVisible: true } },
       },
       select: { id: true },
     });
     if (eligibleWorks.length !== workIds.length) {
-      throw new BadRequestException("Todos os livros do bundle devem existir e ter edição digital visível com disponibilidade configurada");
+      throw new BadRequestException("Todos os livros do bundle devem existir e ter edição digital visível");
     }
 
     try {
@@ -103,7 +103,12 @@ export class BundleService {
         releaseAt: work.releaseDate,
         editionId: work.editions[0]?.id ?? null,
         currentPriceCents: work.editions[0]?.priceCents ?? null,
-        available: work.editions[0]?.isVisible ?? false,
+        available: Boolean(
+          work.editions[0]?.isVisible &&
+          (work.editions[0].inventory?.digitalLicenseLimit == null ||
+            work.editions[0].inventory.digitalAllocated <
+              work.editions[0].inventory.digitalLicenseLimit),
+        ),
       })),
     };
   }

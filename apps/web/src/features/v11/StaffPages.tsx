@@ -134,7 +134,13 @@ function StaffShell({
   kind: Kind;
   children: React.ReactNode;
 }) {
-  const { session } = useDashboardSession();
+  const { session, hydrated } = useDashboardSession();
+  if (!hydrated)
+    return (
+      <main className="page-shell">
+        <p role="status">Restaurando sessão da equipe…</p>
+      </main>
+    );
   if (!session)
     return (
       <main className="page-shell">

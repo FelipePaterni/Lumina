@@ -7,6 +7,7 @@ function createUpdateHarness() {
     editionUpdates: [],
     editionCreates: [],
     editionDeletes: 0,
+    inventoryUpserts: [],
     workUpdateData: null,
   };
   const saved = {
@@ -50,6 +51,9 @@ function createUpdateHarness() {
         calls.editionDeletes += 1;
       },
     },
+    inventory: {
+      upsert: async (args) => calls.inventoryUpserts.push(args),
+    },
   };
   const prisma = {
     $transaction: async (work) => work(tx),
@@ -80,7 +84,59 @@ test("admin work update keeps edition identities and preserves omitted editions"
   assert.equal(calls.editionUpdates[0].data.priceCents, 4500);
   assert.equal(calls.editionCreates.length, 0);
   assert.equal(calls.editionDeletes, 0);
+  assert.equal(calls.inventoryUpserts.length, 0);
   assert.equal(Object.hasOwn(calls.workUpdateData, "isVisible"), false);
+});
+
+test("editing an existing digital edition backfills missing unlimited inventory", async () => {
+  const { service, calls } = createUpdateHarness();
+  await service.upsert({
+    title: "Title revised",
+    author: "Author",
+    publisher: "Publisher",
+    synopsis: "Updated synopsis",
+    releaseDate: "2026-01-01",
+    editions: [{ format: "DIGITAL", isbn: "", priceCents: 2000, isVisible: true }],
+  }, "work-1");
+  assert.deepEqual(calls.inventoryUpserts, [{
+    where: { editionId: "edition-digital" },
+    update: {},
+    create: { editionId: "edition-digital", digitalLicenseLimit: null },
+  }]);
+});
+
+test("new digital editions start with unlimited inventory configured", async () => {
+  let createdEdition;
+  const tx = {
+    author: { upsert: async () => ({ id: "author-new" }) },
+    publisher: { upsert: async () => ({ id: "publisher-new" }) },
+    category: { upsert: async ({ create }) => ({ id: create.name }) },
+    work: {
+      create: async () => ({ id: "work-new" }),
+      findUniqueOrThrow: async () => ({ id: "work-new", editions: [] }),
+    },
+    workCategory: { createMany: async () => {} },
+    edition: {
+      findMany: async () => [],
+      create: async ({ data }) => { createdEdition = data; },
+    },
+  };
+  const service = new CatalogService({
+    $transaction: async (callback) => callback(tx),
+    review: { aggregate: async () => ({ _avg: { rating: null }, _count: { _all: 0 } }) },
+  });
+  await service.upsert({
+    title: "New digital work",
+    slug: "new-digital-work",
+    author: "Synthetic author",
+    publisher: "Synthetic publisher",
+    synopsis: "Test content",
+    releaseDate: "2026-01-01",
+    editions: [{ format: "DIGITAL", priceCents: 0 }],
+  });
+  assert.deepEqual(createdEdition.inventory, {
+    create: { digitalLicenseLimit: null },
+  });
 });
 
 test("admin catalog query scopes hidden works and paginates", async () => {

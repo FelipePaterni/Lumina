@@ -5,7 +5,7 @@ import { useCustomerSession } from "./CustomerSession";
 import { useDashboardSession } from "../dashboard/DashboardSessionProvider";
 
 export function SiteNavigation() {
-  const { token, setToken } = useCustomerSession();
+  const { token, setToken, hydrated } = useCustomerSession();
   const { session, setSession } = useDashboardSession();
   return (
     <nav className="site-nav" aria-label="Navegação principal">
@@ -18,7 +18,7 @@ export function SiteNavigation() {
         <Link href="/biblioteca">Biblioteca</Link>
         <Link href="/minha-conta">Minha conta</Link>
         <Link href="/carrinho">Carrinho</Link>
-        {!token && <Link href="/dashboard">Equipe</Link>}
+        {hydrated && !token && <Link href="/dashboard">Equipe</Link>}
         {!token && session &&
           (session.role === "ADMIN" || session.role === "CATALOG") && (
             <Link href="/admin/catalogo">Administração</Link>
@@ -26,7 +26,7 @@ export function SiteNavigation() {
         {!token && session && (session.role === "ADMIN" || session.role === "STOCK") && (
           <Link href="/warehouse/inventory">Estoque</Link>
         )}
-        {token ? (
+        {!hydrated ? null : token ? (
           <button
             type="button"
             className="nav-button"

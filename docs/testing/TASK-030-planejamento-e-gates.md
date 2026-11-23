@@ -18,6 +18,8 @@ Entregar gestão administrativa utilizável para convites de equipe, usuários, 
 - `GET /admin/works` e `GET /admin/works/:id` são protegidos para Admin/Catálogo, incluem obras ocultas e suportam busca, visibilidade e paginação.
 - `GET /admin/inventory` é protegido para Admin/Estoque e lista edições e disponibilidade com busca e paginação.
 - Atualização de obra preserva IDs/relações das edições existentes, cria formatos novos e não remove formatos omitidos. Edições são retiradas de venda por visibilidade.
+- Extensão temporária de escopo: edição digital sem `Inventory` é ilimitada como `digitalLicenseLimit: null`; catálogo cria o registro para novas edições digitais e checkout cria/atualiza contador legado dentro da transação. Edição física sem inventário permanece indisponível; bundles aceitam e-books ilimitados sem registro e respeitam limites finitos.
+- Sessão Web unificada de cliente/equipe fica em `sessionStorage` por aba, é restaurada apenas com token JWT não expirado e papel consistente; checkout usa o mesmo provedor da loja. Logout apaga a sessão; expiração exige novo login. Contratos HTTP permanecem os mesmos.
 
 ## Cenários de validação
 
@@ -33,7 +35,8 @@ Entregar gestão administrativa utilizável para convites de equipe, usuários, 
 |---|---|---|
 | Escopo e DoR | APROVADO | `TASKS.md`; branch `feature/TASK-030-admin-management`; decisões de convite confirmadas. |
 | Migration/schema | APROVADO | `npx prisma validate`; migration aplicada somente no banco isolado `lumina_task009_test`. |
-| Build/lint/testes | APROVADO | `npm run lint`, `npm test` (108/108), builds API/Web (33 rotas) e integração HTTP/API (1/1). |
+| Build/lint/testes | APROVADO | `npm run lint`, `npm test` (116/116), builds API/Web (33 rotas), integração TASK-030 (1/1) e TASK-013 (1/1). |
 | Roteiro manual autenticado | BLOQUEADO | Executado sem `API_BASE_URL` e `ADMIN_TOKEN`; 4 cenários bloqueados por ausência de credencial/endereço do ambiente. Relatório em `docs/testing/TASK-030-testes-manuais-resultado.md`. |
 | Revisão visual autenticada da Web | PENDENTE | Falta percorrer convite, catálogo e estoque em sessão Web autenticada em desktop/mobile/tablet. |
+| Extensão de disponibilidade e sessão | APROVADO | Teste HTTP de checkout de e-book grátis sem Inventory e bundle sem Inventory; alocação criada para cada edição. Testes unitários cobrem criação/backfill digital e recuperação, role, expiração e limpeza de sessão. |
 | Documentação/Scope Guard | APROVADO | README, mapa de rotas, relatório sanitizado e `git diff --check`; diff restrito às mudanças autorizadas, sem ações proibidas. |

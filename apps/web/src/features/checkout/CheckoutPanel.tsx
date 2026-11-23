@@ -11,6 +11,7 @@ import {
   removeCartCoupon,
   removeCartItem,
 } from "./cart-api";
+import { useCustomerSession } from "../v11/CustomerSession";
 
 interface EditionOption { id: string; format: string; priceCents: number; isVisible: boolean }
 interface WorkOption { id: string; title: string; editions: EditionOption[] }
@@ -21,9 +22,9 @@ const initialAddress = {
 };
 
 export function CheckoutPanel({ works }: { works: WorkOption[] }) {
+  const { token, setToken, hydrated } = useCustomerSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
   const [cart, setCart] = useState<CartView | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [address, setAddress] = useState(initialAddress);
@@ -52,9 +53,10 @@ export function CheckoutPanel({ works }: { works: WorkOption[] }) {
     try {
       const result = await loginRequest({ email, password });
       if (typeof result.accessToken !== "string") throw new Error(typeof result.message === "string" ? result.message : "Falha ao autenticar");
+      if (result.user?.role !== "CUSTOMER") throw new Error("Entre com uma conta de cliente para acessar o carrinho.");
       setPassword("");
       setToken(result.accessToken);
-      setMessage("Sessão ativa somente nesta página.");
+      setMessage("Sessão ativa nesta aba até você sair ou o acesso expirar.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Não foi possível autenticar"); }
     finally { setBusy(false); }
   }
@@ -73,7 +75,9 @@ export function CheckoutPanel({ works }: { works: WorkOption[] }) {
     <section aria-labelledby="cart-heading" style={{ marginTop: "3rem", padding: "1.5rem", background: "#fffdf9", border: "1px solid #e5ddd2" }}>
       <p className="eyebrow">SUA SELEÇÃO</p>
       <h2 id="cart-heading">Carrinho</h2>
-      {!token ? (
+      {!hydrated ? (
+        <p role="status">Restaurando sua sessão…</p>
+      ) : !token ? (
         <form onSubmit={signIn} style={{ display: "grid", gap: ".75rem", maxWidth: 520 }}>
           <p>Entre com uma conta de cliente para manter seu carrinho.</p>
           <label>E-mail<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
@@ -82,7 +86,7 @@ export function CheckoutPanel({ works }: { works: WorkOption[] }) {
         </form>
       ) : (
         <>
-          <button type="button" onClick={() => { setToken(""); setCart(null); setShipping(null); setMessage("Sessão encerrada."); }}>Sair</button>
+          <button type="button" onClick={() => { setToken(null); setCart(null); setShipping(null); setMessage("Sessão encerrada."); }}>Sair</button>
           <div style={{ display: "grid", gap: ".75rem", margin: "1rem 0" }}>
             {works.map((work) => work.editions.filter((edition) => edition.isVisible).map((edition) => (
               <div key={edition.id} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}>

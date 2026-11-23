@@ -236,6 +236,8 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 
 `GET /admin/works` e `GET /admin/inventory` aceitam busca e paginação; `/admin/works` também filtra visibilidade. `GET /admin/users` aceita busca por e-mail, papel, status e paginação. Convites só aceitam papéis de equipe existentes; o hash do token é persistido, o link retornado é mostrado uma única vez pela Web e expira em 24 horas. Aceitar convite define senha e confirma e-mail. `WEB_BASE_URL` controla a origem do link de ativação e assume `http://localhost:3000` localmente. Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
 
+Edição digital sem registro de inventário é tratada como ilimitada, assim como `digitalLicenseLimit: null`; o checkout cria o contador de alocações dentro da transação. Edição física sem inventário continua indisponível. Sessões Web de cliente/equipe usam o JWT em `sessionStorage` da aba, são restauradas após recarga e removidas ao sair ou quando o token expira; não há refresh token e o prazo atual do JWT é de uma hora.
+
 ## 13. Tecnologias sugeridas
 
 A decisão final está em ADRs. Recomendação inicial: Next.js/React para interface, NestJS/TypeScript para API em camadas, PostgreSQL para transações, ORM com migrações controladas, armazenamento privado abstrato e fila substituível. Alternativas consideradas: Java/Spring, .NET, Django; cada uma é viável, mas TypeScript ponta a ponta reduz atrito para um MVP com contratos compartilháveis. Nenhuma dependência será instalada nesta etapa.
