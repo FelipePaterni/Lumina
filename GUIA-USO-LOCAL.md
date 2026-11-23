@@ -145,4 +145,4 @@ Se Web ou API não abrir:
 - Busca e rankings de catálogo, logística física com rastreio manual, reembolsos, auditoria e notificações locais simuladas.
 - Testes de unidade, integração, lint, build e validações de acessibilidade, responsividade e desempenho local registrados no repositório.
 
-Esta configuração é para desenvolvimento e revisão local, não é uma configuração de produção. Os pontos PD-001 (escala), PD-002 (política jurídica de retenção/exclusão definitiva) e PD-003 (provedor) permanecem pendentes e bloqueiam publicação conforme o README. O roteiro manual autenticado da TASK-030 também foi registrado como `BLOQUEADO`, pois a execução documentada não tinha `API_BASE_URL` e `ADMIN_TOKEN`; isso não deve ser interpretado como teste aprovado.
+Esta configuração é para desenvolvimento e revisão local, não é uma configuração de produção. Os pontos PD-001 (escala), PD-002 (política jurídica de retenção/exclusão definitiva) e PD-003 (provedor) permanecem pendentes e bloqueiam publicação conforme o README.
