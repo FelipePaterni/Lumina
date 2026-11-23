@@ -244,7 +244,9 @@ A decisão final está em ADRs. Recomendação inicial: Next.js/React para inter
 
 ## 13.1 Execução local da fundação
 
-Pré-requisitos: Node.js 24, npm 12 e Docker com Docker Compose. A configuração local não contém segredos reais; copie `.env.example` para `.env` somente quando precisar alterar os valores locais padrão.
+Para preparar o ambiente completo e conhecer os fluxos disponíveis, siga o [Guia de uso local do Lumina](GUIA-USO-LOCAL.md).
+
+Pré-requisitos: Node.js 24, npm 12 e Docker com Docker Compose. O Compose requer um `.env` local; crie-o a partir de `.env.example` e use somente valores sintéticos. Migrações e seed do catálogo são passos explícitos antes da primeira inicialização da API; consulte o guia acima para a sequência completa.
 
 ```bash
 npm install
@@ -254,9 +256,9 @@ npm run build
 docker compose up --build
 ```
 
-A interface fica disponível em `http://localhost:3000`, a API em `http://localhost:3001` e o PostgreSQL local na porta `5433` por padrão (configurável por `POSTGRES_PORT`). A fundação ainda não configura acesso da aplicação ao banco, migrações ou recursos de domínio; isso pertence às TASKs posteriores.
+A interface fica disponível em `http://localhost:3000`, a API em `http://localhost:3001` e o PostgreSQL local na porta `5433` por padrão (configurável por `POSTGRES_PORT`). Pagamento e notificações são simulados localmente.
 
-Para interromper os serviços, execute `docker compose down`. Não use remoção de volumes como procedimento padrão.
+Use `docker compose stop` para interromper os serviços mantendo os contêineres. O Compose atual não declara volume para o PostgreSQL; `docker compose down` remove o contêiner do banco e seus dados locais. Veja o [guia](GUIA-USO-LOCAL.md) antes de encerrar o ambiente.
 
 ## 14. Estratégia de segurança e privacidade
 
