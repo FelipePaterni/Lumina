@@ -109,4 +109,57 @@ export class InventoryService {
       include: { movements: { orderBy: { createdAt: "desc" } } },
     });
   }
+
+  async listAdmin(params: { search?: string; page?: number; limit?: number }) {
+    const page =
+      Number.isInteger(params.page) && params.page! > 0 ? params.page! : 1;
+    const limit =
+      Number.isInteger(params.limit) && params.limit! > 0
+        ? Math.min(params.limit!, 100)
+        : 20;
+    const search = params.search?.trim();
+    const where = search
+      ? {
+          work: {
+            OR: [
+              { title: { contains: search, mode: "insensitive" as const } },
+              { slug: { contains: search, mode: "insensitive" as const } },
+              {
+                author: {
+                  name: { contains: search, mode: "insensitive" as const },
+                },
+              },
+            ],
+          },
+        }
+      : {};
+    const [items, total] = await Promise.all([
+      this.prisma.edition.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          work: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              isVisible: true,
+              author: { select: { name: true } },
+            },
+          },
+          inventory: {
+            select: {
+              physicalStock: true,
+              digitalLicenseLimit: true,
+              digitalAllocated: true,
+            },
+          },
+        },
+        orderBy: [{ work: { title: "asc" } }, { format: "asc" }],
+      }),
+      this.prisma.edition.count({ where }),
+    ]);
+    return { items, page, limit, total, totalPages: Math.ceil(total / limit) };
+  }
 }

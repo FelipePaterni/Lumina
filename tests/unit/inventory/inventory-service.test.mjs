@@ -159,3 +159,30 @@ test("digital limit rejects invalid or below-allocated limits", async () => {
 
   assert.equal(calls.audit.length, 0);
 });
+
+test("admin inventory list searches across visible and hidden editions and paginates", async () => {
+  let args;
+  const service = new InventoryService(
+    {
+      edition: {
+        findMany: async (input) => {
+          args = input;
+          return [{ id: "edition-synthetic" }];
+        },
+        count: async () => 41,
+      },
+    },
+    { logAction: async () => {} },
+  );
+  const result = await service.listAdmin({
+    search: "synthetic author",
+    page: 3,
+    limit: 20,
+  });
+  assert.equal(args.skip, 40);
+  assert.equal(args.take, 20);
+  assert.equal(args.where.work.isVisible, undefined);
+  assert.equal(args.where.work.OR[0].title.contains, "synthetic author");
+  assert.equal(result.totalPages, 3);
+  assert.equal(result.items.length, 1);
+});

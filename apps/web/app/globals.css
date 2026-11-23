@@ -147,6 +147,23 @@ label {
 .inline-form input {
   width: 100%;
 }
+.admin-filters {
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid #e5ddd2;
+  border-radius: 6px;
+  background: #fffdf9;
+}
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.inventory-card {
+  max-width: none;
+}
 .staff-links {
   display: flex;
   flex-wrap: wrap;

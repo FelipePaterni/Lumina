@@ -24,10 +24,7 @@ export class AccountService {
    * Solicitação de exclusão/desativação pelo próprio cliente (RF-002 / RN-018)
    * Desativa a conta e registra o fim da janela configurável de reativação.
    */
-  async requestAccountDeletion(
-    userId: string,
-
-  ): Promise<{
+  async requestAccountDeletion(userId: string): Promise<{
     message: string;
     deactivatedAt: Date;
     scheduledDeletionAt: Date;
@@ -58,7 +55,9 @@ export class AccountService {
 
     const now = new Date();
     // Prazo de carência configurável (30 dias padrão conforme RN-018)
-    const scheduledDeletionAt = new Date(now.getTime() + this.gracePeriod.milliseconds);
+    const scheduledDeletionAt = new Date(
+      now.getTime() + this.gracePeriod.milliseconds,
+    );
 
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
@@ -159,6 +158,8 @@ export class AccountService {
     page?: number;
     limit?: number;
     role?: Role;
+    search?: string;
+    isActive?: boolean;
   }): Promise<{
     users: Array<{
       id: string;
@@ -170,12 +171,27 @@ export class AccountService {
       createdAt: Date;
     }>;
     total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
   }> {
     const page = params.page && params.page > 0 ? params.page : 1;
-    const limit = params.limit && params.limit > 0 ? params.limit : 20;
+    const limit =
+      params.limit && params.limit > 0 ? Math.min(params.limit, 100) : 20;
     const skip = (page - 1) * limit;
 
-    const where = params.role ? { role: params.role as unknown as PrismaRole } : {};
+    const where = {
+      ...(params.role ? { role: params.role as unknown as PrismaRole } : {}),
+      ...(params.isActive === undefined ? {} : { isActive: params.isActive }),
+      ...(params.search?.trim()
+        ? {
+            email: {
+              contains: params.search.trim(),
+              mode: "insensitive" as const,
+            },
+          }
+        : {}),
+    };
 
     const [rawUsers, total] = await Promise.all([
       this.prisma.user.findMany({
@@ -201,7 +217,7 @@ export class AccountService {
       role: u.role as unknown as Role,
     }));
 
-    return { users, total };
+    return { users, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   /**

@@ -15,6 +15,7 @@ const routes = [
   "app/confirmar-email/page.tsx",
   "app/recuperar-senha/page.tsx",
   "app/redefinir-senha/page.tsx",
+  "app/ativar-equipe/page.tsx",
   "app/carrinho/page.tsx",
   "app/checkout/page.tsx",
   "app/pedidos/[id]/page.tsx",
@@ -26,6 +27,7 @@ const routes = [
   "app/dashboard/page.tsx",
   "app/catalog/dashboard/page.tsx",
   "app/warehouse/dashboard/page.tsx",
+  "app/warehouse/inventory/page.tsx",
   "app/operations/dashboard/page.tsx",
   "app/admin/catalogo/page.tsx",
   "app/admin/catalogo/[id]/page.tsx",
@@ -63,4 +65,7 @@ test("V1.1 route services keep API requests in the Web layer", () => {
   assert.match(client, /\/library/);
   assert.match(staff, /\/admin\/review-reports/);
   assert.match(staff, /\/admin\/audit-logs/);
+  assert.match(staff, /\/admin\/users\/invitations/);
+  assert.match(staff, /\/admin\/inventory/);
+  assert.match(staff, /\/admin\/works/);
 });

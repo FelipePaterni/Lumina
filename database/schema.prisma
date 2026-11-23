@@ -36,17 +36,18 @@ model User {
   updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   emailVerificationTokens EmailVerificationToken[]
+  staffInvitationTokens   StaffInvitationToken[]
   passwordResetTokens     PasswordResetToken[]
   auditLogs               AuditLog[]
   wishlistItems           WishlistItem[]
   cart                    Cart?
   libraryItems            LibraryItem[]
   orders                  Order[]
-  refundRequests          Refund[] @relation("RefundRequester")
-  refundDecisions         Refund[] @relation("RefundDecider")
-  reviews                 Review[] @relation("ReviewAuthor")
-  moderatedReviews       Review[] @relation("ReviewModerator")
-  reviewReports           ReviewReport[] @relation("ReviewReporter")
+  refundRequests          Refund[]                 @relation("RefundRequester")
+  refundDecisions         Refund[]                 @relation("RefundDecider")
+  reviews                 Review[]                 @relation("ReviewAuthor")
+  moderatedReviews        Review[]                 @relation("ReviewModerator")
+  reviewReports           ReviewReport[]           @relation("ReviewReporter")
 
   @@map("users")
 }
@@ -64,6 +65,20 @@ model EmailVerificationToken {
   @@map("email_verification_tokens")
 }
 
+model StaffInvitationToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique @map("token_hash")
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("staff_invitation_tokens")
+}
+
 model PasswordResetToken {
   id        String    @id @default(uuid())
   tokenHash String    @unique @map("token_hash")
@@ -78,22 +93,21 @@ model PasswordResetToken {
 }
 
 model OutboxEmail {
-  id              String           @id @default(uuid())
-  eventKey        String?          @unique(map: "outbox_emails_event_key_key") @map("event_key") @db.VarChar(160)
-  eventType       String           @default("LEGACY") @map("event_type") @db.VarChar(80)
-  toEmail         String           @map("to_email")
-  subject         String
-  body            String
-  deliveryStatus  OutboxEmailStatus @default(PENDING) @map("delivery_status")
-  attemptCount    Int              @default(0) @map("attempt_count")
-  lastAttemptAt   DateTime?        @map("last_attempt_at") @db.Timestamptz(6)
-  nextAttemptAt   DateTime?        @map("next_attempt_at") @db.Timestamptz(6)
-  lastErrorCode   String?          @map("last_error_code") @db.VarChar(60)
-  sentAt          DateTime?        @map("sent_at") @db.Timestamptz(6)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  id             String            @id @default(uuid())
+  eventKey       String?           @unique(map: "outbox_emails_event_key_key") @map("event_key") @db.VarChar(160)
+  eventType      String            @default("LEGACY") @map("event_type") @db.VarChar(80)
+  toEmail        String            @map("to_email")
+  subject        String
+  body           String
+  deliveryStatus OutboxEmailStatus @default(PENDING) @map("delivery_status")
+  attemptCount   Int               @default(0) @map("attempt_count")
+  lastAttemptAt  DateTime?         @map("last_attempt_at") @db.Timestamptz(6)
+  nextAttemptAt  DateTime?         @map("next_attempt_at") @db.Timestamptz(6)
+  lastErrorCode  String?           @map("last_error_code") @db.VarChar(60)
+  sentAt         DateTime?         @map("sent_at") @db.Timestamptz(6)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([deliveryStatus, nextAttemptAt, createdAt])
-
   @@map("outbox_emails")
 }
 
@@ -195,20 +209,20 @@ enum ReviewReportStatus {
 }
 
 model Review {
-  id               String    @id @default(uuid())
-  userId           String    @map("user_id")
-  workId           String    @map("work_id")
+  id               String         @id @default(uuid())
+  userId           String         @map("user_id")
+  workId           String         @map("work_id")
   rating           Int
-  comment          String    @db.VarChar(2000)
-  isVisible        Boolean   @default(true) @map("is_visible")
-  moderationReason String?   @map("moderation_reason") @db.VarChar(500)
-  moderatedById    String?   @map("moderated_by_id")
-  moderatedAt      DateTime? @map("moderated_at") @db.Timestamptz(6)
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user             User      @relation("ReviewAuthor", fields: [userId], references: [id], onDelete: Restrict)
-  work             Work      @relation(fields: [workId], references: [id], onDelete: Cascade)
-  moderator        User?     @relation("ReviewModerator", fields: [moderatedById], references: [id], onDelete: SetNull)
+  comment          String         @db.VarChar(2000)
+  isVisible        Boolean        @default(true) @map("is_visible")
+  moderationReason String?        @map("moderation_reason") @db.VarChar(500)
+  moderatedById    String?        @map("moderated_by_id")
+  moderatedAt      DateTime?      @map("moderated_at") @db.Timestamptz(6)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user             User           @relation("ReviewAuthor", fields: [userId], references: [id], onDelete: Restrict)
+  work             Work           @relation(fields: [workId], references: [id], onDelete: Cascade)
+  moderator        User?          @relation("ReviewModerator", fields: [moderatedById], references: [id], onDelete: SetNull)
   reports          ReviewReport[]
 
   @@unique([userId, workId])
@@ -276,13 +290,13 @@ enum CouponDiscountType {
 }
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String     @unique @map("user_id")
-  couponId  String?    @map("coupon_id")
-  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  id        String       @id @default(uuid())
+  userId    String       @unique @map("user_id")
+  couponId  String?      @map("coupon_id")
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon    Coupon?      @relation(fields: [couponId], references: [id], onDelete: SetNull)
   items     CartItem[]
   bundles   CartBundle[]
 
@@ -306,13 +320,13 @@ model CartItem {
 }
 
 model Bundle {
-  id             String       @id @default(uuid())
-  name           String       @db.VarChar(120)
-  priceCents     Int          @map("price_cents")
-  compositionKey String       @unique @map("composition_key") @db.VarChar(64)
-  isActive       Boolean      @default(true) @map("is_active")
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String        @id @default(uuid())
+  name           String        @db.VarChar(120)
+  priceCents     Int           @map("price_cents")
+  compositionKey String        @unique @map("composition_key") @db.VarChar(64)
+  isActive       Boolean       @default(true) @map("is_active")
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
   items          BundleItem[]
   cartItems      CartBundle[]
   purchases      OrderBundle[]
@@ -428,18 +442,18 @@ enum PaymentStatus {
 }
 
 model Order {
-  id                String      @id @default(uuid())
-  userId            String      @map("user_id")
-  idempotencyKey    String      @map("idempotency_key") @db.VarChar(128)
-  status            OrderStatus @default(CONFIRMED)
+  id                String            @id @default(uuid())
+  userId            String            @map("user_id")
+  idempotencyKey    String            @map("idempotency_key") @db.VarChar(128)
+  status            OrderStatus       @default(CONFIRMED)
   fulfillmentStatus FulfillmentStatus @default(NOT_REQUIRED) @map("fulfillment_status")
-  subtotalCents     Int         @map("subtotal_cents")
-  discountCents     Int         @default(0) @map("discount_cents")
-  shippingCents     Int         @default(0) @map("shipping_cents")
-  totalCents        Int         @map("total_cents")
-  couponCode        String?     @map("coupon_code") @db.VarChar(40)
-  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  user              User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subtotalCents     Int               @map("subtotal_cents")
+  discountCents     Int               @default(0) @map("discount_cents")
+  shippingCents     Int               @default(0) @map("shipping_cents")
+  totalCents        Int               @map("total_cents")
+  couponCode        String?           @map("coupon_code") @db.VarChar(40)
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  user              User              @relation(fields: [userId], references: [id], onDelete: Restrict)
   items             OrderItem[]
   bundlePurchases   OrderBundle[]
   shippingAddress   ShippingAddress?
@@ -451,19 +465,19 @@ model Order {
 }
 
 model OrderItem {
-  id              String       @id @default(uuid())
-  orderId         String       @map("order_id")
-  bundlePurchaseId String?      @map("bundle_purchase_id")
-  editionId       String       @map("edition_id")
-  workTitle       String       @map("work_title")
-  format          EditionFormat
-  unitPriceCents  Int          @map("unit_price_cents")
-  quantity        Int
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  bundlePurchase  OrderBundle? @relation(fields: [bundlePurchaseId], references: [id], onDelete: SetNull)
-  edition         Edition      @relation(fields: [editionId], references: [id], onDelete: Restrict)
-  refunds         Refund[]
+  id               String        @id @default(uuid())
+  orderId          String        @map("order_id")
+  bundlePurchaseId String?       @map("bundle_purchase_id")
+  editionId        String        @map("edition_id")
+  workTitle        String        @map("work_title")
+  format           EditionFormat
+  unitPriceCents   Int           @map("unit_price_cents")
+  quantity         Int
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bundlePurchase   OrderBundle?  @relation(fields: [bundlePurchaseId], references: [id], onDelete: SetNull)
+  edition          Edition       @relation(fields: [editionId], references: [id], onDelete: Restrict)
+  refunds          Refund[]
 
   @@index([orderId])
   @@index([editionId])
@@ -472,17 +486,17 @@ model OrderItem {
 }
 
 model OrderBundle {
-  id                     String      @id @default(uuid())
-  orderId                String      @map("order_id")
-  bundleId               String      @map("bundle_id")
-  bundleName             String      @map("bundle_name") @db.VarChar(120)
-  listPriceCents         Int         @map("list_price_cents")
-  ownershipAdjustmentCents Int       @map("ownership_adjustment_cents")
-  chargedPriceCents      Int         @map("charged_price_cents")
-  createdAt              DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  order                  Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  bundle                 Bundle      @relation(fields: [bundleId], references: [id], onDelete: Restrict)
-  items                  OrderItem[]
+  id                       String      @id @default(uuid())
+  orderId                  String      @map("order_id")
+  bundleId                 String      @map("bundle_id")
+  bundleName               String      @map("bundle_name") @db.VarChar(120)
+  listPriceCents           Int         @map("list_price_cents")
+  ownershipAdjustmentCents Int         @map("ownership_adjustment_cents")
+  chargedPriceCents        Int         @map("charged_price_cents")
+  createdAt                DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  order                    Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bundle                   Bundle      @relation(fields: [bundleId], references: [id], onDelete: Restrict)
+  items                    OrderItem[]
 
   @@index([orderId])
   @@index([bundleId])
@@ -490,54 +504,54 @@ model OrderBundle {
 }
 
 model ShippingAddress {
-  id              String   @id @default(uuid())
-  orderId         String   @unique @map("order_id")
-  recipientName   String   @map("recipient_name") @db.VarChar(120)
-  phone           String   @db.VarChar(20)
-  postalCode      String   @map("postal_code") @db.VarChar(8)
-  street          String   @db.VarChar(160)
-  number          String   @db.VarChar(20)
-  complement      String?  @db.VarChar(120)
-  district        String   @db.VarChar(100)
-  city            String   @db.VarChar(100)
-  state           String   @db.Char(2)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid())
+  orderId       String   @unique @map("order_id")
+  recipientName String   @map("recipient_name") @db.VarChar(120)
+  phone         String   @db.VarChar(20)
+  postalCode    String   @map("postal_code") @db.VarChar(8)
+  street        String   @db.VarChar(160)
+  number        String   @db.VarChar(20)
+  complement    String?  @db.VarChar(120)
+  district      String   @db.VarChar(100)
+  city          String   @db.VarChar(100)
+  state         String   @db.Char(2)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("shipping_addresses")
 }
 
 model Payment {
-  id             String        @id @default(uuid())
-  orderId        String        @unique @map("order_id")
-  method         PaymentMethod @default(SIMULATED)
-  status         PaymentStatus
-  amountCents    Int           @map("amount_cents")
-  refundedCents  Int           @default(0) @map("refunded_cents")
-  processedAt    DateTime      @default(now()) @map("processed_at") @db.Timestamptz(6)
-  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id            String        @id @default(uuid())
+  orderId       String        @unique @map("order_id")
+  method        PaymentMethod @default(SIMULATED)
+  status        PaymentStatus
+  amountCents   Int           @map("amount_cents")
+  refundedCents Int           @default(0) @map("refunded_cents")
+  processedAt   DateTime      @default(now()) @map("processed_at") @db.Timestamptz(6)
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
 
 model Refund {
-  id              String       @id @default(uuid())
-  orderItemId     String       @map("order_item_id")
-  requesterId     String       @map("requester_id")
-  deciderId       String?      @map("decider_id")
-  idempotencyKey  String       @map("idempotency_key") @db.VarChar(128)
-  status          RefundStatus @default(PENDING_REVIEW)
-  quantity        Int
-  amountCents     Int          @map("amount_cents")
-  requestReason   String       @map("request_reason") @db.VarChar(500)
-  decisionReason  String?      @map("decision_reason") @db.VarChar(500)
-  returnConfirmedAt DateTime?  @map("return_confirmed_at") @db.Timestamptz(6)
-  requestedAt     DateTime     @default(now()) @map("requested_at") @db.Timestamptz(6)
-  decidedAt       DateTime?    @map("decided_at") @db.Timestamptz(6)
-  processedAt     DateTime?    @map("processed_at") @db.Timestamptz(6)
-  orderItem       OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
-  requester       User         @relation("RefundRequester", fields: [requesterId], references: [id], onDelete: Restrict)
-  decider         User?        @relation("RefundDecider", fields: [deciderId], references: [id], onDelete: SetNull)
+  id                String       @id @default(uuid())
+  orderItemId       String       @map("order_item_id")
+  requesterId       String       @map("requester_id")
+  deciderId         String?      @map("decider_id")
+  idempotencyKey    String       @map("idempotency_key") @db.VarChar(128)
+  status            RefundStatus @default(PENDING_REVIEW)
+  quantity          Int
+  amountCents       Int          @map("amount_cents")
+  requestReason     String       @map("request_reason") @db.VarChar(500)
+  decisionReason    String?      @map("decision_reason") @db.VarChar(500)
+  returnConfirmedAt DateTime?    @map("return_confirmed_at") @db.Timestamptz(6)
+  requestedAt       DateTime     @default(now()) @map("requested_at") @db.Timestamptz(6)
+  decidedAt         DateTime?    @map("decided_at") @db.Timestamptz(6)
+  processedAt       DateTime?    @map("processed_at") @db.Timestamptz(6)
+  orderItem         OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+  requester         User         @relation("RefundRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  decider           User?        @relation("RefundDecider", fields: [deciderId], references: [id], onDelete: SetNull)
 
   @@unique([requesterId, idempotencyKey])
   @@index([orderItemId, status, requestedAt])

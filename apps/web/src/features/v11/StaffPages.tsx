@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useDashboardSession } from "../dashboard/DashboardSessionProvider";
 import { DashboardRole } from "../dashboard/dashboard-api";
 import { apiRequest, displayDate, money } from "./api";
@@ -10,6 +10,7 @@ import { apiRequest, displayDate, money } from "./api";
 type Kind =
   | "works"
   | "work"
+  | "inventory"
   | "bundles"
   | "coupons"
   | "shipping"
@@ -55,6 +56,7 @@ interface ResourceRecord {
   publisher?: { name?: string };
   categories?: Array<{ category: { name: string } }>;
   editions?: Array<{
+    id?: string;
     format: string;
     isbn?: string;
     priceCents: number;
@@ -71,10 +73,29 @@ interface InventoryData {
   physicalStock?: number;
   digitalLicenseLimit?: number | null;
 }
+interface InventoryEntry {
+  id: string;
+  format: "PHYSICAL" | "DIGITAL";
+  priceCents: number;
+  isVisible: boolean;
+  work: {
+    id: string;
+    title: string;
+    slug: string;
+    isVisible: boolean;
+    author: { name: string };
+  };
+  inventory: {
+    physicalStock: number;
+    digitalLicenseLimit: number | null;
+    digitalAllocated: number;
+  } | null;
+}
 type EditableEdition = NonNullable<ResourceRecord["editions"]>[number];
 const titles: Record<Kind, string> = {
   works: "Gestão de obras",
   work: "Edições, estoque e arquivos",
+  inventory: "Gerenciamento de estoque",
   bundles: "Bundles",
   coupons: "Cupons",
   shipping: "Regras de frete",
@@ -84,11 +105,11 @@ const titles: Record<Kind, string> = {
   audit: "Auditoria",
 };
 const paths: Partial<Record<Kind, string>> = {
-  works: "/works?page=1&limit=50",
+  works: "/admin/works",
   bundles: "/bundles",
   coupons: "/admin/coupons",
   shipping: "/admin/shipping-rules",
-  users: "/admin/users?page=1&limit=50",
+  users: "/admin/users",
   refunds: "/admin/refunds",
   reviews: "/admin/review-reports",
   audit: "/admin/audit-logs?page=1&limit=50",
@@ -96,6 +117,7 @@ const paths: Partial<Record<Kind, string>> = {
 const allowedRoles: Record<Kind, DashboardRole[]> = {
   works: ["ADMIN", "CATALOG"],
   work: ["ADMIN", "CATALOG", "STOCK"],
+  inventory: ["ADMIN", "STOCK"],
   bundles: ["ADMIN", "CATALOG"],
   coupons: ["ADMIN", "CATALOG"],
   shipping: ["ADMIN"],
@@ -139,7 +161,7 @@ function StaffShell({
       <header className="page-heading">
         <p className="eyebrow">ADMINISTRAÇÃO</p>
         <h1>{titles[kind]}</h1>
-        <p>Dados e ações disponíveis pelos contratos atuais da API.</p>
+        <p>Ações exibidas conforme o papel de equipe e as permissões da API.</p>
       </header>
       <StaffLinks />
       {children}
@@ -147,18 +169,30 @@ function StaffShell({
   );
 }
 function StaffLinks() {
+  const { session } = useDashboardSession();
+  const links: Array<[string, string]> = [];
+  if (session?.role === "ADMIN" || session?.role === "CATALOG") {
+    links.push(
+      ["Catálogo", "/admin/catalogo"],
+      ["Bundles", "/admin/bundles"],
+      ["Cupons", "/admin/cupons"],
+      ["Frete", "/admin/frete"],
+    );
+  }
+  if (session?.role === "ADMIN" || session?.role === "STOCK") {
+    links.push(["Estoque", "/warehouse/inventory"]);
+  }
+  if (session?.role === "ADMIN") {
+    links.push(
+      ["Usuários", "/admin/usuarios"],
+      ["Reembolsos", "/admin/reembolsos"],
+      ["Avaliações", "/admin/avaliacoes"],
+      ["Auditoria", "/admin/auditoria"],
+    );
+  }
   return (
     <nav className="staff-links" aria-label="Ferramentas da equipe">
-      {[
-        ["Catálogo", "/admin/catalogo"],
-        ["Bundles", "/admin/bundles"],
-        ["Cupons", "/admin/cupons"],
-        ["Frete", "/admin/frete"],
-        ["Usuários", "/admin/usuarios"],
-        ["Reembolsos", "/admin/reembolsos"],
-        ["Avaliações", "/admin/avaliacoes"],
-        ["Auditoria", "/admin/auditoria"],
-      ].map(([label, href]) => (
+      {links.map(([label, href]) => (
         <Link key={href} href={href}>
           {label}
         </Link>
@@ -167,23 +201,43 @@ function StaffLinks() {
   );
 }
 
-function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
+function ResourceList({ kind }: { kind: Exclude<Kind, "work" | "inventory"> }) {
   const { session } = useDashboardSession();
   const [items, setItems] = useState<ResourceRecord[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchDraft, setSearchDraft] = useState("");
+  const [search, setSearch] = useState("");
+  const [visibilityDraft, setVisibilityDraft] = useState("all");
+  const [visibility, setVisibility] = useState("all");
+  const [roleDraft, setRoleDraft] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusDraft, setStatusDraft] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [inviteUrl, setInviteUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const authorized = Boolean(
     session && allowedRoles[kind].includes(session.role),
   );
-  async function refresh() {
+  const refresh = useCallback(async () => {
     if (!session || !authorized) {
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      const data = await apiRequest<unknown>(paths[kind]!, {
+      const params = new URLSearchParams({ page: String(page), limit: "20" });
+      if (search) params.set("search", search);
+      if (kind === "works") params.set("visibility", visibility);
+      if (kind === "users") {
+        if (roleFilter) params.set("role", roleFilter);
+        if (statusFilter) params.set("isActive", statusFilter);
+      }
+      const isPaged = kind === "works" || kind === "users";
+      const path = isPaged ? `${paths[kind]}?${params}` : paths[kind]!;
+      const data = await apiRequest<unknown>(path, {
         token: session.token,
       });
       let values: ResourceRecord[] = [];
@@ -192,6 +246,9 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
         const record = data as Record<string, unknown>;
         const rows = record.items ?? record.users;
         if (Array.isArray(rows)) values = rows as ResourceRecord[];
+        setTotalPages(
+          typeof record.totalPages === "number" ? record.totalPages : 1,
+        );
       }
       setItems(values);
       setError("");
@@ -200,10 +257,19 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [
+    authorized,
+    kind,
+    page,
+    roleFilter,
+    search,
+    session,
+    statusFilter,
+    visibility,
+  ]);
   useEffect(() => {
     void refresh();
-  }, [session?.token, session?.role, kind, authorized]);
+  }, [refresh]);
   async function update(path: string, method: string, body: unknown) {
     if (!session || !authorized) return;
     try {
@@ -212,6 +278,38 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao salvar.");
+    }
+  }
+  async function invite(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!session || !authorized || kind !== "users") return;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setError("");
+    setNotice("");
+    setInviteUrl("");
+    try {
+      const result = await apiRequest<{
+        activationUrl: string;
+        email: string;
+        expiresInHours: number;
+      }>("/admin/users/invitations", {
+        token: session.token,
+        method: "POST",
+        body: {
+          email: data.get("email"),
+          role: data.get("role"),
+          reason: data.get("reason"),
+        },
+      });
+      setInviteUrl(result.activationUrl);
+      setNotice(
+        `Convite para ${result.email} criado. Copie o link agora; ele expira em ${result.expiresInHours} horas.`,
+      );
+      form.reset();
+      await refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao criar convite.");
     }
   }
   const create = async (event: FormEvent<HTMLFormElement>) => {
@@ -253,6 +351,7 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
         priority: Number(fd.get("priority") || 0),
       };
     else if (kind === "works") {
+      path = "/works";
       body = {
         title: fd.get("title"),
         slug: fd.get("slug") || undefined,
@@ -298,14 +397,107 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
         )}
         {notice && <p role="status">{notice}</p>}
       </div>
+      {(kind === "works" || kind === "users") && (
+        <form
+          className="inline-form admin-filters"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setPage(1);
+            setSearch(searchDraft.trim());
+            if (kind === "works") setVisibility(visibilityDraft);
+            if (kind === "users") {
+              setRoleFilter(roleDraft);
+              setStatusFilter(statusDraft);
+            }
+          }}
+        >
+          <label>
+            Buscar por {kind === "works" ? "título ou autor" : "e-mail"}
+            <input
+              value={searchDraft}
+              onChange={(event) => setSearchDraft(event.target.value)}
+            />
+          </label>
+          {kind === "works" ? (
+            <label>
+              Visibilidade
+              <select
+                value={visibilityDraft}
+                onChange={(event) => setVisibilityDraft(event.target.value)}
+              >
+                <option value="all">Todas</option>
+                <option value="visible">Visíveis</option>
+                <option value="hidden">Ocultas</option>
+              </select>
+            </label>
+          ) : (
+            <>
+              <label>
+                Papel
+                <select
+                  value={roleDraft}
+                  onChange={(event) => setRoleDraft(event.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {["ADMIN", "CATALOG", "STOCK", "CUSTOMER"].map((role) => (
+                    <option key={role}>{role}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Status
+                <select
+                  value={statusDraft}
+                  onChange={(event) => setStatusDraft(event.target.value)}
+                >
+                  <option value="">Todos</option>
+                  <option value="true">Ativos</option>
+                  <option value="false">Inativos</option>
+                </select>
+              </label>
+            </>
+          )}
+          <button type="submit">Filtrar</button>
+        </form>
+      )}
+      {kind === "users" && (
+        <form className="form-card" onSubmit={(event) => void invite(event)}>
+          <h2>Convidar pessoa para a equipe</h2>
+          <label>
+            E-mail
+            <input name="email" type="email" autoComplete="email" required />
+          </label>
+          <label>
+            Papel
+            <select name="role" defaultValue="CATALOG">
+              <option value="ADMIN">Administrador</option>
+              <option value="CATALOG">Catálogo</option>
+              <option value="STOCK">Estoque</option>
+            </select>
+          </label>
+          <label>
+            Motivo da criação (mínimo 5 caracteres)
+            <input name="reason" minLength={5} required />
+          </label>
+          <button type="submit">Criar convite</button>
+          {inviteUrl && (
+            <div role="status" className="info-note">
+              <p>
+                Copie e compartilhe este link de ativação agora. Ele não será
+                exibido novamente.
+              </p>
+              <input
+                aria-label="Link de ativação exibido uma vez"
+                readOnly
+                value={inviteUrl}
+                onFocus={(event) => event.currentTarget.select()}
+              />
+            </div>
+          )}
+        </form>
+      )}
       {["works", "bundles", "coupons", "shipping"].includes(kind) && (
         <CreateForm kind={kind} onSubmit={(e) => void create(e)} />
-      )}
-      {kind === "works" && (
-        <p className="info-note">
-          A API lista apenas obras visíveis. Obras ocultas não podem ser
-          descobertas por esta tela.
-        </p>
       )}
       {items.length === 0 && !loading && !error ? (
         <p>Nenhum registro encontrado.</p>
@@ -317,6 +509,27 @@ function ResourceList({ kind }: { kind: Exclude<Kind, "work"> }) {
             </article>
           ))}
         </section>
+      )}
+      {(kind === "works" || kind === "users") && totalPages > 1 && (
+        <div className="pagination-controls" aria-label="Paginação">
+          <button
+            type="button"
+            disabled={page <= 1 || loading}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Anterior
+          </button>
+          <span>
+            Página {page} de {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Próxima
+          </button>
+        </div>
       )}
     </StaffShell>
   );
@@ -721,7 +934,12 @@ function WorkEditor({
           .split(",")
           .map((category) => category.trim())
           .filter(Boolean),
-        editions: editions.map((edition) => ({ ...edition })),
+        editions: editions.map(({ format, isbn, priceCents, isVisible }) => ({
+          format,
+          isbn,
+          priceCents,
+          isVisible,
+        })),
       });
     } finally {
       setBusy(false);
@@ -730,8 +948,8 @@ function WorkEditor({
   return (
     <form className="form-card" onSubmit={submit}>
       <p>
-        A edição é substituída conforme o contrato atual de atualização;
-        alterações podem ser recusadas caso existam referências protegidas.
+        Edições existentes preservam seu histórico e identificador. Para retirar
+        uma edição da venda, desmarque “Edição visível”.
       </p>
       <label>
         Título
@@ -807,28 +1025,14 @@ function WorkEditor({
           onChange={(event) => setCategories(event.target.value)}
         />
       </label>
-      <h3>Edições (a atualização substitui estas edições)</h3>
+      <h3>Edições</h3>
       {editions.map((edition, index) => (
-        <fieldset key={`${edition.format}-${index}`} className="form-card">
+        <fieldset
+          key={edition.id ?? `${edition.format}-${index}`}
+          className="form-card"
+        >
           <legend>Edição {index + 1}</legend>
-          <label>
-            Formato
-            <select
-              value={edition.format}
-              onChange={(event) =>
-                setEditions((current) =>
-                  current.map((value, currentIndex) =>
-                    currentIndex === index
-                      ? { ...value, format: event.target.value }
-                      : value,
-                  ),
-                )
-              }
-            >
-              <option value="DIGITAL">Digital</option>
-              <option value="PHYSICAL">Físico</option>
-            </select>
-          </label>
+          <p>Formato: {edition.format === "PHYSICAL" ? "Físico" : "Digital"}</p>
           <label>
             ISBN da edição
             <input
@@ -879,6 +1083,28 @@ function WorkEditor({
           </label>
         </fieldset>
       ))}
+      {(["PHYSICAL", "DIGITAL"] as const)
+        .filter(
+          (format) => !editions.some((edition) => edition.format === format),
+        )
+        .map((format) => (
+          <button
+            key={format}
+            type="button"
+            onClick={() =>
+              setEditions((current) => [
+                ...current,
+                {
+                  format,
+                  priceCents: 0,
+                  isVisible: true,
+                },
+              ])
+            }
+          >
+            Adicionar edição {format === "PHYSICAL" ? "física" : "digital"}
+          </button>
+        ))}
       <button disabled={busy}>Salvar edição</button>
     </form>
   );
@@ -940,8 +1166,199 @@ function UserRecord({
   );
 }
 
-export function StaffResourcePage({ kind }: { kind: Exclude<Kind, "work"> }) {
+export function StaffResourcePage({
+  kind,
+}: {
+  kind: Exclude<Kind, "work" | "inventory">;
+}) {
   return <ResourceList kind={kind} />;
+}
+
+export function InventoryManagementPage() {
+  const { session } = useDashboardSession();
+  const authorized = Boolean(
+    session && allowedRoles.inventory.includes(session.role),
+  );
+  const [items, setItems] = useState<InventoryEntry[]>([]);
+  const [searchDraft, setSearchDraft] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const refresh = useCallback(async () => {
+    if (!session || !authorized) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const query = new URLSearchParams({ page: String(page), limit: "20" });
+      if (search) query.set("search", search);
+      const result = await apiRequest<{
+        items: InventoryEntry[];
+        totalPages: number;
+      }>(`/admin/inventory?${query}`, { token: session.token });
+      setItems(result.items);
+      setTotalPages(result.totalPages);
+      setError("");
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Não foi possível carregar o estoque.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [authorized, page, search, session]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+  async function save(entry: InventoryEntry, form: HTMLFormElement) {
+    if (!session || !authorized) return;
+    const data = new FormData(form);
+    const reason = String(data.get("reason") ?? "").trim();
+    if (reason.length < 5) {
+      setError("Informe um motivo com pelo menos 5 caracteres.");
+      return;
+    }
+    const physical = entry.format === "PHYSICAL";
+    try {
+      await apiRequest(
+        `/inventory/${encodeURIComponent(entry.id)}/${physical ? "physical" : "digital"}`,
+        {
+          token: session.token,
+          method: "PATCH",
+          body: physical
+            ? { stock: Number(data.get("stock")), reason }
+            : {
+                limit:
+                  data.get("limit") === "" ? null : Number(data.get("limit")),
+                reason,
+              },
+        },
+      );
+      setNotice("Disponibilidade atualizada e registrada.");
+      setError("");
+      await refresh();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Falha ao atualizar disponibilidade.",
+      );
+    }
+  }
+  return (
+    <StaffShell kind="inventory">
+      <form
+        className="inline-form admin-filters"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setPage(1);
+          setSearch(searchDraft.trim());
+        }}
+      >
+        <label>
+          Buscar por título ou autor
+          <input
+            value={searchDraft}
+            onChange={(event) => setSearchDraft(event.target.value)}
+          />
+        </label>
+        <button type="submit">Buscar</button>
+      </form>
+      {loading && <p role="status">Carregando estoque…</p>}
+      {error && (
+        <p role="alert" className="error-text">
+          {error}
+        </p>
+      )}
+      {notice && <p role="status">{notice}</p>}
+      {!loading && !error && items.length === 0 && (
+        <p>Nenhuma edição encontrada.</p>
+      )}
+      <section className="stack">
+        {items.map((item) => (
+          <form
+            className="form-card inventory-card"
+            key={item.id}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void save(item, event.currentTarget);
+            }}
+          >
+            <h2>{item.work.title}</h2>
+            <p>
+              {item.work.author.name} ·{" "}
+              {item.format === "PHYSICAL" ? "Físico" : "Digital"} ·{" "}
+              {money(item.priceCents)}
+            </p>
+            <p>
+              {item.work.isVisible && item.isVisible
+                ? "Disponível na vitrine"
+                : "Oculto da vitrine"}
+            </p>
+            {item.format === "PHYSICAL" ? (
+              <label>
+                Unidades em estoque
+                <input
+                  name="stock"
+                  type="number"
+                  min="0"
+                  defaultValue={item.inventory?.physicalStock ?? 0}
+                  required
+                />
+              </label>
+            ) : (
+              <>
+                <p>
+                  Licenças alocadas: {item.inventory?.digitalAllocated ?? 0}
+                </p>
+                <label>
+                  Limite de licenças (vazio = ilimitado)
+                  <input
+                    name="limit"
+                    type="number"
+                    min="0"
+                    defaultValue={item.inventory?.digitalLicenseLimit ?? ""}
+                  />
+                </label>
+              </>
+            )}
+            <label>
+              Motivo do ajuste (mínimo 5 caracteres)
+              <input name="reason" minLength={5} required />
+            </label>
+            <button type="submit">Salvar disponibilidade</button>
+          </form>
+        ))}
+      </section>
+      {totalPages > 1 && (
+        <div className="pagination-controls" aria-label="Paginação do estoque">
+          <button
+            type="button"
+            disabled={page <= 1 || loading}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Anterior
+          </button>
+          <span>
+            Página {page} de {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Próxima
+          </button>
+        </div>
+      )}
+    </StaffShell>
+  );
 }
 
 export function WorkInventoryPage() {
@@ -958,15 +1375,21 @@ export function WorkInventoryPage() {
   useEffect(() => {
     if (!session) return;
     let active = true;
-    void apiRequest<{ items: WorkData[] }>("/works?page=1&limit=50")
-      .then((r) => {
-        const found = r.items.find((item) => item.id === id);
-        if (!found)
-          throw new Error(
-            "Obra não localizada. A API lista apenas obras visíveis.",
+    const loadWork =
+      session.role === "ADMIN" || session.role === "CATALOG"
+        ? apiRequest<WorkData>(`/admin/works/${encodeURIComponent(id)}`, {
+            token: session.token,
+          })
+        : apiRequest<{ items: WorkData[] }>("/works?page=1&limit=50").then(
+            (r) => {
+              const found = r.items.find((item) => item.id === id);
+              if (!found) throw new Error("Obra não localizada.");
+              return apiRequest<WorkData>(
+                `/works/${encodeURIComponent(found.slug)}`,
+              );
+            },
           );
-        return apiRequest<WorkData>(`/works/${encodeURIComponent(found.slug)}`);
-      })
+    void loadWork
       .then((result) => {
         if (active) {
           setWork(result);
@@ -979,7 +1402,7 @@ export function WorkInventoryPage() {
     return () => {
       active = false;
     };
-  }, [id, session?.token]);
+  }, [id, session?.token, session?.role]);
   useEffect(() => {
     if (!session || session.role === "CATALOG" || !editionId) return;
     let active = true;

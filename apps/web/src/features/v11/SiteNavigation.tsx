@@ -19,7 +19,13 @@ export function SiteNavigation() {
         <Link href="/minha-conta">Minha conta</Link>
         <Link href="/carrinho">Carrinho</Link>
         <Link href="/dashboard">Equipe</Link>
-        {session && <Link href="/admin/catalogo">Administração</Link>}
+        {session &&
+          (session.role === "ADMIN" || session.role === "CATALOG") && (
+            <Link href="/admin/catalogo">Administração</Link>
+          )}
+        {session && (session.role === "ADMIN" || session.role === "STOCK") && (
+          <Link href="/warehouse/inventory">Estoque</Link>
+        )}
         {token ? (
           <button
             type="button"
