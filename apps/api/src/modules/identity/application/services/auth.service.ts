@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import crypto from "node:crypto";
 import { PrismaService } from "../../../../infrastructure/persistence/prisma.service.js";
 import { Role } from "../../domain/role.enum.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
@@ -21,6 +22,9 @@ export interface AuthResult {
     isEmailConfirmed: boolean;
   };
 }
+
+const STAFF_ROLES = new Set<Role>([Role.ADMIN, Role.CATALOG, Role.STOCK]);
+const STAFF_INVITATION_TTL_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
@@ -109,6 +113,89 @@ export class AuthService {
     ]);
 
     return { message: "E-mail confirmado com sucesso." };
+  }
+
+  async createStaffInvitation(input: {
+    email: string;
+    role: Role;
+  }): Promise<{ userId: string; email: string; role: Role; token: string }> {
+    const email = input.email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      throw new BadRequestException("E-mail inválido.");
+    }
+    if (!STAFF_ROLES.has(input.role)) {
+      throw new BadRequestException("Papel de equipe inválido.");
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) throw new ConflictException("Email already in use");
+
+    const temporaryPassword = crypto.randomBytes(32).toString("base64url");
+    const passwordHash = await this.hasher.hash(temporaryPassword);
+    const { token, tokenHash } = this.tokenService.generateOpaqueToken();
+    const expiresAt = new Date(Date.now() + STAFF_INVITATION_TTL_MS);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: input.role,
+        isEmailConfirmed: false,
+        staffInvitationTokens: {
+          create: { tokenHash, expiresAt },
+        },
+      },
+      select: { id: true, email: true, role: true },
+    });
+
+    return {
+      userId: user.id,
+      email: user.email,
+      role: user.role as Role,
+      token,
+    };
+  }
+
+  async acceptStaffInvitation(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    if (!token || !newPassword || newPassword.length < 12) {
+      throw new BadRequestException("Convite ou senha inválidos.");
+    }
+    const record = await this.prisma.staffInvitationToken.findUnique({
+      where: { tokenHash: this.tokenService.hashToken(token) },
+      include: { user: true },
+    });
+    const now = new Date();
+    if (
+      !record ||
+      record.usedAt ||
+      record.expiresAt <= now ||
+      record.user.isEmailConfirmed
+    ) {
+      throw new BadRequestException(
+        "Convite inválido, expirado ou já utilizado.",
+      );
+    }
+
+    const passwordHash = await this.hasher.hash(newPassword);
+    await this.prisma.$transaction(async (tx) => {
+      const claimed = await tx.staffInvitationToken.updateMany({
+        where: { id: record.id, usedAt: null, expiresAt: { gt: now } },
+        data: { usedAt: now },
+      });
+      if (claimed.count !== 1) {
+        throw new BadRequestException(
+          "Convite inválido, expirado ou já utilizado.",
+        );
+      }
+      await tx.user.update({
+        where: { id: record.userId },
+        data: { passwordHash, isEmailConfirmed: true },
+      });
+    });
+    return { message: "Conta de equipe ativada com sucesso." };
   }
 
   async login(email: string, password: string): Promise<AuthResult> {

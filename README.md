@@ -171,7 +171,7 @@ Agregados: **Obra** (metadados e edições), **Pedido** (itens, totais, cupom e 
 
 ## 10. Modelo inicial de dados
 
-Entidades principais: `users`, `roles`, `user_roles`, `email_tokens`, `password_reset_tokens`, `account_deletion_requests`, `works`, `authors`, `publishers`, `categories`, `work_categories`, `editions`, `digital_assets`, `digital_asset_versions`, `inventory_movements`, `bundles`, `bundle_items`, `coupons`, `coupon_redemptions`, `carts`, `cart_items`, `shipping_rules`, `orders`, `order_items`, `shipping_addresses`, `library_items`, `download_events`, `reviews`, `review_reports`, `notifications`, `audit_logs`.
+Entidades principais: `users`, `email_verification_tokens`, `staff_invitation_tokens`, `password_reset_tokens`, `account_deletion_requests`, `works`, `authors`, `publishers`, `categories`, `work_categories`, `editions`, `digital_assets`, `digital_asset_versions`, `inventory_movements`, `bundles`, `bundle_items`, `coupons`, `coupon_redemptions`, `carts`, `cart_items`, `shipping_rules`, `orders`, `order_items`, `shipping_addresses`, `library_items`, `download_events`, `reviews`, `review_reports`, `notifications`, `audit_logs`.
 
 Índices relevantes: e-mail normalizado único; ISBN por edição; busca por título/autor; estado/data de pedido; disponibilidade; cupom/cota; chave canônica de composição de bundle; unicidade de biblioteca por cliente/edição. Todas as entidades mutáveis recebem identificador, criação, atualização e autoria quando aplicável.
 
@@ -214,12 +214,19 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 |---|---|---|
 | `POST /auth/register`, `/verify-email`, `/login`, `/password-reset/*` | Identidade pública autenticada | RF-001 |
 | `GET /works`, `GET /works/{slug}` | Catálogo e filtros públicos | RF-003–004 |
-| `POST/PUT /admin/works`, `/editions`, `/assets`, `/bundles`, `/coupons` | Gestão de catálogo/Admin | RF-005–007,015 |
+| `POST/PATCH /works`, `PATCH /works/{id}/visibility` | Criar/editar/publicar obras; edição existente mantém identidade e histórico | RF-005–007 |
+| `GET /admin/works`, `GET /admin/works/{id}` | Catálogo administrativo, incluindo obras ocultas; Admin/Catálogo | RF-005–007 |
+| `GET /catalog/assets/{editionId}`, `POST /catalog/assets/{editionId}/versions` | Consultar/adicionar versões de ativos digitais; Admin/Catálogo | RF-006 |
+| `GET /admin/inventory` | Listar edições e disponibilidade; Admin/Estoque | RF-007 |
+| `GET/PATCH /inventory/{editionId}`, `/inventory/{editionId}/physical`, `/inventory/{editionId}/digital` | Consultar/ajustar disponibilidade com motivo e auditoria; Admin/Estoque | RF-007,022 |
+| `GET /admin/users`, `PATCH /admin/users/{id}/role`, `PATCH /admin/users/{id}/status` | Consultar usuários, papéis e status; Admin | RF-023 |
+| `POST /admin/users/invitations`, `POST /auth/accept-invitation` | Convidar equipe e ativar conta por token de uso único | RF-001,023 |
+| `POST /bundles`, `/admin/coupons` | Criar bundles/cupons | RF-010,015 |
 | `GET/POST/DELETE /wishlist` | Wishlist do cliente | RF-008 |
 | `GET/POST/PATCH /cart` | Carrinho do cliente | RF-009–011 |
 | `POST /checkout`, `GET /orders/{id}` | Pedido e confirmação fictícia | RF-012 |
 | `GET /library`, `POST /library/{id}/download` | Biblioteca e link temporário | RF-013–014 |
-| `PATCH /inventory`, `PATCH /orders/{id}/shipping` | Estoque/expedição autorizados | RF-007,017 |
+| `PATCH /orders/{id}/shipping` | Expedição autorizada | RF-017 |
 | `POST /orders/{id}/cancel`, `/refund` | Cancelamento e reembolso | RF-018 |
 | `GET/POST /works/{id}/reviews`, `POST /reviews/{id}/reports`, `GET /admin/review-reports`, `DELETE /admin/reviews/{id}` | Avaliação/moderação | RF-019,022 |
 | `GET /admin/dashboard`, `/catalog/dashboard`, `/warehouse/dashboard` | Indicadores por papel | RF-021 |
@@ -227,7 +234,9 @@ Erros de validação retornam problema padronizado; falhas de negócio não exp�
 
 `GET /works` aceita `search`, `category`, `language`, `minPriceCents`, `maxPriceCents`, `releaseFrom`, `releaseTo`, `page` e `limit`. O parâmetro opcional `sort` aceita `BEST_SELLING` (pedidos confirmados menos quantidades com reembolso processado) ou `TOP_RATED` (média das avaliações visíveis); sem `sort`, mantém a ordenação por lançamento mais recente. Ordenações são aplicadas antes da paginação, obras ocultas não aparecem e valor inválido de `sort` retorna HTTP 400. A resposta mantém os agregados `averageRating` e `reviewCount` calculados com avaliações visíveis.
 
-Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
+`GET /admin/works` e `GET /admin/inventory` aceitam busca e paginação; `/admin/works` também filtra visibilidade. `GET /admin/users` aceita busca por e-mail, papel, status e paginação. Convites só aceitam papéis de equipe existentes; o hash do token é persistido, o link retornado é mostrado uma única vez pela Web e expira em 24 horas. Aceitar convite define senha e confirma e-mail. `WEB_BASE_URL` controla a origem do link de ativação e assume `http://localhost:3000` localmente. Entradas são validadas, toda rota autenticada verifica papel e rotas administrativas sensíveis exigem `reason`. Códigos principais: 200/201, 400, 401, 403, 404, 409 para conflito de estoque/posse, 422 para regra de negócio e 429 para abuso.
+
+Edição digital sem registro de inventário é tratada como ilimitada, assim como `digitalLicenseLimit: null`; o checkout cria o contador de alocações dentro da transação. Edição física sem inventário continua indisponível. Sessões Web de cliente/equipe usam o JWT em `sessionStorage` da aba, são restauradas após recarga e removidas ao sair ou quando o token expira; não há refresh token e o prazo atual do JWT é de uma hora.
 
 ## 13. Tecnologias sugeridas
 

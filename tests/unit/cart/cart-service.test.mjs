@@ -7,6 +7,7 @@ function createHarness({ ownedEditionIds = [] } = {}) {
     ["00000000-0000-4000-8000-000000000001", { id: "00000000-0000-4000-8000-000000000001", format: "DIGITAL", isVisible: true, priceCents: 1_590, work: { title: "Synthetic ebook", isVisible: true, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { digitalLicenseLimit: null, digitalAllocated: 0 } }],
     ["00000000-0000-4000-8000-000000000002", { id: "00000000-0000-4000-8000-000000000002", format: "PHYSICAL", isVisible: true, priceCents: 4_290, work: { title: "Synthetic print", isVisible: true, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { physicalStock: 3 } }],
     ["00000000-0000-4000-8000-000000000003", { id: "00000000-0000-4000-8000-000000000003", format: "PHYSICAL", isVisible: true, priceCents: 1_000, work: { title: "Hidden synthetic", isVisible: false, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: { physicalStock: 3 } }],
+    ["00000000-0000-4000-8000-000000000004", { id: "00000000-0000-4000-8000-000000000004", format: "DIGITAL", isVisible: true, priceCents: 500, work: { title: "Unconfigured unlimited synthetic ebook", isVisible: true, releaseDate: new Date("2026-01-01T00:00:00Z") }, inventory: null }],
   ]);
   let cart = null;
   const items = [];
@@ -71,4 +72,10 @@ test("digital-only carts do not require an address or incur shipping", async () 
   const quote = await service.quoteShipping("customer-a", undefined);
   assert.equal(quote.shippingCents, 0);
   assert.equal(quote.physicalQuantity, 0);
+});
+
+test("digital edition without an inventory record is treated as unlimited", async () => {
+  const { service } = createHarness();
+  const cart = await service.add("customer-a", "00000000-0000-4000-8000-000000000004", 1);
+  assert.equal(cart.items[0].editionId, "00000000-0000-4000-8000-000000000004");
 });

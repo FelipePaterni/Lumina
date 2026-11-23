@@ -19,6 +19,8 @@ import {
   landingRouteForRole,
 } from "./dashboard-navigation";
 import { DashboardSession, useDashboardSession } from "./DashboardSessionProvider";
+import { sessionsForLogin } from "./session-login";
+import { useCustomerSession } from "../v11/CustomerSession";
 import styles from "./DashboardPage.module.css";
 
 interface LoginResponse {
@@ -48,7 +50,8 @@ export function DashboardPage({
   initialSection: DashboardSection;
 }): React.ReactElement {
   const router = useRouter();
-  const { session, setSession } = useDashboardSession();
+  const { session, setSession, hydrated } = useDashboardSession();
+  const { setToken } = useCustomerSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const section = initialSection;
@@ -99,10 +102,15 @@ export function DashboardPage({
         return;
       }
       if (role === "CUSTOMER") {
-        setError("Este painel está disponível somente para a equipe.");
+        const sessions = sessionsForLogin(result.accessToken, role);
+        setSession(sessions.staffSession);
+        setToken(sessions.customerToken);
+        router.replace("/");
         return;
       }
-      setSession({ token: result.accessToken, role });
+      const sessions = sessionsForLogin(result.accessToken, role);
+      setSession(sessions.staffSession);
+      setToken(sessions.customerToken);
       const targetRoute = role === "ADMIN"
         ? dashboardSectionRoutes[initialSection]
         : landingRouteForRole(role);
@@ -118,6 +126,7 @@ export function DashboardPage({
 
   const logout = () => {
     setSession(null);
+    setToken(null);
     setData(null);
     setError(null);
     setMessage("Sessão encerrada.");
@@ -132,7 +141,9 @@ export function DashboardPage({
         <p>Indicadores operacionais separados por função.</p>
       </header>
 
-      {!session ? (
+      {!hydrated ? (
+        <p className={styles.status} role="status">Restaurando sessão…</p>
+      ) : !session ? (
         <section className={styles.loginCard} aria-labelledby="dashboard-login-heading">
           <h2 id="dashboard-login-heading">Entrar para continuar</h2>
           <p>Use uma conta administrativa, de catálogo ou de estoque.</p>

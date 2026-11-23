@@ -9,25 +9,307 @@ body {
   color: #24332c;
 }
 
+button,
+select,
+textarea {
+  font: inherit;
+}
+button,
+.button-link {
+  border: 0;
+  border-radius: 5px;
+  background: #315848;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+textarea,
+select {
+  box-sizing: border-box;
+  width: min(100%, 520px);
+  padding: 0.85rem;
+  border: 1px solid #b8ad9f;
+  border-radius: 4px;
+  background: #fffdf9;
+  font:
+    1rem Arial,
+    sans-serif;
+}
+label {
+  display: grid;
+  gap: 0.35rem;
+  font:
+    0.9rem Arial,
+    sans-serif;
+}
+.site-nav {
+  max-width: none;
+  margin: 0;
+  padding: 0.85rem max(1rem, calc((100vw - 1100px) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #24473a;
+  color: #fffdf9;
+}
+.site-nav a {
+  color: inherit;
+}
+.site-nav .brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  font:
+    0.88rem Arial,
+    sans-serif;
+}
+.nav-button {
+  background: transparent;
+  border: 1px solid #e9dfd1;
+  padding: 0.4rem 0.65rem;
+}
+.page-shell {
+  padding-top: 2.5rem;
+}
+.page-heading {
+  margin-bottom: 2rem;
+}
+.page-heading h1 {
+  font-size: clamp(2.1rem, 5vw, 3.8rem);
+}
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+.filter-row input,
+.filter-row select {
+  width: 100%;
+}
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.book-card {
+  display: flex;
+  flex-direction: column;
+}
+.book-card h2 a {
+  color: inherit;
+}
+.stack {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1rem 0;
+}
+.form-card {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 680px;
+  margin: 1rem 0;
+  padding: 1.2rem;
+  background: #fffdf9;
+  border: 1px solid #e5ddd2;
+  border-radius: 6px;
+}
+.auth-wrap {
+  display: flex;
+  justify-content: center;
+}
+.auth-wrap .form-card {
+  width: min(100%, 520px);
+}
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.inline-form label {
+  min-width: 180px;
+}
+.inline-form input {
+  width: 100%;
+}
+.admin-filters {
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid #e5ddd2;
+  border-radius: 6px;
+  background: #fffdf9;
+}
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.inventory-card {
+  max-width: none;
+}
+.staff-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font:
+    0.9rem Arial,
+    sans-serif;
+}
+.staff-links a {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #c8bbab;
+  border-radius: 4px;
+  background: #fffdf9;
+  color: #24473a;
+}
+.error-text {
+  color: #9d3027;
+}
+.info-note {
+  padding: 0.85rem;
+  background: #efe7d8;
+  border-left: 4px solid #a65334;
+}
+.status-row {
+  min-height: 1.5rem;
+}
+pre {
+  overflow: auto;
+  max-height: 22rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+fieldset.form-card {
+  min-width: 0;
+}
+@media (max-width: 700px) {
+  .site-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .site-links {
+    gap: 0.6rem;
+  }
+}
+
 main {
   max-width: 1100px;
   margin: auto;
   padding: 4rem 2rem;
 }
 
-header { max-width: 720px; margin-bottom: 3rem; }
-h1 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: .95; margin: .5rem 0 1rem; font-weight: 500; }
-h2 { margin: .4rem 0; font-size: 1.5rem; }
-p { line-height: 1.5; }
-.eyebrow { color: #a65334; letter-spacing: .14em; font: 700 .72rem Arial, sans-serif; text-transform: uppercase; }
-input { box-sizing: border-box; width: min(100%, 520px); padding: 1rem; border: 1px solid #b8ad9f; border-radius: 4px; background: #fffdf9; font: 1rem Arial, sans-serif; }
-.catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-article { background: #fffdf9; padding: 1.25rem; border: 1px solid #e5ddd2; }
-.cover { height: 150px; display: grid; place-items: center; background: #315848; color: #f7f3ec; font-size: 4rem; }
-.author { color: #646b65; font: .9rem Arial, sans-serif; }
-.editions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
-.editions span { background: #eee6da; padding: .4rem .55rem; font: .78rem Arial, sans-serif; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0; }
-.pagination button { border: 1px solid #315848; border-radius: 4px; background: #315848; color: #fff; padding: .65rem 1rem; cursor: pointer; }
-.pagination button:disabled { opacity: .45; cursor: not-allowed; }
-@media (max-width: 600px) { main { padding: 2rem 1rem; } }
+header {
+  max-width: 720px;
+  margin-bottom: 3rem;
+}
+h1 {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 0.95;
+  margin: 0.5rem 0 1rem;
+  font-weight: 500;
+}
+h2 {
+  margin: 0.4rem 0;
+  font-size: 1.5rem;
+}
+p {
+  line-height: 1.5;
+}
+.eyebrow {
+  color: #a65334;
+  letter-spacing: 0.14em;
+  font:
+    700 0.72rem Arial,
+    sans-serif;
+  text-transform: uppercase;
+}
+input {
+  box-sizing: border-box;
+  width: min(100%, 520px);
+  padding: 1rem;
+  border: 1px solid #b8ad9f;
+  border-radius: 4px;
+  background: #fffdf9;
+  font:
+    1rem Arial,
+    sans-serif;
+}
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+article {
+  background: #fffdf9;
+  padding: 1.25rem;
+  border: 1px solid #e5ddd2;
+}
+.cover {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  background: #315848;
+  color: #f7f3ec;
+  font-size: 4rem;
+}
+.author {
+  color: #646b65;
+  font:
+    0.9rem Arial,
+    sans-serif;
+}
+.editions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.editions span {
+  background: #eee6da;
+  padding: 0.4rem 0.55rem;
+  font:
+    0.78rem Arial,
+    sans-serif;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.pagination button {
+  border: 1px solid #315848;
+  border-radius: 4px;
+  background: #315848;
+  color: #fff;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+}
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 2rem 1rem;
+  }
+}

@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Patch,
+  Post,
   Query,
   Req,
   UseGuards,
@@ -13,6 +15,7 @@ import { RolesGuard } from "./guards/roles.guard";
 import { Roles } from "./decorators/roles.decorator";
 import { Role } from "../domain/role.enum";
 import { AccountService } from "../application/services/account.service";
+import { AuthService } from "../application/services/auth.service.js";
 import { AuditService } from "../../audit/application/services/audit.service";
 import { UpdateRoleDto, UpdateStatusDto } from "./dto/account.dto";
 
@@ -22,6 +25,7 @@ import { UpdateRoleDto, UpdateStatusDto } from "./dto/account.dto";
 export class UserManagementController {
   constructor(
     private readonly accountService: AccountService,
+    private readonly authService: AuthService,
     private readonly auditService: AuditService,
   ) {}
 
@@ -30,15 +34,80 @@ export class UserManagementController {
     @Query("page") page?: string,
     @Query("limit") limit?: string,
     @Query("role") role?: Role,
+    @Query("search") search?: string,
+    @Query("isActive") isActive?: string,
   ) {
-    const pageNum = page ? parseInt(page, 10) : 1;
-    const limitNum = limit ? parseInt(limit, 10) : 20;
+    const pageNum = page ? Number(page) : 1;
+    const limitNum = limit ? Number(limit) : 20;
+    if (
+      !Number.isSafeInteger(pageNum) ||
+      pageNum < 1 ||
+      !Number.isSafeInteger(limitNum) ||
+      limitNum < 1
+    ) {
+      throw new BadRequestException("Paginação inválida.");
+    }
+    if (search && search.length > 254) {
+      throw new BadRequestException(
+        "Busca de e-mail excede o limite permitido.",
+      );
+    }
+    if (role && !Object.values(Role).includes(role)) {
+      throw new BadRequestException("Filtro de papel inválido.");
+    }
+    if (isActive !== undefined && isActive !== "true" && isActive !== "false") {
+      throw new BadRequestException("Filtro de status inválido.");
+    }
 
     return this.accountService.listUsers({
       page: pageNum,
       limit: limitNum,
       role,
+      search,
+      isActive: isActive === undefined ? undefined : isActive === "true",
     });
+  }
+
+  @Post("invitations")
+  async createInvitation(
+    @Body() dto: { email: string; role: Role; reason: string },
+    @Req() req: { user: { sub: string; role: Role } },
+  ) {
+    if (
+      !dto ||
+      !dto.email?.trim() ||
+      dto.email.trim().length > 254 ||
+      !dto.reason?.trim() ||
+      dto.reason.trim().length < 5 ||
+      dto.reason.trim().length > 500
+    ) {
+      throw new BadRequestException(
+        "E-mail e motivo (mínimo 5 caracteres) são obrigatórios.",
+      );
+    }
+    const invitation = await this.authService.createStaffInvitation({
+      email: dto.email,
+      role: dto.role,
+    });
+    await this.auditService.logAction({
+      actorId: req.user.sub,
+      actorRole: req.user.role,
+      action: "TEAM_INVITATION_CREATED",
+      targetType: "USER",
+      targetId: invitation.userId,
+      reason: dto.reason,
+      metadata: { role: invitation.role },
+    });
+    const webBaseUrl = (
+      process.env.WEB_BASE_URL ?? "http://localhost:3000"
+    ).replace(/\/$/, "");
+    return {
+      userId: invitation.userId,
+      email: invitation.email,
+      role: invitation.role,
+      expiresInHours: 24,
+      activationUrl: `${webBaseUrl}/ativar-equipe?token=${encodeURIComponent(invitation.token)}`,
+    };
   }
 
   @Patch(":id/role")

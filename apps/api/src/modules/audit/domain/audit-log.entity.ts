@@ -25,6 +25,7 @@ export class AuditLogEntity {
   private static readonly SENSITIVE_ACTIONS_REQUIRING_REASON = new Set([
     "USER_ROLE_UPDATED",
     "USER_STATUS_UPDATED",
+    "TEAM_INVITATION_CREATED",
     "ACCOUNT_DELETION_REQUESTED",
     "REVIEW_REMOVED",
     "REFUND_REQUESTED",
@@ -64,7 +65,9 @@ export class AuditLogEntity {
     this.reason = params.reason
       ? AuditLogEntity.sanitizeReason(params.reason.trim())
       : null;
-    this.metadata = sanitizedMetadata ? JSON.stringify(sanitizedMetadata) : null;
+    this.metadata = sanitizedMetadata
+      ? JSON.stringify(sanitizedMetadata)
+      : null;
     this.createdAt = createdAt ?? new Date();
   }
 
@@ -108,8 +111,14 @@ export class AuditLogEntity {
       const lowerKey = key.toLowerCase();
       if (forbiddenKeys.has(lowerKey)) {
         sanitized[key] = "[REDACTED]";
-      } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        sanitized[key] = this.sanitizeMetadata(value as Record<string, unknown>);
+      } else if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        sanitized[key] = this.sanitizeMetadata(
+          value as Record<string, unknown>,
+        );
       } else {
         sanitized[key] = value;
       }

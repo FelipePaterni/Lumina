@@ -1,4 +1,4 @@
-import { API_URL } from "../auth/services/auth-api.js";
+import { API_URL } from "../auth/services/auth-api";
 
 export interface WishlistEntry {
   id: string;

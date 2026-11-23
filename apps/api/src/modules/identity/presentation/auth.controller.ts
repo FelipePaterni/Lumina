@@ -6,6 +6,7 @@ import {
   LoginDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  AcceptStaffInvitationDto,
 } from "./dto/auth.dto.js";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard.js";
 
@@ -21,6 +22,11 @@ export class AuthController {
   @Post("confirm-email")
   async confirmEmail(@Body() dto: ConfirmEmailDto) {
     return this.authService.confirmEmail(dto.token);
+  }
+
+  @Post("accept-invitation")
+  async acceptStaffInvitation(@Body() dto: AcceptStaffInvitationDto) {
+    return this.authService.acceptStaffInvitation(dto.token, dto.newPassword);
   }
 
   @Post("login")

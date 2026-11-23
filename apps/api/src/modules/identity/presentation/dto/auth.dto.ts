@@ -20,3 +20,8 @@ export class ResetPasswordDto {
   token!: string;
   newPassword!: string;
 }
+
+export class AcceptStaffInvitationDto {
+  token!: string;
+  newPassword!: string;
+}

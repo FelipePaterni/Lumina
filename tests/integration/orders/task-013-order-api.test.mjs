@@ -20,6 +20,39 @@ function deployMigrations(databaseUrl) {
   });
 }
 
+async function cleanPreviousSyntheticFixtures(prisma) {
+  const users = await prisma.user.findMany({
+    where: { email: { startsWith: "task013-", endsWith: "@lumina.local" } },
+    select: { id: true, email: true },
+  });
+  const userIds = users.map((user) => user.id);
+  if (userIds.length) {
+    await prisma.outboxEmail.deleteMany({ where: { toEmail: { in: users.map((user) => user.email) } } });
+    await prisma.order.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.cart.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.libraryItem.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.auditLog.deleteMany({ where: { actorId: { in: userIds } } });
+  }
+  const bundles = await prisma.bundle.findMany({
+    where: { name: { startsWith: "TASK013 unlimited bundle " } },
+    select: { id: true },
+  });
+  const bundleIds = bundles.map((bundle) => bundle.id);
+  if (bundleIds.length) {
+    await prisma.bundleItem.deleteMany({ where: { bundleId: { in: bundleIds } } });
+    await prisma.bundle.deleteMany({ where: { id: { in: bundleIds } } });
+  }
+  const works = await prisma.work.findMany({
+    where: { title: { startsWith: "TASK013 " } },
+    select: { id: true },
+  });
+  const workIds = works.map((work) => work.id);
+  if (workIds.length) await prisma.work.deleteMany({ where: { id: { in: workIds } } });
+  await prisma.author.deleteMany({ where: { name: { startsWith: "TASK013 Author " }, works: { none: {} } } });
+  await prisma.publisher.deleteMany({ where: { name: { startsWith: "TASK013 Publisher " }, works: { none: {} } } });
+  if (userIds.length) await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+}
+
 const cpf = "529.982.247-25";
 const address = {
   recipientName: "Cliente Sintético",
@@ -42,12 +75,14 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
   const app = await NestFactory.create(AppModule, { logger: false });
   const users = [];
   const works = [];
+  const bundleIds = [];
   const couponIds = [];
   const shippingRuleIds = [];
   let baseUrl;
 
   try {
     await prisma.$connect();
+    await cleanPreviousSyntheticFixtures(prisma);
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     for (const role of ["CUSTOMER", "CUSTOMER", "ADMIN"]) {
       users.push(await prisma.user.create({
@@ -164,8 +199,8 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
     assert.equal((await request(`/orders/${hybridOrders[0].id}`, { auth: customerAToken })).status, 200);
     assert.equal((await request(`/orders/${hybridOrders[0].id}`, { auth: customerBToken })).status, 404);
 
-    const freeDigital = await makeWork("Free digital", [
-      { format: "DIGITAL", priceCents: 0, inventory: { create: { digitalLicenseLimit: null, digitalAllocated: 0 } } },
+    const freeDigital = await makeWork("Free digital without inventory", [
+      { format: "DIGITAL", priceCents: 0 },
     ]);
     await prisma.cartItem.create({ data: { cartId: cartB.id, editionId: freeDigital[0].id, quantity: 1 } });
     const freeResponse = await request("/checkout", {
@@ -176,9 +211,39 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
     assert.equal(freeOrder.totalCents, 0);
     assert.equal(freeOrder.payment.status, "NOT_REQUIRED");
     assert.equal(freeOrder.shippingAddress, null);
+    assert.equal((await prisma.inventory.findUnique({ where: { editionId: freeDigital[0].id } })).digitalAllocated, 1);
     assert.equal(await prisma.outboxEmail.count({
       where: { eventKey: `order:${freeOrder.id}:confirmed`, eventType: "ORDER_CONFIRMED", deliveryStatus: "SENT" },
     }), 1);
+
+    const bundleWorks = await Promise.all([
+      makeWork("Unconfigured bundle one", [{ format: "DIGITAL", priceCents: 800 }]),
+      makeWork("Unconfigured bundle two", [{ format: "DIGITAL", priceCents: 900 }]),
+    ]);
+    const bundleResponse = await request("/bundles", {
+      auth: token(admin), method: "POST",
+      body: {
+        name: `TASK013 unlimited bundle ${suffix}`,
+        priceCents: 1_200,
+        workIds: bundleWorks.map(([edition]) => edition.workId ?? edition.id),
+        reason: "Synthetic unlimited bundle validation",
+      },
+    });
+    assert.equal(bundleResponse.status, 201);
+    const bundle = await bundleResponse.json();
+    bundleIds.push(bundle.id);
+    assert.equal(bundle.items.every((item) => item.available), true);
+    const addedBundle = await request("/cart/bundles", {
+      auth: customerBToken, method: "POST", body: { bundleId: bundle.id },
+    });
+    assert.equal(addedBundle.status, 201);
+    const bundleOrderResponse = await request("/checkout", {
+      auth: customerBToken, method: "POST", key: `task013-unlimited-bundle-${suffix}`,
+    });
+    assert.equal(bundleOrderResponse.status, 201);
+    for (const [edition] of bundleWorks) {
+      assert.equal((await prisma.inventory.findUnique({ where: { editionId: edition.id } })).digitalAllocated, 1);
+    }
 
     const stockEdition = stockEditions[0];
     await prisma.cartItem.createMany({ data: [
@@ -237,6 +302,11 @@ test("TASK-013 checkout is atomic, idempotent, private, and enforces payment and
     }
     if (couponIds.length) await prisma.coupon.deleteMany({ where: { id: { in: couponIds } } });
     if (shippingRuleIds.length) await prisma.shippingRule.deleteMany({ where: { id: { in: shippingRuleIds } } });
+    if (bundleIds.length) {
+      await prisma.bundleItem.deleteMany({ where: { bundleId: { in: bundleIds } } });
+      await prisma.bundle.deleteMany({ where: { id: { in: bundleIds } } });
+    }
+    if (users.length) await prisma.auditLog.deleteMany({ where: { actorId: { in: users.map((user) => user.id) } } });
     if (works.length) await prisma.work.deleteMany({ where: { id: { in: works.map((work) => work.id) } } });
     if (users.length) await prisma.user.deleteMany({ where: { id: { in: users.map((user) => user.id) } } });
     if (works.length) {
