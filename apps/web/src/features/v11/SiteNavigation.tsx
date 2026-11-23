@@ -6,7 +6,7 @@ import { useDashboardSession } from "../dashboard/DashboardSessionProvider";
 
 export function SiteNavigation() {
   const { token, setToken } = useCustomerSession();
-  const { session } = useDashboardSession();
+  const { session, setSession } = useDashboardSession();
   return (
     <nav className="site-nav" aria-label="Navegação principal">
       <Link className="brand" href="/">
@@ -18,19 +18,22 @@ export function SiteNavigation() {
         <Link href="/biblioteca">Biblioteca</Link>
         <Link href="/minha-conta">Minha conta</Link>
         <Link href="/carrinho">Carrinho</Link>
-        <Link href="/dashboard">Equipe</Link>
-        {session &&
+        {!token && <Link href="/dashboard">Equipe</Link>}
+        {!token && session &&
           (session.role === "ADMIN" || session.role === "CATALOG") && (
             <Link href="/admin/catalogo">Administração</Link>
           )}
-        {session && (session.role === "ADMIN" || session.role === "STOCK") && (
+        {!token && session && (session.role === "ADMIN" || session.role === "STOCK") && (
           <Link href="/warehouse/inventory">Estoque</Link>
         )}
         {token ? (
           <button
             type="button"
             className="nav-button"
-            onClick={() => setToken(null)}
+            onClick={() => {
+              setToken(null);
+              setSession(null);
+            }}
           >
             Sair
           </button>

@@ -17,6 +17,7 @@ import { WishlistPanel } from "../wishlist/WishlistPanel";
 import { apiRequest, displayDate, money } from "./api";
 import { useCustomerSession } from "./CustomerSession";
 import { useDashboardSession } from "../dashboard/DashboardSessionProvider";
+import { sessionsForLogin } from "../dashboard/session-login";
 import type { DashboardRole } from "../dashboard/dashboard-api";
 import { landingRouteForRole } from "../dashboard/dashboard-navigation";
 
@@ -126,13 +127,14 @@ function CustomerLogin({
         throw new Error(result.message ?? "Não foi possível entrar.");
       const role = result.user?.role ?? "CUSTOMER";
       if (role === "CUSTOMER") {
-        setToken(result.accessToken);
+        const sessions = sessionsForLogin(result.accessToken, "CUSTOMER");
+        setToken(sessions.customerToken);
+        setSession(sessions.staffSession);
         onSuccess?.(result.accessToken, role);
       } else if (role === "ADMIN" || role === "CATALOG" || role === "STOCK") {
-        setSession({
-          token: result.accessToken,
-          role: role as Exclude<DashboardRole, "CUSTOMER">,
-        });
+        const sessions = sessionsForLogin(result.accessToken, role);
+        setToken(sessions.customerToken);
+        setSession(sessions.staffSession);
         router.push(
           landingRouteForRole(role as Exclude<DashboardRole, "CUSTOMER">),
         );
@@ -1225,6 +1227,7 @@ export function WishlistPage() {
 
 export function AccountPage() {
   const { token, setToken } = useCustomerSession();
+  const { setSession } = useDashboardSession();
   const [user, setUser] = useState<Profile | null>(null);
   const [reason, setReason] = useState("");
   const [message, setMessage] = useState("");
@@ -1306,7 +1309,14 @@ export function AccountPage() {
             A API atual não fornece uma listagem do histórico; pedidos podem ser
             consultados pelo identificador.
           </p>
-          <button onClick={() => setToken(null)}>Sair</button>
+          <button
+            onClick={() => {
+              setToken(null);
+              setSession(null);
+            }}
+          >
+            Sair
+          </button>
         </>
       )}
     </Page>
